@@ -36,10 +36,8 @@
 
 bool smb_cmd_bench_add ();
 bool smb_cmd_system_add ();
-bool smb_cmd_config_add ();
 bool smb_cmd_eflash_add ();
 bool smb_cmd_fs_add ();
-bool smb_cmd_iflash_add ();
 bool smb_cmd_misc_add ();
 bool smb_cmd_rb_add ();
 bool smb_cmd_misc_add ();
@@ -78,13 +76,11 @@ static bool console_init ()
 
 static bool solbench_cmds_add ()
 {
-//	assert (smb_cmd_bench_add () == true);
 	assert (smb_cmd_system_add () == true);
-	assert (smb_cmd_misc_add () == true);
 	assert (smb_cmd_fs_add () == true);
+	assert (smb_cmd_bench_add () == true);
+	assert (smb_cmd_misc_add () == true);
 //	assert (smb_cmd_rb_add () == true);
-//	assert (smb_cmd_config_add () == true);
-//	assert (smb_cmd_eflash_add () == true);
 
 	return true;
 }

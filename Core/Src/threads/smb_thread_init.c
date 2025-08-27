@@ -71,16 +71,55 @@ static bool SMBConfigObj_init(SMB_ConfigObj_t *pconfig)
 	return true;
 }
 
-static bool SMBStatusObj_init(SMB_StatusObj_t *pconfig)
+static bool SMBStatusObj_init(SMB_StatusObj_t *pStatusObj)
 {
-	strcpy(pconfig->fw_version, FW_VERSION);
+	strcpy(pStatusObj->fw_version, FW_VERSION);
 
-	assert (HAL_RTC_GetTime(&hrtc, &pconfig->currentTime, RTC_FORMAT_BCD) == HAL_OK);
-	assert (HAL_RTC_GetDate(&hrtc, &pconfig->currentDate, RTC_FORMAT_BCD) == HAL_OK);
-	memcpy (&pconfig->launchTime, &pconfig->currentTime, sizeof(RTC_TimeTypeDef));
-	memcpy (&pconfig->launchDate, &pconfig->currentDate, sizeof(RTC_TimeTypeDef));
+	assert (HAL_RTC_GetTime(&hrtc, &pStatusObj->currentTime, RTC_FORMAT_BCD) == HAL_OK);
+	assert (HAL_RTC_GetDate(&hrtc, &pStatusObj->currentDate, RTC_FORMAT_BCD) == HAL_OK);
+	memcpy (&pStatusObj->launchTime, &pStatusObj->currentTime, sizeof(RTC_TimeTypeDef));
+	memcpy (&pStatusObj->launchDate, &pStatusObj->currentDate, sizeof(RTC_TimeTypeDef));
 
-	pconfig->uptime_counter = 0;
+	pStatusObj->uptime_counter = 0;
+
+
+	pStatusObj->bench_data_show_flag = false;
+	pStatusObj->peri_manual_control_flag = false;
+
+	return true;
+}
+
+static bool SMBControlObj_init(SMB_ControlObj_t *pControlObj)
+{
+	/*******************************************************************************
+	 LEDBAR Object
+	 *******************************************************************************/
+	ledbarObj_init(&pControlObj->ledbarObj);
+	pControlObj->ledbarObj.ledbar_color_set(LEDBAR_OFF);
+
+	/*******************************************************************************
+	 SIREN Object
+	 *******************************************************************************/
+	sirenObj_init(&pControlObj->sirenObj);
+	pControlObj->sirenObj.siren_set(SIREN_OFF);
+
+	/*******************************************************************************
+	 LTE Power Object
+	 *******************************************************************************/
+	lteObj_init(&pControlObj->lteObj);
+	pControlObj->lteObj.lte_set(LTE_OFF);
+
+	/*******************************************************************************
+	 PTC Power Object
+	 *******************************************************************************/
+	ptcObj_init(&pControlObj->ptcObj);
+	pControlObj->ptcObj.ptc_set(PTC_OFF);
+
+	/*******************************************************************************
+	 YUCHAR Object
+	 *******************************************************************************/
+	yucharObj_init(&pControlObj->yucharObj);
+	pControlObj->yucharObj.yuchar_set(YUCHAR_OFF);
 
 	return true;
 }
@@ -93,8 +132,10 @@ void smb_thread_init (void *arg)
 	assert (LittleFS_init() == true);
 	assert (SMBConfigObj_init(&SMB_ConfigObj) == true);
 	assert (SMBStatusObj_init(&SMB_StatusObj) == true);
+	assert (SMBControlObj_init(&SMB_ControlObj) == true);
 	assert (osTimerList_init(osTimerList) == true);
 
-	//	assert (duty_minutes_set(&SMB_StatusObj) == true);
+	HAL_Delay(100);
+
 	osThreadExit();
 }

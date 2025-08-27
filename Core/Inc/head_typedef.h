@@ -35,6 +35,9 @@
 #ifndef INC_HEAD_TYPEDEF_H_
 #define INC_HEAD_TYPEDEF_H_
 
+/*******************************************************************************
+ SMBConfig Object
+ *******************************************************************************/
 typedef struct {
 	uint32_t 			machine_serial_no;
 	uint32_t			hw_version;
@@ -48,6 +51,9 @@ typedef struct {
 	char				running_fw[SMB_CONFIG_STRING_SIZE_MAX];
 } SMB_ConfigObj_t;
 
+/*******************************************************************************
+ SMBStatus Object
+ *******************************************************************************/
 typedef struct {
 	char				fw_version[64];
 	RTC_DateTypeDef 	launchDate;
@@ -55,7 +61,76 @@ typedef struct {
 	RTC_DateTypeDef 	currentDate;
 	RTC_TimeTypeDef 	currentTime;
 	uint64_t			uptime_counter;
+
+	bool				bench_data_show_flag;
+	bool				peri_manual_control_flag;
 } SMB_StatusObj_t;
+
+/*******************************************************************************
+ LEDBAR Object
+ *******************************************************************************/
+typedef bool (* ledbar_color_set_func)(ledbar_color_t ledbar_color);
+
+typedef struct {
+	ledbar_color_t			ledbar_color;
+	ledbar_color_set_func	ledbar_color_set;
+} ledbarObj_t;
+
+/*******************************************************************************
+ SIREN Object
+ *******************************************************************************/
+typedef bool (* siren_set_func)(siren_on_off_t siren);
+
+typedef struct {
+	siren_on_off_t			siren_on_off_flag;
+	siren_set_func			siren_set;
+} sirenObj_t;
+
+/*******************************************************************************
+ LTE Object
+ *******************************************************************************/
+typedef bool (* lte_set_func)(lte_on_off_t lte);
+
+typedef struct {
+	lte_on_off_t			lte_on_off_flag;
+	lte_set_func			lte_set;
+} lteObj_t;
+
+/*******************************************************************************
+ PTC Object
+ *******************************************************************************/
+typedef bool (* ptc_set_func)(ptc_on_off_t ptc);
+
+typedef struct {
+	ptc_on_off_t			ptc_on_off_flag;
+	ptc_set_func			ptc_set;
+} ptcObj_t;
+
+/*******************************************************************************
+ YUCHAR Object
+ *******************************************************************************/
+typedef bool (* yuchar_set_func)(yuchar_on_off_t ptc);
+
+typedef struct {
+	yuchar_on_off_t			yuchar_on_off_flag;
+	yuchar_set_func			yuchar_set;
+} yucharObj_t;
+
+
+
+
+
+
+/*******************************************************************************
+ SMB Control Object
+ *******************************************************************************/
+typedef struct {
+	ledbarObj_t			ledbarObj;
+	sirenObj_t			sirenObj;
+	lteObj_t			lteObj;
+	ptcObj_t			ptcObj;
+	yucharObj_t			yucharObj;
+} SMB_ControlObj_t;
 
 
 /*******************************************************************************************
@@ -103,10 +178,6 @@ typedef struct {
 	uint32_t 		DMA2_Chan_3_count;		// IAP Tx
 	uint32_t 		DMA2_Chan_5_count;		// IAP Rx
 } SMBIntrObj_t;
-
-
-
-
 
 
 

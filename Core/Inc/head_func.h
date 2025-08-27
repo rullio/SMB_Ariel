@@ -44,6 +44,25 @@
 
 
 
+bool yucharObj_init(yucharObj_t *pyucharObj);
+yucharObj_t *get_yuchar_handle();
+bool func_yuchar_set(yuchar_on_off_t yuchar_on_off_flag);
+
+bool ptcObj_init(ptcObj_t *pptcObj);
+ptcObj_t *get_ptc_handle();
+bool func_ptc_set(ptc_on_off_t ptc_on_off_flag);
+
+bool lteObj_init(lteObj_t *plteObj);
+lteObj_t *get_lte_handle();
+bool func_lte_set(lte_on_off_t lte_on_off_flag);
+
+bool sirenObj_init(sirenObj_t *psirenObj);
+sirenObj_t *get_siren_handle();
+bool func_ptc_set(ptc_on_off_t ptc_on_off_flag);
+
+bool ledbarObj_init(ledbarObj_t *pledbarObj);
+ledbarObj_t *get_ledbar_handle();
+bool func_ledbar_color_set(ledbar_color_t ledbar_color);
 
 bool SMB_1sec_alarm_restart();
 bool duty_minutes_set(SMB_StatusObj_t *sp);

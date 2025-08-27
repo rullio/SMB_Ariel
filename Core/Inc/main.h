@@ -213,6 +213,43 @@ void Error_Handler(void);
 #define led_com_off 		HAL_GPIO_WritePin(LED_COM_GPIO_Port, LED_COM_Pin, GPIO_PIN_SET)
 #define led_com_toggle 		HAL_GPIO_TogglePin(LED_COM_GPIO_Port, LED_COM_Pin)
 
+/*******************************************************************************
+ LEDBAR Object
+ *******************************************************************************/
+#define LED_R_Set				HAL_GPIO_WritePin(LED_R_GPIO_Port, LED_R_Pin, GPIO_PIN_SET)
+#define LED_R_Clear				HAL_GPIO_WritePin(LED_R_GPIO_Port, LED_R_Pin, GPIO_PIN_RESET)
+
+#define LED_G_Set				HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_SET)
+#define LED_G_Clear				HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_RESET)
+
+#define LED_B_Set				HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_SET)
+#define LED_B_Clear				HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_RESET)
+
+// *****************************************************************************
+// SIREN control
+// *****************************************************************************
+#define siren_on 			HAL_GPIO_WritePin(SIREN_GPIO_Port, SIREN_Pin, GPIO_PIN_RESET)
+#define siren_off 			HAL_GPIO_WritePin(SIREN_GPIO_Port, SIREN_Pin, GPIO_PIN_SET)
+
+// *****************************************************************************
+// LTE control
+// *****************************************************************************
+#define lte_on 				HAL_GPIO_WritePin(LTE_PWR_GPIO_Port, LTE_PWR_Pin, GPIO_PIN_RESET)
+#define lte_off 			HAL_GPIO_WritePin(LTE_PWR_GPIO_Port, LTE_PWR_Pin, GPIO_PIN_SET)
+
+// *****************************************************************************
+// PTC control
+// *****************************************************************************
+#define ptc_on 				HAL_GPIO_WritePin(PTC_GPIO_Port, PTC_Pin, GPIO_PIN_RESET)
+#define ptc_off 			HAL_GPIO_WritePin(PTC_GPIO_Port, PTC_Pin, GPIO_PIN_SET)
+
+// *****************************************************************************
+// YUCHAR control
+// *****************************************************************************
+#define yuchar_on 			HAL_GPIO_WritePin(YUCHAR_GPIO_Port, YUCHAR_Pin, GPIO_PIN_SET)
+#define yuchar_off 			HAL_GPIO_WritePin(YUCHAR_GPIO_Port, YUCHAR_Pin, GPIO_PIN_RESET)
+
+
 
 /* USER CODE END Private defines */
 
