@@ -109,15 +109,72 @@ typedef struct {
 /*******************************************************************************
  YUCHAR Object
  *******************************************************************************/
-typedef bool (* yuchar_set_func)(yuchar_on_off_t ptc);
+typedef bool (* yuchar_set_func)(yuchar_on_off_t yuchar);
 
 typedef struct {
 	yuchar_on_off_t			yuchar_on_off_flag;
 	yuchar_set_func			yuchar_set;
 } yucharObj_t;
 
+/*******************************************************************************
+ MUCHAR1 Object
+ *******************************************************************************/
+typedef bool (* muchar1_set_func)(muchar_on_off_t muchar1);
 
+typedef struct {
+	muchar_on_off_t			muchar_on_off_flag;
+	muchar1_set_func		muchar1_set;
+} muchar1Obj_t;
 
+/*******************************************************************************
+ MUCHAR2 Object
+ *******************************************************************************/
+typedef bool (* muchar2_set_func)(muchar_on_off_t muchar2);
+
+typedef struct {
+	muchar_on_off_t			muchar_on_off_flag;
+	muchar2_set_func		muchar2_set;
+} muchar2Obj_t;
+
+/*******************************************************************************
+ FAN Object
+ *******************************************************************************/
+typedef bool (* fan_set_func)(fan_on_off_t fan);
+
+typedef struct {
+	fan_on_off_t			fan_on_off_flag;
+	fan_set_func			fan_set;
+} fanObj_t;
+
+/*******************************************************************************
+ INVERTER Object
+ *******************************************************************************/
+typedef bool (* inverter_set_func)(inverter_on_off_t inverter);
+
+typedef struct {
+	inverter_on_off_t			inverter_on_off_flag;
+	inverter_set_func			inverter_set;
+} inverterObj_t;
+
+/*******************************************************************************
+ SPEAKER Object
+ *******************************************************************************/
+typedef bool (* speaker_set_func)(speaker_on_off_t speaker);
+
+typedef struct {
+	speaker_on_off_t			speaker_on_off_flag;
+	speaker_set_func			speaker_set;
+} speakerObj_t;
+
+/*******************************************************************************
+ LCD Object
+ *******************************************************************************/
+typedef bool (* lcd_set_func)(lcd_on_off_t lcd);
+
+typedef struct {
+	lcd_on_off_t				lcd_on_off_flag;
+	lcd_set_func				lcd_set;
+} lcdObj_t;
 
 
 
@@ -130,6 +187,12 @@ typedef struct {
 	lteObj_t			lteObj;
 	ptcObj_t			ptcObj;
 	yucharObj_t			yucharObj;
+	muchar1Obj_t		muchar1Obj;
+	muchar2Obj_t		muchar2Obj;
+	fanObj_t			fanObj;
+	inverterObj_t		inverterObj;
+	speakerObj_t		speakerObj;
+	lcdObj_t			lcdObj;
 } SMB_ControlObj_t;
 
 

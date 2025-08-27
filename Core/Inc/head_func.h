@@ -44,6 +44,30 @@
 
 
 
+bool lcdObj_init(lcdObj_t *plcdObj);
+lcdObj_t *get_lcd_handle();
+bool func_lcd_set(lcd_on_off_t lcd_on_off_flag);
+
+bool speakerObj_init(speakerObj_t *pspeakerObj);
+speakerObj_t *get_speaker_handle();
+bool func_speaker_set(speaker_on_off_t speaker_on_off_flag);
+
+bool inverterObj_init(inverterObj_t *pinverterObj);
+inverterObj_t *get_inverter_handle();
+bool func_inverter_set(inverter_on_off_t inverter_on_off_flag);
+
+bool fanObj_init(fanObj_t *pfanObj);
+fanObj_t *get_fan_handle();
+bool func_fan_set(fan_on_off_t fan_on_off_flag);
+
+bool muchar2Obj_init(muchar2Obj_t *pmuchar2Obj);
+muchar2Obj_t *get_muchar2_handle();
+bool func_muchar2_set(muchar_on_off_t muchar_on_off_flag);
+
+bool muchar1Obj_init(muchar1Obj_t *pmuchar1Obj);
+muchar1Obj_t *get_muchar1_handle();
+bool func_muchar1_set(muchar_on_off_t muchar_on_off_flag);
+
 bool yucharObj_init(yucharObj_t *pyucharObj);
 yucharObj_t *get_yuchar_handle();
 bool func_yuchar_set(yuchar_on_off_t yuchar_on_off_flag);

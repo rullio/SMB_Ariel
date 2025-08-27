@@ -288,7 +288,7 @@ static void smb_cmd_rtc_showtime (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **
 	RTC_TimeTypeDef sTime;
 	RTC_DateTypeDef sDate;
 
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "Time format = %s format"LINE_TERM, (hrtc.Instance->CR & RTC_CR_FMT)?"AM/PM hour":"24 hour/day");
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, " Time format = %s format"LINE_TERM, (hrtc.Instance->CR & RTC_CR_FMT)?"AM/PM hour":"24 hour/day");
 	(*pCmdIO->pCmdApi->msg)(cmdIoParam, " RTC Time info =\t");
 
 	assert (HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BCD) == HAL_OK);

@@ -121,6 +121,42 @@ static bool SMBControlObj_init(SMB_ControlObj_t *pControlObj)
 	yucharObj_init(&pControlObj->yucharObj);
 	pControlObj->yucharObj.yuchar_set(YUCHAR_OFF);
 
+	/*******************************************************************************
+	 MUCHAR1 Object
+	 *******************************************************************************/
+	muchar1Obj_init(&pControlObj->muchar1Obj);
+	pControlObj->muchar1Obj.muchar1_set(MUCHAR_OFF);
+
+	/*******************************************************************************
+	 MUCHAR2 Object
+	 *******************************************************************************/
+	muchar2Obj_init(&pControlObj->muchar2Obj);
+	pControlObj->muchar2Obj.muchar2_set(MUCHAR_OFF);
+
+	/*******************************************************************************
+	 FAN Object
+	 *******************************************************************************/
+	fanObj_init(&pControlObj->fanObj);
+	pControlObj->fanObj.fan_set(FAN_OFF);
+
+	/*******************************************************************************
+	 INVERTER Object
+	 *******************************************************************************/
+	inverterObj_init(&pControlObj->inverterObj);
+	pControlObj->inverterObj.inverter_set(INVERTER_OFF);
+
+	/*******************************************************************************
+	 SPEAKER Object
+	 *******************************************************************************/
+	speakerObj_init(&pControlObj->speakerObj);
+	pControlObj->speakerObj.speaker_set(SPEAKER_OFF);
+
+	/*******************************************************************************
+	 LCD Object
+	 *******************************************************************************/
+	lcdObj_init(&pControlObj->lcdObj);
+	pControlObj->lcdObj.lcd_set(LCD_OFF);
+
 	return true;
 }
 

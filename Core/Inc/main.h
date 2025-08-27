@@ -157,18 +157,18 @@ void Error_Handler(void);
 #define FAN_GPIO_Port GPIOD
 #define PTC_Pin GPIO_PIN_9
 #define PTC_GPIO_Port GPIOD
-#define LCDPWR_Pin GPIO_PIN_10
-#define LCDPWR_GPIO_Port GPIOD
-#define IVNPWR_Pin GPIO_PIN_11
-#define IVNPWR_GPIO_Port GPIOD
+#define LCD_Pin GPIO_PIN_10
+#define LCD_GPIO_Port GPIOD
+#define INVERTER_Pin GPIO_PIN_11
+#define INVERTER_GPIO_Port GPIOD
 #define SPEAKER_Pin GPIO_PIN_12
 #define SPEAKER_GPIO_Port GPIOD
 #define LED_PWM_Pin GPIO_PIN_13
 #define LED_PWM_GPIO_Port GPIOD
 #define SIREN_Pin GPIO_PIN_14
 #define SIREN_GPIO_Port GPIOD
-#define LTE_PWR_Pin GPIO_PIN_15
-#define LTE_PWR_GPIO_Port GPIOD
+#define LTE_Pin GPIO_PIN_15
+#define LTE_GPIO_Port GPIOD
 #define DEBUG_TX_Pin GPIO_PIN_9
 #define DEBUG_TX_GPIO_Port GPIOA
 #define DEBUG_RX_Pin GPIO_PIN_10
@@ -234,8 +234,8 @@ void Error_Handler(void);
 // *****************************************************************************
 // LTE control
 // *****************************************************************************
-#define lte_on 				HAL_GPIO_WritePin(LTE_PWR_GPIO_Port, LTE_PWR_Pin, GPIO_PIN_RESET)
-#define lte_off 			HAL_GPIO_WritePin(LTE_PWR_GPIO_Port, LTE_PWR_Pin, GPIO_PIN_SET)
+#define lte_on 				HAL_GPIO_WritePin(LTE_GPIO_Port, LTE_Pin, GPIO_PIN_RESET)
+#define lte_off 			HAL_GPIO_WritePin(LTE_GPIO_Port, LTE_Pin, GPIO_PIN_SET)
 
 // *****************************************************************************
 // PTC control
@@ -248,6 +248,42 @@ void Error_Handler(void);
 // *****************************************************************************
 #define yuchar_on 			HAL_GPIO_WritePin(YUCHAR_GPIO_Port, YUCHAR_Pin, GPIO_PIN_SET)
 #define yuchar_off 			HAL_GPIO_WritePin(YUCHAR_GPIO_Port, YUCHAR_Pin, GPIO_PIN_RESET)
+
+// *****************************************************************************
+// MUCHAR1 control
+// *****************************************************************************
+#define muchar1_on 			HAL_GPIO_WritePin(MUCHAR1_GPIO_Port, MUCHAR1_Pin, GPIO_PIN_SET)
+#define muchar1_off 		HAL_GPIO_WritePin(MUCHAR1_GPIO_Port, MUCHAR1_Pin, GPIO_PIN_RESET)
+
+// *****************************************************************************
+// MUCHAR2 control
+// *****************************************************************************
+#define muchar2_on 			HAL_GPIO_WritePin(MUCHAR2_GPIO_Port, MUCHAR2_Pin, GPIO_PIN_SET)
+#define muchar2_off 		HAL_GPIO_WritePin(MUCHAR2_GPIO_Port, MUCHAR2_Pin, GPIO_PIN_RESET)
+
+// *****************************************************************************
+// FAN control
+// *****************************************************************************
+#define fan_on 				HAL_GPIO_WritePin(FAN_GPIO_Port, FAN_Pin, GPIO_PIN_SET)
+#define fan_off 			HAL_GPIO_WritePin(FAN_GPIO_Port, FAN_Pin, GPIO_PIN_RESET)
+
+// *****************************************************************************
+// INVERTER control
+// *****************************************************************************
+#define inverter_on 		HAL_GPIO_WritePin(INVERTER_GPIO_Port, INVERTER_Pin, GPIO_PIN_SET)
+#define inverter_off 		HAL_GPIO_WritePin(INVERTER_GPIO_Port, INVERTER_Pin, GPIO_PIN_RESET)
+
+// *****************************************************************************
+// SPEAKER control
+// *****************************************************************************
+#define speaker_on 			HAL_GPIO_WritePin(SPEAKER_GPIO_Port, SPEAKER_Pin, GPIO_PIN_SET)
+#define speaker_off 		HAL_GPIO_WritePin(SPEAKER_GPIO_Port, SPEAKER_Pin, GPIO_PIN_RESET)
+
+// *****************************************************************************
+// LCD control
+// *****************************************************************************
+#define lcd_on 			HAL_GPIO_WritePin(LCD_GPIO_Port, LCD_Pin, GPIO_PIN_SET)
+#define lcd_off 		HAL_GPIO_WritePin(LCD_GPIO_Port, LCD_Pin, GPIO_PIN_RESET)
 
 
 
