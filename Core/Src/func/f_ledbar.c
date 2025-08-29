@@ -50,6 +50,8 @@ bool func_ledbar_color_set(ledbar_color_t ledbar_color)
 	default : assert (0 == 1); break;
 	}
 
+	SMB_ControlObj.ledbarObj.ledbar_color = ledbar_color;
+
 	return true;
 }
 

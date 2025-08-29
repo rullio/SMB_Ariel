@@ -33,6 +33,8 @@
 
 #include "main.h"
 
+extern osMessageQueueId_t		managerThreadQ;
+
 static void led_act_toggle_timeout_cb (void *arg)
 {
 	led_act_toggle;
@@ -66,6 +68,33 @@ static bool uptime_counter_begin()
 	return true;
 }
 
+static void smb_adc_read_cb (void *arg)
+{
+	manager_msg_t manager_msg;
+
+	memset (&manager_msg, 0, sizeof(manager_msg));
+	manager_msg.head.type = MANAGER_MSG_ADC_READ;
+	manager_msg.head.dst = WORKM_MANAGER;
+	manager_msg.head.src = WORKM_TIMER;
+	manager_msg.head.len = sizeof(manager_msg.head);
+
+	osMessageQueuePut(managerThreadQ, &manager_msg, 0U, 0U);
+}
+
+static void smb_data_show_cb (void *arg)
+{
+	manager_msg_t manager_msg;
+
+	memset (&manager_msg, 0, sizeof(manager_msg));
+	manager_msg.head.type = MANAGER_MSG_DATA_SHOW;
+	manager_msg.head.dst = WORKM_MANAGER;
+	manager_msg.head.src = WORKM_TIMER;
+	manager_msg.head.len = sizeof(manager_msg.head);
+
+	osMessageQueuePut(managerThreadQ, &manager_msg, 0U, 0U);
+}
+
+
 bool osTimerList_init(osTimerEntry_t osTimerList[])
 {
 	for (uint32_t i = TMR_IDX_BEGIN ; i < TMR_IDX_END ; i++) {
@@ -96,6 +125,20 @@ bool osTimerList_init(osTimerEntry_t osTimerList[])
 	osTimerList[TMR_IDX_UPTIME_COUNT].osTimerId = osTimerNew(osTimerList[TMR_IDX_UPTIME_COUNT].timeout_cb, osTimerList[TMR_IDX_UPTIME_COUNT].timeout_tick, NULL, NULL);
 	assert (osTimerList[TMR_IDX_UPTIME_COUNT].osTimerId != NULL);
 	strcpy (osTimerList[TMR_IDX_UPTIME_COUNT].timer_description, "OS_TIMER_INDEX_UPTIME_COUNT");
+
+	osTimerList[TMR_IDX_ADC_READ].osTimerType = osTimerPeriodic;
+	osTimerList[TMR_IDX_ADC_READ].timeout_tick = SMB_ADC_READ_TIMEOUT;
+	osTimerList[TMR_IDX_ADC_READ].timeout_cb = smb_adc_read_cb;
+	osTimerList[TMR_IDX_ADC_READ].osTimerId = osTimerNew(osTimerList[TMR_IDX_ADC_READ].timeout_cb, osTimerList[TMR_IDX_ADC_READ].timeout_tick, NULL, NULL);
+	assert (osTimerList[TMR_IDX_ADC_READ].osTimerId != NULL);
+	strcpy (osTimerList[TMR_IDX_ADC_READ].timer_description, "TMR_IDX_ADC_READ");
+
+	osTimerList[TMR_IDX_SMB_DATA_SHOW].osTimerType = osTimerPeriodic;
+	osTimerList[TMR_IDX_SMB_DATA_SHOW].timeout_tick = SMB_DATA_SHOW_TIMEOUT;
+	osTimerList[TMR_IDX_SMB_DATA_SHOW].timeout_cb = smb_data_show_cb;
+	osTimerList[TMR_IDX_SMB_DATA_SHOW].osTimerId = osTimerNew(osTimerList[TMR_IDX_SMB_DATA_SHOW].timeout_cb, osTimerList[TMR_IDX_SMB_DATA_SHOW].timeout_tick, NULL, NULL);
+	assert (osTimerList[TMR_IDX_SMB_DATA_SHOW].osTimerId != NULL);
+	strcpy (osTimerList[TMR_IDX_SMB_DATA_SHOW].timer_description, "TMR_IDX_SMB_DATA_SHOW");
 
 	assert (led_act_toggle_begin() == true);
 	assert (uptime_counter_begin() == true);

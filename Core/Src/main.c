@@ -72,7 +72,7 @@ void MX_FREERTOS_Init(void);
  * @brief HW Version ID 정보를 읽어서 이후 초기화 과정의 방향을 결정한다.
  * @retval
  */
-static bool Get_Hw_Ver_Id(SMB_ConfigObj_t *pSMB_ConfigObj)
+static bool Get_Hw_Ver_Id(SMB_StatusObj_t *pSMB_StatusObj)
 {
 	GPIO_InitTypeDef GPIO_InitStruct = {0};
 
@@ -84,10 +84,10 @@ static bool Get_Hw_Ver_Id(SMB_ConfigObj_t *pSMB_ConfigObj)
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-	pSMB_ConfigObj->hw_version |= HAL_GPIO_ReadPin(HW_VER_ID3_GPIO_Port, HW_VER_ID3_Pin) << 3;
-	pSMB_ConfigObj->hw_version |= HAL_GPIO_ReadPin(HW_VER_ID2_GPIO_Port, HW_VER_ID2_Pin) << 2;
-	pSMB_ConfigObj->hw_version |= HAL_GPIO_ReadPin(HW_VER_ID1_GPIO_Port, HW_VER_ID1_Pin) << 1;
-	pSMB_ConfigObj->hw_version |= HAL_GPIO_ReadPin(HW_VER_ID2_GPIO_Port, HW_VER_ID0_Pin) << 0;
+	pSMB_StatusObj->hw_version |= HAL_GPIO_ReadPin(HW_VER_ID3_GPIO_Port, HW_VER_ID3_Pin) << 3;
+	pSMB_StatusObj->hw_version |= HAL_GPIO_ReadPin(HW_VER_ID2_GPIO_Port, HW_VER_ID2_Pin) << 2;
+	pSMB_StatusObj->hw_version |= HAL_GPIO_ReadPin(HW_VER_ID1_GPIO_Port, HW_VER_ID1_Pin) << 1;
+	pSMB_StatusObj->hw_version |= HAL_GPIO_ReadPin(HW_VER_ID2_GPIO_Port, HW_VER_ID0_Pin) << 0;
 
 	return true;
 }
@@ -120,8 +120,8 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-	assert (Get_Hw_Ver_Id(&SMB_ConfigObj) == true);
-	switch (SMB_ConfigObj.hw_version) {
+	assert (Get_Hw_Ver_Id(&SMB_StatusObj) == true);
+	switch (SMB_StatusObj.hw_version) {
 	case 0 : break;							// This firmware should run only when hw_version is 0.
 
 	default :

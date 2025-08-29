@@ -41,6 +41,8 @@ bool func_lte_set(lte_on_off_t lte_on_off_flag)
 	if (lte_on_off_flag == LTE_ON) lte_on;
 	else lte_off;
 
+	SMB_ControlObj.lteObj.lte_on_off_flag = lte_on_off_flag;
+
 	return true;
 }
 

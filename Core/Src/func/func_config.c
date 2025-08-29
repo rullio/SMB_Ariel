@@ -52,6 +52,9 @@ const SMB_ConfigObj_t SMBConfig_fac_default = {
 		.fw_update_Date.Month = 3,
 		.fw_update_Date.Year = 5,
 		.running_fw = "Installed at Factory",
+
+		.luminance_threshold = 0x80,			// LUMINANCE_BRIGHT or LUMINANCE_DARK 를 판단하는 IMS 센서값의 기준
+		.sonic_threshold = 0x1260,				// Sonic value 를 이용해서 사람이 있는지 없는지를 판단하는 IMS 센서값의 기준
 //
 //		.motion_latency = 30,		// 움직임이 감지된 후 motion 이 있다고 판단하는 지연시간 (sec)
 //		.lamp_off_duty.Hours = 10,

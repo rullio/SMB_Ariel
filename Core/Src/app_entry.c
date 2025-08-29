@@ -36,14 +36,14 @@
 
 osThreadId_t Thread_INIT_Handler;
 osThreadId_t Thread_CLI_Handler;
+osThreadId_t Thread_MAN_Handler;
 osThreadId_t Thread_IAP_Handler;
-osThreadId_t Thread_SENSOR_Handler;
 osThreadId_t Thread_ADC_Handler;
 
 void smb_thread_init (void *arg);
 void smb_thread_cli (void *arg);
+void smb_thread_manager (void *arg);
 void solbench_thread_rb (void *arg);
-void solbench_thread_sensor (void *arg);
 void solbench_thread_adc (void *arg);
 
 /******************************************************************************
@@ -109,26 +109,25 @@ const osThreadAttr_t SolBench_RB_Thread_Attr = {
 		.priority = 	CFG_RB_THREAD_PRIORITY
 };
 
-
 /******************************************************************************
- * Thread SENSOR attributes
+ * Thread MANAGER attributes
  ******************************************************************************/
-#define CFG_SENSOR_THREAD_NAME        "THREAD_SENSOR"
-#define CFG_SENSOR_THREAD_ATTR_BITS   (0)
-#define CFG_SENSOR_THREAD_CB_MEM      (0)
-#define CFG_SENSOR_THREAD_CB_SIZE     (0)
-#define CFG_SENSOR_THREAD_STACK_MEM   (0)
-#define CFG_SENSOR_THREAD_PRIORITY    osPriorityBelowNormal
-#define CFG_SENSOR_THREAD_STACK_SIZE  (configMINIMAL_STACK_SIZE * 8)
+#define CFG_MANAGER_THREAD_NAME        "THREAD_MANAGER"
+#define CFG_MANAGER_THREAD_ATTR_BITS   (0)
+#define CFG_MANAGER_THREAD_CB_MEM      (0)
+#define CFG_MANAGER_THREAD_CB_SIZE     (0)
+#define CFG_MANAGER_THREAD_STACK_MEM   (0)
+#define CFG_MANAGER_THREAD_PRIORITY    osPriorityBelowNormal
+#define CFG_MANAGER_THREAD_STACK_SIZE  (configMINIMAL_STACK_SIZE * 8)
 
-const osThreadAttr_t SolBench_SENSOR_Thread_Attr = {
-		.name = 		CFG_SENSOR_THREAD_NAME,
-		.attr_bits = 	CFG_SENSOR_THREAD_ATTR_BITS,
-		.cb_mem = 		CFG_SENSOR_THREAD_CB_MEM,
-		.cb_size = 		CFG_SENSOR_THREAD_CB_SIZE,
-		.stack_mem = 	CFG_SENSOR_THREAD_STACK_MEM,
-		.stack_size = 	CFG_SENSOR_THREAD_STACK_SIZE,
-		.priority = 	CFG_SENSOR_THREAD_PRIORITY
+const osThreadAttr_t SMB_MANAGER_Thread_Attr = {
+		.name = 		CFG_MANAGER_THREAD_NAME,
+		.attr_bits = 	CFG_MANAGER_THREAD_ATTR_BITS,
+		.cb_mem = 		CFG_MANAGER_THREAD_CB_MEM,
+		.cb_size = 		CFG_MANAGER_THREAD_CB_SIZE,
+		.stack_mem = 	CFG_MANAGER_THREAD_STACK_MEM,
+		.stack_size = 	CFG_MANAGER_THREAD_STACK_SIZE,
+		.priority = 	CFG_MANAGER_THREAD_PRIORITY
 };
 
 /******************************************************************************
@@ -160,11 +159,11 @@ bool app_entry ()
 	Thread_CLI_Handler = osThreadNew(smb_thread_cli, NULL, &SMB_Cli_Thread_attr);
 	assert (Thread_CLI_Handler != NULL);
 
+	Thread_MAN_Handler = osThreadNew(smb_thread_manager, NULL, &SMB_MANAGER_Thread_Attr);
+	assert (Thread_MAN_Handler != NULL);
+
 //	Thread_IAP_Handler = osThreadNew(solbench_thread_rb, NULL, &SolBench_RB_Thread_Attr);
 //	assert (Thread_IAP_Handler != NULL);
-//
-//	Thread_SENSOR_Handler = osThreadNew(solbench_thread_rb, NULL, &SolBench_SENSOR_Thread_Attr);
-//	assert (Thread_SENSOR_Handler != NULL);
 //
 //	Thread_ADC_Handler = osThreadNew(solbench_thread_adc, NULL, &SolBench_ADC_Thread_Attr);
 //	assert (Thread_ADC_Handler != NULL);

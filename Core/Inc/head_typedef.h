@@ -35,36 +35,6 @@
 #ifndef INC_HEAD_TYPEDEF_H_
 #define INC_HEAD_TYPEDEF_H_
 
-/*******************************************************************************
- SMBConfig Object
- *******************************************************************************/
-typedef struct {
-	uint32_t 			machine_serial_no;
-	uint32_t			hw_version;
-	smb_work_mode_t		work_mode;
-	smb_banner_t		banner;				// booting 할 때 console 에 표시되는 그림 선택
-	char				site_address[SMB_CONFIG_STRING_SIZE_MAX];
-	char				install_worker[SMB_CONFIG_STRING_SIZE_MAX];
-	RTC_DateTypeDef 	install_Date;
-	RTC_DateTypeDef 	manufacture_Date;
-	RTC_DateTypeDef 	fw_update_Date;
-	char				running_fw[SMB_CONFIG_STRING_SIZE_MAX];
-} SMB_ConfigObj_t;
-
-/*******************************************************************************
- SMBStatus Object
- *******************************************************************************/
-typedef struct {
-	char				fw_version[64];
-	RTC_DateTypeDef 	launchDate;
-	RTC_TimeTypeDef 	launchTime;
-	RTC_DateTypeDef 	currentDate;
-	RTC_TimeTypeDef 	currentTime;
-	uint64_t			uptime_counter;
-
-	bool				bench_data_show_flag;
-	bool				peri_manual_control_flag;
-} SMB_StatusObj_t;
 
 /*******************************************************************************
  LEDBAR Object
@@ -213,8 +183,11 @@ typedef struct {
 typedef enum {
 	TMR_IDX_BEGIN = 0,
 	TMR_IDX_LED_ACT_TOGGLE = TMR_IDX_BEGIN,
-	TMR_IDX_CLI_CONSOLE_SCAN,
 	TMR_IDX_UPTIME_COUNT,
+	TMR_IDX_CLI_CONSOLE_SCAN,
+	TMR_IDX_ADC_READ,
+
+	TMR_IDX_SMB_DATA_SHOW,
 	TMR_IDX_END,
 } osTimerIndex_t;
 
@@ -242,7 +215,128 @@ typedef struct {
 	uint32_t 		DMA2_Chan_5_count;		// IAP Rx
 } SMBIntrObj_t;
 
+// *****************************************************************************
+// Message type for MANAGER thread
+// *****************************************************************************
+#define	IMS_RX_BUF_SIZE			10		// Sensor data = 0xA5, 0xA5, data[0], data[1], data[2], 0x5A, 0x5A
+
+typedef struct {
+	MANAGER_Msg_type_t	type;
+	WorkModule_Entity_t	dst;
+	WorkModule_Entity_t	src;
+	uint8_t				len;
+} manager_msg_head_t;
+
+typedef struct {
+	uint8_t				Byte[10];
+} manager_msg_body_t;
+
+typedef struct {
+	manager_msg_head_t 	head;
+	manager_msg_body_t	body;
+} manager_msg_t;
+
+typedef bool (* manager_msg_func)(manager_msg_t *);
 
 
+// *****************************************************************************
+// ADC
+// *****************************************************************************
+/* Definitions of data related to this example */
+/* Full-scale digital value with a resolution of 12 bits (voltage range     */
+/* determined by analog voltage references Vref+ and Vref-,                 */
+/* refer to reference manual).                                              */
+#define DIGITAL_SCALE_12BITS             ((uint32_t) 0xFFF)
+
+/* Init variable out of ADC expected conversion data range */
+#define VAR_CONVERTED_DATA_INIT_VALUE    (DIGITAL_SCALE_12BITS + 1)
+
+/* Definition of ADCx conversions data table size */
+#define ADC_CONVERTED_DATA_BUFFER_SIZE   ((uint32_t)  8)
+
+typedef struct {
+	/* Variables for ADC conversion data computation to physical values */
+	__IOM uint16_t YUI;			/* Value of voltage on GPIO pin (on which is mapped ADC channel) calculated from ADC conversion data (unit: mV) */
+	__IOM uint16_t MUI1;		/* Value of voltage on GPIO pin (on which is mapped ADC channel) calculated from ADC conversion data (unit: mV) */
+	__IOM uint16_t MUI2;		/* Value of voltage on GPIO pin (on which is mapped ADC channel) calculated from ADC conversion data (unit: mV) */
+	__IOM int16_t AEDT;			/* Value of voltage on GPIO pin (송사장님이 준 table 로 직접 변환하며 영하의 경우가 있어서 uint16_t => int16_t 로 바꿈.		*/
+	__IOM uint16_t CDS;			/* Value of voltage on GPIO pin (on which is mapped ADC channel) calculated from ADC conversion data (unit: mV) */
+	__IOM int16_t TEMP;		/* Value of temperature calculated from ADC conversion data (unit: degree Celsius) */
+	__IOM uint16_t VBAT;		/* Value of internal voltage reference VrefInt calculated from ADC conversion data (unit: mV) */
+	__IOM uint16_t VREF;		/* Value of analog reference voltage (Vref+), connected to analog voltage supply Vdda, calculated from ADC conversion data (unit: mV) */
+	uint16_t yui_raw_data;
+	uint16_t mui1_raw_data;
+	uint16_t mui2_raw_data;
+	uint16_t aedt_raw_data;
+	uint16_t cds_raw_data;
+} SMB_adc_value_t;
+
+#define	SMB_ADC_READ_TIMEOUT		TIMEOUT_1_SEC
+#define	SMB_DATA_SHOW_TIMEOUT		TIMEOUT_1_SEC
+
+// *****************************************************************************
+// Luminance
+// *****************************************************************************
+typedef struct {
+	uint8_t				luminance;
+	uint8_t				luminance_threshold;
+	luminance_t			bright_or_dark;
+} smb_luminance_t;
+
+// *****************************************************************************
+// Motion
+// *****************************************************************************
+typedef struct {
+	motion_t			motion;
+	sonic_motion_t		sonic_motion;
+	uint16_t			sonic_raw_data;
+	uint16_t			sonic_threshold;
+} smb_motion_t;
+
+/*******************************************************************************
+ SMBConfig Object
+ *******************************************************************************/
+typedef struct {
+	uint32_t 			machine_serial_no;
+	smb_work_mode_t		work_mode;
+	smb_banner_t		banner;				// booting 할 때 console 에 표시되는 그림 선택
+	char				site_address[SMB_CONFIG_STRING_SIZE_MAX];
+	char				install_worker[SMB_CONFIG_STRING_SIZE_MAX];
+	RTC_DateTypeDef 	install_Date;
+	RTC_DateTypeDef 	manufacture_Date;
+	RTC_DateTypeDef 	fw_update_Date;
+	char				running_fw[SMB_CONFIG_STRING_SIZE_MAX];
+	uint8_t				luminance_threshold;
+	uint16_t			sonic_threshold;
+} SMB_ConfigObj_t;
+
+/*******************************************************************************
+ SMBStatus Object
+ *******************************************************************************/
+typedef struct {
+	uint32_t 			CPUID;
+	uint32_t			implementer;
+	uint32_t			variant;
+	uint32_t			constant;
+	uint32_t			partno;
+	uint32_t			version;
+	uint32_t 			package_type;
+	uint32_t 			uid0;
+	uint32_t 			uid1;
+	uint32_t 			uid2;
+
+	uint32_t			hw_version;
+	char				fw_version[64];
+	RTC_DateTypeDef 	launchDate;
+	RTC_TimeTypeDef 	launchTime;
+	RTC_DateTypeDef 	currentDate;
+	RTC_TimeTypeDef 	currentTime;
+	uint64_t			uptime_counter;
+	uint32_t			ims_packet_error_counter;
+	smb_luminance_t		smb_luminance;
+	smb_motion_t		smb_motion;
+	bool				smb_data_show_flag;
+	bool				peri_manual_control_flag;
+} SMB_StatusObj_t;
 
 #endif /* INC_HEAD_TYPEDEF_H_ */

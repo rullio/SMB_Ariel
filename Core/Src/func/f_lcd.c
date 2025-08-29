@@ -41,6 +41,8 @@ bool func_lcd_set(lcd_on_off_t lcd_on_off_flag)
 	if (lcd_on_off_flag == LCD_ON) lcd_on;
 	else lcd_off;
 
+	SMB_ControlObj.lcdObj.lcd_on_off_flag = lcd_on_off_flag;
+
 	return true;
 }
 

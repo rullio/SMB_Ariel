@@ -41,6 +41,8 @@ bool func_muchar2_set(muchar_on_off_t muchar_on_off_flag)
 	if (muchar_on_off_flag == MUCHAR_ON) muchar2_on;
 	else muchar2_off;
 
+	SMB_ControlObj.muchar2Obj.muchar_on_off_flag = muchar_on_off_flag;
+
 	return true;
 }
 

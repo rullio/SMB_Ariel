@@ -446,4 +446,145 @@ void DMA2_Channel5_IRQHandler(void)
 
 /* USER CODE BEGIN 1 */
 
+/**
+ * @brief  Conversion complete callback in non-blocking mode.
+ * @param hadc ADC handle
+ * @retval None
+ */
+#define		AEDT_COMPENSATION_VALUE		1
+//extern uint16_t fake_temperature;
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+	/* Computation of ADC conversions raw data to physical values           */
+	/* using LL ADC driver helper macro.                                    */
+	/* Note: ADC results are transferred into array "aADCxConvertedData"    */
+	/*       in the order of their rank in ADC sequencer.                   */
+	// 아래 나머지 변환에서 측정된 VREF 를 고정된 VDDA_APPLI 값대신 쓰기 위해서 가장 먼저 변환함..
+	SMB_adc_value.VREF 			= __LL_ADC_CALC_VREFANALOG_VOLTAGE(aADCxConvertedData[7], LL_ADC_RESOLUTION_12B);
+
+	SMB_adc_value.YUI			= __LL_ADC_CALC_DATA_TO_VOLTAGE(SMB_adc_value.VREF, aADCxConvertedData[0], LL_ADC_RESOLUTION_12B);
+	SMB_adc_value.MUI1			= __LL_ADC_CALC_DATA_TO_VOLTAGE(SMB_adc_value.VREF, aADCxConvertedData[1], LL_ADC_RESOLUTION_12B);
+	SMB_adc_value.MUI2			= __LL_ADC_CALC_DATA_TO_VOLTAGE(SMB_adc_value.VREF, aADCxConvertedData[2], LL_ADC_RESOLUTION_12B);
+	SMB_adc_value.AEDT			= __LL_ADC_CALC_DATA_TO_TEMPERATURE(aADCxConvertedData[3]) - AEDT_COMPENSATION_VALUE;	// AED 온도 센서가 비선형이라서 송 사장님이 주신 raw data table 을 사용해서 변환하는 것으로 함
+	SMB_adc_value.CDS			= __LL_ADC_CALC_DATA_TO_VOLTAGE(SMB_adc_value.VREF, aADCxConvertedData[4], LL_ADC_RESOLUTION_12B);
+	SMB_adc_value.TEMP			= __LL_ADC_CALC_TEMPERATURE(SMB_adc_value.VREF, aADCxConvertedData[5], LL_ADC_RESOLUTION_12B);
+	SMB_adc_value.VBAT 			= __LL_ADC_CALC_DATA_TO_VOLTAGE(SMB_adc_value.VREF, aADCxConvertedData[6], LL_ADC_RESOLUTION_12B);
+	SMB_adc_value.yui_raw_data	= aADCxConvertedData[0];
+	SMB_adc_value.mui1_raw_data	= aADCxConvertedData[1];
+	SMB_adc_value.mui2_raw_data	= aADCxConvertedData[2];
+	SMB_adc_value.aedt_raw_data	= aADCxConvertedData[3];
+	SMB_adc_value.cds_raw_data	= aADCxConvertedData[4];
+
+	//	SB_adc_value.AEDT = fake_temperature;
+}
+
+/**
+ * @brief  Conversion DMA half-transfer callback in non-blocking mode.
+ * @param hadc ADC handle
+ * @retval None
+ */
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
+{
+	UNUSED(hadc);
+}
+
+/**
+ * @brief  Analog watchdog 1 callback in non-blocking mode.
+ * @param hadc ADC handle
+ * @retval None
+ */
+void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef *hadc)
+{
+	UNUSED(hadc);
+}
+
+/**
+ * @brief  ADC error callback in non-blocking mode
+ *         (ADC conversion with interruption or transfer by DMA).
+ * @note   In case of error due to overrun when using ADC with DMA transfer
+ *         (HAL ADC handle parameter "ErrorCode" to state "HAL_ADC_ERROR_OVR"):
+ *         - Reinitialize the DMA using function "HAL_ADC_Stop_DMA()".
+ *         - If needed, restart a new ADC conversion using function
+ *           "HAL_ADC_Start_DMA()"
+ *           (this function is also clearing overrun flag)
+ * @param hadc ADC handle
+ * @retval None
+ */
+void HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc)
+{
+	UNUSED(hadc);
+}
+
+// *****************************************************************************
+// U(S)ART Interrupt callback
+// *****************************************************************************
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+	if (huart->Instance == USART3) {		// 조도 센서 보드에서 수신되는 packet 용
+		manager_msg_t manager_msg;
+		assert (Size < IMS_RX_BUF_SIZE);
+		memset (&manager_msg, 0, sizeof(manager_msg));
+
+		manager_msg.head.type = MANAGER_MSG_IMS;
+		manager_msg.head.dst = WORKM_MANAGER;
+		manager_msg.head.src = WORKM_UART3;
+		manager_msg.head.len = Size;
+
+		memcpy(&manager_msg.body.Byte, (void *)ims_rx_buffer, Size);
+		osMessageQueuePut(managerThreadQ, &manager_msg, 0U, 0U);
+		HAL_UARTEx_ReceiveToIdle_DMA(huart, ims_rx_buffer, IMS_RX_BUF_SIZE);
+	}
+	else {
+		assert (0 == 1);
+	}
+}
+
+// *****************************************************************************
+// Emergency button/AED door/Fire door/flooding interrupt
+// *****************************************************************************
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	manager_msg_t manager_msg;
+
+	memset (&manager_msg, 0, sizeof(manager_msg));
+
+	switch (GPIO_Pin) {
+	case EMER_BTN_Pin :	manager_msg.head.type = MANAGER_MSG_EMER_BTN; break;
+	case FIRE_DOOR_Pin : manager_msg.head.type = MANAGER_MSG_FIRE_DOOR; break;
+	case AED_DOOR_Pin :	manager_msg.head.type = MANAGER_MSG_AED_DOOR; break;
+	case FLOOD_Pin : manager_msg.head.type = MANAGER_MSG_FLOODING; break;
+	default :
+		printf("%s() : Undefined EXTI GPIO_Pin = %d", __FUNCTION__, GPIO_Pin);
+		return;
+		break;
+	}
+
+	manager_msg.head.dst = WORKM_MANAGER;
+	manager_msg.head.src = WORKM_EXTI;
+	manager_msg.head.len = 0;
+
+	osMessageQueuePut(managerThreadQ, &manager_msg, 0U, 0U);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* USER CODE END 1 */

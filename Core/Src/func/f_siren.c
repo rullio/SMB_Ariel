@@ -41,6 +41,8 @@ bool func_siren_set(siren_on_off_t siren_on_off_flag)
 	if (siren_on_off_flag == SIREN_ON) siren_on;
 	else siren_off;
 
+	SMB_ControlObj.sirenObj.siren_on_off_flag = siren_on_off_flag;
+
 	return true;
 }
 

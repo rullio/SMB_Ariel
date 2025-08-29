@@ -40,6 +40,24 @@ typedef enum {
 	SMB_MODE_STANDALONE = !SMB_MODE_NETWORK,
 } smb_work_mode_t;
 
+typedef enum {
+	WORKM_BASE = 0,
+	WORKM_ROOT,
+	WORKM_CLI,
+	WORKM_RB,
+	WORKM_IAP,
+	WORKM_MANAGER,
+	WORKM_UART1,
+	WORKM_UART2,
+	WORKM_UART3,
+	WORKM_UART4,
+	WORKM_USB,
+	WORKM_SPI2,
+	WORKM_CAN,
+	WORKM_I2C,
+	WORKM_TIMER,
+	WORKM_EXTI,
+} WorkModule_Entity_t;
 
 typedef enum {
 	BANNER_DSN = 0,
@@ -142,6 +160,37 @@ typedef enum {
 	LCD_ON,
 } lcd_on_off_t;
 
+// *****************************************************************************
+// Message type for MANAGER thread
+// *****************************************************************************
+typedef enum {
+	MANAGER_MSG_BASE			= 0,
+	MANAGER_MSG_ADC_READ		= MANAGER_MSG_BASE,
+	MANAGER_MSG_IMS,
+	MANAGER_MSG_DATA_SHOW,
+
+	MANAGER_MSG_EMER_BTN,
+	MANAGER_MSG_FIRE_DOOR,
+	MANAGER_MSG_AED_DOOR,
+	MANAGER_MSG_FLOODING,
+
+	MANAGER_MSG_END,
+} MANAGER_Msg_type_t;
+
+typedef enum {
+	LUMINANCE_DARK = true,
+	LUMINANCE_BRIGHT = !LUMINANCE_DARK,
+} luminance_t;
+
+typedef enum {
+	MOTION_YES = true,
+	MOTION_NO = !MOTION_YES,
+} motion_t;
+
+typedef enum {
+	SONIC_MOTION_YES = true,
+	SONIC_MOTION_NO = !SONIC_MOTION_YES,
+} sonic_motion_t;
 
 
 

@@ -43,7 +43,12 @@
 
 
 
+extern osMessageQueueId_t		managerThreadQ;
+extern uint8_t 				ims_rx_buffer[];
+extern manager_msg_func		manager_msg_handler_tbl[];
 
+extern __IO   uint16_t   aADCxConvertedData[]; /* ADC group regular conversion data (array of data) */
+extern SMB_adc_value_t SMB_adc_value;
 extern SMBIntrObj_t	SMBIntrObj;
 extern osTimerEntry_t	osTimerList[];
 extern SPIF_HandleTypeDef spif_handle;

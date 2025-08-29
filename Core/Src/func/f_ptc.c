@@ -41,6 +41,8 @@ bool func_ptc_set(ptc_on_off_t ptc_on_off_flag)
 	if (ptc_on_off_flag == PTC_ON) ptc_on;
 	else ptc_off;
 
+	SMB_ControlObj.ptcObj.ptc_on_off_flag = ptc_on_off_flag;
+
 	return true;
 }
 

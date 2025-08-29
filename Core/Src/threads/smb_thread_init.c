@@ -73,6 +73,26 @@ static bool SMBConfigObj_init(SMB_ConfigObj_t *pconfig)
 
 static bool SMBStatusObj_init(SMB_StatusObj_t *pStatusObj)
 {
+	memset(pStatusObj, 0, sizeof(SMB_StatusObj_t));
+
+	pStatusObj->implementer = LL_CPUID_GetImplementer();
+	pStatusObj->variant = LL_CPUID_GetVariant();
+	pStatusObj->constant = LL_CPUID_GetConstant();
+	pStatusObj->partno = LL_CPUID_GetParNo();
+	pStatusObj->version = LL_CPUID_GetRevision();
+	pStatusObj->package_type = LL_GetPackageType();
+
+	assert (pStatusObj->implementer == 0x41);
+	assert (pStatusObj->variant == 0);
+	assert (pStatusObj->constant == 0x0f);
+	assert (pStatusObj->partno == 0xC24);
+	assert (pStatusObj->version == 0x1);
+	assert (pStatusObj->package_type == LL_UTILS_PACKAGETYPE_LQFP144_CSP72);
+
+	pStatusObj->uid0 = LL_GetUID_Word0();
+	pStatusObj->uid1 = LL_GetUID_Word1();
+	pStatusObj->uid2 = LL_GetUID_Word2();
+
 	strcpy(pStatusObj->fw_version, FW_VERSION);
 
 	assert (HAL_RTC_GetTime(&hrtc, &pStatusObj->currentTime, RTC_FORMAT_BCD) == HAL_OK);
@@ -81,10 +101,15 @@ static bool SMBStatusObj_init(SMB_StatusObj_t *pStatusObj)
 	memcpy (&pStatusObj->launchDate, &pStatusObj->currentDate, sizeof(RTC_TimeTypeDef));
 
 	pStatusObj->uptime_counter = 0;
+	pStatusObj->ims_packet_error_counter = 0;
 
-
-	pStatusObj->bench_data_show_flag = false;
+	pStatusObj->smb_data_show_flag = false;
 	pStatusObj->peri_manual_control_flag = false;
+
+	pStatusObj->smb_luminance.bright_or_dark = LUMINANCE_BRIGHT;
+	pStatusObj->smb_luminance.luminance = 0;
+	pStatusObj->smb_luminance.luminance_threshold = SMB_ConfigObj.luminance_threshold;
+	pStatusObj->smb_motion.sonic_threshold = SMB_ConfigObj.sonic_threshold;
 
 	return true;
 }

@@ -41,6 +41,8 @@ bool func_speaker_set(speaker_on_off_t speaker_on_off_flag)
 	if (speaker_on_off_flag == SPEAKER_ON) speaker_on;
 	else speaker_on;
 
+	SMB_ControlObj.speakerObj.speaker_on_off_flag = speaker_on_off_flag;
+
 	return true;
 }
 

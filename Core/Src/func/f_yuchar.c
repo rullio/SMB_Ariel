@@ -41,6 +41,8 @@ bool func_yuchar_set(yuchar_on_off_t yuchar_on_off_flag)
 	if (yuchar_on_off_flag == YUCHAR_ON) yuchar_on;
 	else yuchar_off;
 
+	SMB_ControlObj.yucharObj.yuchar_on_off_flag = yuchar_on_off_flag;
+
 	return true;
 }
 
@@ -51,7 +53,7 @@ yucharObj_t *get_yuchar_handle()
 
 bool yucharObj_init(yucharObj_t *pyucharObj)
 {
-	pyucharObj->yuchar_on_off_flag = LTE_OFF;
+	pyucharObj->yuchar_on_off_flag = YUCHAR_OFF;
 	pyucharObj->yuchar_set = func_yuchar_set;
 
 	return true;

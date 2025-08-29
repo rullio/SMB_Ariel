@@ -41,9 +41,9 @@ static void smb_cmd_show_bench (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **ar
 		goto USAGE;
 	}
 
-	SMB_StatusObj.bench_data_show_flag = !SMB_StatusObj.bench_data_show_flag;
+	SMB_StatusObj.smb_data_show_flag = !SMB_StatusObj.smb_data_show_flag;
 
-	if (SMB_StatusObj.bench_data_show_flag == true) {
+	if (SMB_StatusObj.smb_data_show_flag == true) {
 		(*pCmdIO->pCmdApi->msg)(pCmdIO->cmdIoParam, CUI_ESC_CLR);
 		(*pCmdIO->pCmdApi->msg)(pCmdIO->cmdIoParam, CUI_ESC_CUR_HOME); osDelay(1);
 		(*pCmdIO->pCmdApi->msg)(pCmdIO->cmdIoParam, CUI_ESC_CUR_HIDE); osDelay(1);
@@ -326,8 +326,6 @@ static void smb_cmd_set_ledcom (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **ar
 	return;
 }
 
-
-#if 0
 static void smb_cmd_show_adc (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
@@ -337,21 +335,21 @@ static void smb_cmd_show_adc (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv
 	}
 
 	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "converted data"LINE_TERM);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "YUI = %#06"PRIx16 LINE_TERM, SB_adc_value.YUI);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "MUI1 = %#06"PRIx16 LINE_TERM, SB_adc_value.MUI1);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "MUI2 = %#06"PRIx16 LINE_TERM, SB_adc_value.MUI2);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "AEDT = %#06"PRIx16 LINE_TERM, SB_adc_value.AEDT);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "CDS = %#06"PRIx16 LINE_TERM, SB_adc_value.CDS);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "TEMP = %2d"LINE_TERM, SB_adc_value.TEMP);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "VBAT = %#06"PRIx16 LINE_TERM, SB_adc_value.VBAT);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "VREF = %4d(mV)"LINE_TERM, SB_adc_value.VREF);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "YUI = %#06"PRIx16 LINE_TERM, SMB_adc_value.YUI);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "MUI1 = %#06"PRIx16 LINE_TERM, SMB_adc_value.MUI1);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "MUI2 = %#06"PRIx16 LINE_TERM, SMB_adc_value.MUI2);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "AEDT = %#06"PRIx16 LINE_TERM, SMB_adc_value.AEDT);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "CDS = %#06"PRIx16 LINE_TERM, SMB_adc_value.CDS);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "TEMP = %2d"LINE_TERM, SMB_adc_value.TEMP);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "VBAT = %#06"PRIx16 LINE_TERM, SMB_adc_value.VBAT);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "VREF = %4d(mV)"LINE_TERM, SMB_adc_value.VREF);
 
 	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "raw data"LINE_TERM);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "yui = %#06"PRIx16 LINE_TERM, SB_adc_value.yui_raw_data);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "mui1 = %#06"PRIx16 LINE_TERM, SB_adc_value.mui1_raw_data);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "mui2 = %#06"PRIx16 LINE_TERM, SB_adc_value.mui2_raw_data);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "aedt = %#06"PRIx16 LINE_TERM, SB_adc_value.aedt_raw_data);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "cds = %#06"PRIx16 LINE_TERM, SB_adc_value.cds_raw_data);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "yui = %#06"PRIx16 LINE_TERM, SMB_adc_value.yui_raw_data);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "mui1 = %#06"PRIx16 LINE_TERM, SMB_adc_value.mui1_raw_data);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "mui2 = %#06"PRIx16 LINE_TERM, SMB_adc_value.mui2_raw_data);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "aedt = %#06"PRIx16 LINE_TERM, SMB_adc_value.aedt_raw_data);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "cds = %#06"PRIx16 LINE_TERM, SMB_adc_value.cds_raw_data);
 
 	return;
 
@@ -359,6 +357,8 @@ static void smb_cmd_show_adc (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv
 	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "showadc"LINE_TERM);
 	return;
 }
+
+#if 0
 
 static void smb_cmd_set_offduty (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
@@ -408,7 +408,7 @@ static void smb_cmd_set_onduty (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **ar
 static const SYS_CMD_DESCRIPTOR    bench_CommandTbl []=
 {
 		{"showbench",		smb_cmd_show_bench,		"\t\t- showbench"},
-		{"sb",				smb_cmd_show_bench,		"\t\t\t- sb"},
+		{"smb",				smb_cmd_show_bench,		"\t\t\t- smb"},
 		{"ledbar",			smb_cmd_set_ledbar,		"\t\t- ledbar off/red/green/blue/yellow/white"},
 		{"siren",			smb_cmd_set_siren,		"\t\t- siren on/off"},
 		{"lte",				smb_cmd_set_ltepwr,		"\t\t- lte on/off"},
@@ -423,8 +423,8 @@ static const SYS_CMD_DESCRIPTOR    bench_CommandTbl []=
 		{"lamp",			smb_cmd_set_lamp,		"\t\t- lamp 0~9"},
 		{"ledact",			smb_cmd_set_ledact,		"\t\t- ledact on/off/toggle"},
 		{"ledcom",			smb_cmd_set_ledcom,		"\t\t- ledcom on/off/toggle"},
-#if 0
 		{"showadc",			smb_cmd_show_adc,		"\t\t- showadc"},
+#if 0
 		{"setoffduty",		smb_cmd_set_offduty,	"\t\t- setoffduty 6 10 (for example 6:10 am)"},
 		{"setonduty",		smb_cmd_set_onduty,		"\t\t- setonduty 18 15 (for example 18:15 pm)"},
 #endif

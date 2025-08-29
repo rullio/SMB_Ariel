@@ -42,6 +42,7 @@
 
 
 
+int16_t __LL_ADC_CALC_DATA_TO_TEMPERATURE(uint16_t);
 
 
 bool lcdObj_init(lcdObj_t *plcdObj);

@@ -136,13 +136,28 @@
   },
   {
     "directory": "D:/work/WorkTree/Scratch/SMB_Ariel",
+    "command": "arm-none-eabi-gcc \"D:/work/WorkTree/Scratch/SMB_Ariel/Core/Src/func/func_adc.c\" -mcpu\u003dcortex-m4 -std\u003dgnu11 -g3 -DDEBUG \u0027-DFW_VERSION\u003d\"VER_1_0_0\"\u0027 -DUSE_HAL_DRIVER -DSTM32L496xx -c -I../Core/Inc -I../Core/Src/cJson -I../Core/Src/stm -I../Core/Src/spif -I../Drivers/STM32L4xx_HAL_Driver/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I../Drivers/CMSIS/Include -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2 -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -I../Middlewares/Third_Party/LittleFS -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity --specs\u003dnano.specs -mfpu\u003dfpv4-sp-d16 -mfloat-abi\u003dhard -mthumb -o \"D:/work/WorkTree/Scratch/SMB_Ariel/Debug/Core/Src/func/func_adc.o\"",
+    "file": "D:/work/WorkTree/Scratch/SMB_Ariel/Core/Src/func/func_adc.c"
+  },
+  {
+    "directory": "D:/work/WorkTree/Scratch/SMB_Ariel",
     "command": "arm-none-eabi-gcc \"D:/work/WorkTree/Scratch/SMB_Ariel/Core/Src/func/func_config.c\" -mcpu\u003dcortex-m4 -std\u003dgnu11 -g3 -DDEBUG \u0027-DFW_VERSION\u003d\"VER_1_0_0\"\u0027 -DUSE_HAL_DRIVER -DSTM32L496xx -c -I../Core/Inc -I../Core/Src/cJson -I../Core/Src/stm -I../Core/Src/spif -I../Drivers/STM32L4xx_HAL_Driver/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I../Drivers/CMSIS/Include -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2 -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -I../Middlewares/Third_Party/LittleFS -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity --specs\u003dnano.specs -mfpu\u003dfpv4-sp-d16 -mfloat-abi\u003dhard -mthumb -o \"D:/work/WorkTree/Scratch/SMB_Ariel/Debug/Core/Src/func/func_config.o\"",
     "file": "D:/work/WorkTree/Scratch/SMB_Ariel/Core/Src/func/func_config.c"
   },
   {
     "directory": "D:/work/WorkTree/Scratch/SMB_Ariel",
+    "command": "arm-none-eabi-gcc \"D:/work/WorkTree/Scratch/SMB_Ariel/Core/Src/func/func_data_show.c\" -mcpu\u003dcortex-m4 -std\u003dgnu11 -g3 -DDEBUG \u0027-DFW_VERSION\u003d\"VER_1_0_0\"\u0027 -DUSE_HAL_DRIVER -DSTM32L496xx -c -I../Core/Inc -I../Core/Src/cJson -I../Core/Src/stm -I../Core/Src/spif -I../Drivers/STM32L4xx_HAL_Driver/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I../Drivers/CMSIS/Include -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2 -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -I../Middlewares/Third_Party/LittleFS -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity --specs\u003dnano.specs -mfpu\u003dfpv4-sp-d16 -mfloat-abi\u003dhard -mthumb -o \"D:/work/WorkTree/Scratch/SMB_Ariel/Debug/Core/Src/func/func_data_show.o\"",
+    "file": "D:/work/WorkTree/Scratch/SMB_Ariel/Core/Src/func/func_data_show.c"
+  },
+  {
+    "directory": "D:/work/WorkTree/Scratch/SMB_Ariel",
     "command": "arm-none-eabi-gcc \"D:/work/WorkTree/Scratch/SMB_Ariel/Core/Src/func/func_greeting.c\" -mcpu\u003dcortex-m4 -std\u003dgnu11 -g3 -DDEBUG \u0027-DFW_VERSION\u003d\"VER_1_0_0\"\u0027 -DUSE_HAL_DRIVER -DSTM32L496xx -c -I../Core/Inc -I../Core/Src/cJson -I../Core/Src/stm -I../Core/Src/spif -I../Drivers/STM32L4xx_HAL_Driver/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I../Drivers/CMSIS/Include -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2 -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -I../Middlewares/Third_Party/LittleFS -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity --specs\u003dnano.specs -mfpu\u003dfpv4-sp-d16 -mfloat-abi\u003dhard -mthumb -o \"D:/work/WorkTree/Scratch/SMB_Ariel/Debug/Core/Src/func/func_greeting.o\"",
     "file": "D:/work/WorkTree/Scratch/SMB_Ariel/Core/Src/func/func_greeting.c"
+  },
+  {
+    "directory": "D:/work/WorkTree/Scratch/SMB_Ariel",
+    "command": "arm-none-eabi-gcc \"D:/work/WorkTree/Scratch/SMB_Ariel/Core/Src/func/func_manager.c\" -mcpu\u003dcortex-m4 -std\u003dgnu11 -g3 -DDEBUG \u0027-DFW_VERSION\u003d\"VER_1_0_0\"\u0027 -DUSE_HAL_DRIVER -DSTM32L496xx -c -I../Core/Inc -I../Core/Src/cJson -I../Core/Src/stm -I../Core/Src/spif -I../Drivers/STM32L4xx_HAL_Driver/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I../Drivers/CMSIS/Include -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2 -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -I../Middlewares/Third_Party/LittleFS -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity --specs\u003dnano.specs -mfpu\u003dfpv4-sp-d16 -mfloat-abi\u003dhard -mthumb -o \"D:/work/WorkTree/Scratch/SMB_Ariel/Debug/Core/Src/func/func_manager.o\"",
+    "file": "D:/work/WorkTree/Scratch/SMB_Ariel/Core/Src/func/func_manager.c"
   },
   {
     "directory": "D:/work/WorkTree/Scratch/SMB_Ariel",
@@ -248,6 +263,11 @@
     "directory": "D:/work/WorkTree/Scratch/SMB_Ariel",
     "command": "arm-none-eabi-gcc \"D:/work/WorkTree/Scratch/SMB_Ariel/Core/Src/threads/smb_thread_init.c\" -mcpu\u003dcortex-m4 -std\u003dgnu11 -g3 -DDEBUG \u0027-DFW_VERSION\u003d\"VER_1_0_0\"\u0027 -DUSE_HAL_DRIVER -DSTM32L496xx -c -I../Core/Inc -I../Core/Src/cJson -I../Core/Src/stm -I../Core/Src/spif -I../Drivers/STM32L4xx_HAL_Driver/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I../Drivers/CMSIS/Include -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2 -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -I../Middlewares/Third_Party/LittleFS -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity --specs\u003dnano.specs -mfpu\u003dfpv4-sp-d16 -mfloat-abi\u003dhard -mthumb -o \"D:/work/WorkTree/Scratch/SMB_Ariel/Debug/Core/Src/threads/smb_thread_init.o\"",
     "file": "D:/work/WorkTree/Scratch/SMB_Ariel/Core/Src/threads/smb_thread_init.c"
+  },
+  {
+    "directory": "D:/work/WorkTree/Scratch/SMB_Ariel",
+    "command": "arm-none-eabi-gcc \"D:/work/WorkTree/Scratch/SMB_Ariel/Core/Src/threads/smb_thread_manager.c\" -mcpu\u003dcortex-m4 -std\u003dgnu11 -g3 -DDEBUG \u0027-DFW_VERSION\u003d\"VER_1_0_0\"\u0027 -DUSE_HAL_DRIVER -DSTM32L496xx -c -I../Core/Inc -I../Core/Src/cJson -I../Core/Src/stm -I../Core/Src/spif -I../Drivers/STM32L4xx_HAL_Driver/Inc -I../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32L4xx/Include -I../Drivers/CMSIS/Include -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2 -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F -I../Middlewares/Third_Party/LittleFS -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity --specs\u003dnano.specs -mfpu\u003dfpv4-sp-d16 -mfloat-abi\u003dhard -mthumb -o \"D:/work/WorkTree/Scratch/SMB_Ariel/Debug/Core/Src/threads/smb_thread_manager.o\"",
+    "file": "D:/work/WorkTree/Scratch/SMB_Ariel/Core/Src/threads/smb_thread_manager.c"
   },
   {
     "directory": "D:/work/WorkTree/Scratch/SMB_Ariel",
