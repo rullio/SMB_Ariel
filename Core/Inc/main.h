@@ -153,6 +153,12 @@ void Error_Handler(void);
 #define HW_VER_ID1_GPIO_Port GPIOE
 #define HW_VER_ID0_Pin GPIO_PIN_15
 #define HW_VER_ID0_GPIO_Port GPIOE
+#define LED_LIA0_Pin GPIO_PIN_12
+#define LED_LIA0_GPIO_Port GPIOB
+#define LED_LIA2_Pin GPIO_PIN_13
+#define LED_LIA2_GPIO_Port GPIOB
+#define LED_LIA1_Pin GPIO_PIN_14
+#define LED_LIA1_GPIO_Port GPIOB
 #define FAN_Pin GPIO_PIN_8
 #define FAN_GPIO_Port GPIOD
 #define PTC_Pin GPIO_PIN_9
@@ -282,8 +288,20 @@ void Error_Handler(void);
 // *****************************************************************************
 // LCD control
 // *****************************************************************************
-#define lcd_on 			HAL_GPIO_WritePin(LCD_GPIO_Port, LCD_Pin, GPIO_PIN_SET)
-#define lcd_off 		HAL_GPIO_WritePin(LCD_GPIO_Port, LCD_Pin, GPIO_PIN_RESET)
+#define lcd_on 				HAL_GPIO_WritePin(LCD_GPIO_Port, LCD_Pin, GPIO_PIN_SET)
+#define lcd_off 			HAL_GPIO_WritePin(LCD_GPIO_Port, LCD_Pin, GPIO_PIN_RESET)
+
+// *****************************************************************************
+// LED LIA control
+// *****************************************************************************
+#define led_lia0_on 		HAL_GPIO_WritePin(LED_LIA0_GPIO_Port, LED_LIA0_Pin, GPIO_PIN_SET)
+#define led_lia0_off 		HAL_GPIO_WritePin(LED_LIA0_GPIO_Port, LED_LIA0_Pin, GPIO_PIN_RESET)
+
+#define led_lia1_on 		HAL_GPIO_WritePin(LED_LIA1_GPIO_Port, LED_LIA1_Pin, GPIO_PIN_SET)
+#define led_lia1_off 		HAL_GPIO_WritePin(LED_LIA1_GPIO_Port, LED_LIA1_Pin, GPIO_PIN_RESET)
+
+#define led_lia2_on 		HAL_GPIO_WritePin(LED_LIA2_GPIO_Port, LED_LIA2_Pin, GPIO_PIN_SET)
+#define led_lia2_off 		HAL_GPIO_WritePin(LED_LIA2_GPIO_Port, LED_LIA2_Pin, GPIO_PIN_RESET)
 
 
 

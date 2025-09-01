@@ -555,7 +555,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	case AED_DOOR_Pin :	manager_msg.head.type = MANAGER_MSG_AED_DOOR; break;
 	case FLOOD_Pin : manager_msg.head.type = MANAGER_MSG_FLOODING; break;
 	default :
-		printf("%s() : Undefined EXTI GPIO_Pin = %d", __FUNCTION__, GPIO_Pin);
+		printf("%s() : Undefined EXTI GPIO_Pin = %d"LINE_TERM, __FUNCTION__, GPIO_Pin);
 		return;
 		break;
 	}

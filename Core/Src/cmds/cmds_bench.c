@@ -276,11 +276,22 @@ static void smb_cmd_set_lamp (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv
 		goto USAGE;
 	}
 
-	lamp_level = strtoul(argv[1], NULL, 0);
+	lamp_level = (uint32_t)strtoul(argv[1], NULL, 0);
 
 	if (lamp_level > 9) goto USAGE;
-	// 여기서 lamp level 설정
+	if (lamp_level < 0) goto USAGE;
 
+	assert (HAL_TIM_PWM_Stop(&htim4, TIM_CHANNEL_2) == HAL_OK);
+
+	// 아래는 tim.c 에서 베껴옴..
+	TIM_OC_InitTypeDef sConfigOC = {0};
+	sConfigOC.OCMode = TIM_OCMODE_PWM1;
+	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+
+	sConfigOC.Pulse = (uint32_t)(lamp_level * 100);
+	assert (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_2) == HAL_OK);
+	assert (HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2) == HAL_OK);
 	return;
 
 	USAGE:
@@ -323,6 +334,60 @@ static void smb_cmd_set_ledcom (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **ar
 
 	USAGE:
 	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "ledact on/off/toggle"LINE_TERM);
+	return;
+}
+
+static void smb_cmd_set_ledlia0 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+{
+	const void* cmdIoParam = pCmdIO->cmdIoParam;
+
+	if (argc != 2) {
+		goto USAGE;
+	}
+
+	if (!strcmp(argv[1], "on")) led_lia0_on;
+	else if (!strcmp(argv[1], "off")) led_lia0_off;
+	else goto USAGE;
+	return;
+
+	USAGE:
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "ledlia0 on/off"LINE_TERM);
+	return;
+}
+
+static void smb_cmd_set_ledlia1 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+{
+	const void* cmdIoParam = pCmdIO->cmdIoParam;
+
+	if (argc != 2) {
+		goto USAGE;
+	}
+
+	if (!strcmp(argv[1], "on")) led_lia1_on;
+	else if (!strcmp(argv[1], "off")) led_lia1_off;
+	else goto USAGE;
+	return;
+
+	USAGE:
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "ledlia1 on/off"LINE_TERM);
+	return;
+}
+
+static void smb_cmd_set_ledlia2 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+{
+	const void* cmdIoParam = pCmdIO->cmdIoParam;
+
+	if (argc != 2) {
+		goto USAGE;
+	}
+
+	if (!strcmp(argv[1], "on")) led_lia2_on;
+	else if (!strcmp(argv[1], "off")) led_lia2_off;
+	else goto USAGE;
+	return;
+
+	USAGE:
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "ledlia2 on/off"LINE_TERM);
 	return;
 }
 
@@ -423,6 +488,9 @@ static const SYS_CMD_DESCRIPTOR    bench_CommandTbl []=
 		{"lamp",			smb_cmd_set_lamp,		"\t\t- lamp 0~9"},
 		{"ledact",			smb_cmd_set_ledact,		"\t\t- ledact on/off/toggle"},
 		{"ledcom",			smb_cmd_set_ledcom,		"\t\t- ledcom on/off/toggle"},
+		{"ledlia0",			smb_cmd_set_ledlia0,	"\t\t- ledlia0 on/off"},
+		{"ledlia1",			smb_cmd_set_ledlia1,	"\t\t- ledlia1 on/off"},
+		{"ledlia2",			smb_cmd_set_ledlia2,	"\t\t- ledlia2 on/off"},
 		{"showadc",			smb_cmd_show_adc,		"\t\t- showadc"},
 #if 0
 		{"setoffduty",		smb_cmd_set_offduty,	"\t\t- setoffduty 6 10 (for example 6:10 am)"},

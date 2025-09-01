@@ -59,6 +59,9 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOB, SPI1_CS_Pin|SPI1_WP_Pin|SPI1_HOLD_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, LED_LIA0_Pin|LED_LIA2_Pin|LED_LIA1_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, FAN_Pin|PTC_Pin|LCD_Pin|INVERTER_Pin
                           |SPEAKER_Pin|SIREN_Pin|LTE_Pin|LED_R_Pin
                           |LED_G_Pin|LED_B_Pin|YUCHAR_Pin|MUCHAR1_Pin
@@ -81,10 +84,16 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : EMER_BTN_Pin FIRE_DOOR_Pin AED_DOOR_Pin FLOOD_Pin */
-  GPIO_InitStruct.Pin = EMER_BTN_Pin|FIRE_DOOR_Pin|AED_DOOR_Pin|FLOOD_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  /*Configure GPIO pins : EMER_BTN_Pin FLOOD_Pin */
+  GPIO_InitStruct.Pin = EMER_BTN_Pin|FLOOD_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : FIRE_DOOR_Pin AED_DOOR_Pin */
+  GPIO_InitStruct.Pin = FIRE_DOOR_Pin|AED_DOOR_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
   /*Configure GPIO pins : HW_VER_ID3_Pin HW_VER_ID2_Pin HW_VER_ID1_Pin HW_VER_ID0_Pin */
@@ -92,6 +101,13 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : LED_LIA0_Pin LED_LIA2_Pin LED_LIA1_Pin */
+  GPIO_InitStruct.Pin = LED_LIA0_Pin|LED_LIA2_Pin|LED_LIA1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : FAN_Pin PTC_Pin LCD_Pin INVERTER_Pin
                            SPEAKER_Pin SIREN_Pin LTE_Pin */
