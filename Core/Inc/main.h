@@ -62,6 +62,9 @@ extern "C" {
 #include "head_typedef.h"
 #include "head_thread.h"
 #include "head_fs.h"
+#include "head_iap.h"
+
+
 #include "spif.h"
 
 #include "utilities_common.h"
@@ -303,6 +306,13 @@ void Error_Handler(void);
 #define led_lia2_on 		HAL_GPIO_WritePin(LED_LIA2_GPIO_Port, LED_LIA2_Pin, GPIO_PIN_SET)
 #define led_lia2_off 		HAL_GPIO_WritePin(LED_LIA2_GPIO_Port, LED_LIA2_Pin, GPIO_PIN_RESET)
 
+// *****************************************************************************
+// emergency/aed door/fire door/flood
+// *****************************************************************************
+#define	get_emer_btn_status		(HAL_GPIO_ReadPin(EMER_BTN_GPIO_Port, EMER_BTN_Pin) == GPIO_PIN_SET)?true:false
+#define	get_aed_door_status		(HAL_GPIO_ReadPin(AED_DOOR_GPIO_Port, AED_DOOR_Pin) == GPIO_PIN_SET)?true:false
+#define	get_fire_door_status	(HAL_GPIO_ReadPin(FIRE_DOOR_GPIO_Port, FIRE_DOOR_Pin) == GPIO_PIN_SET)?true:false
+#define	get_flood_status		(HAL_GPIO_ReadPin(FLOOD_GPIO_Port, FLOOD_Pin) == GPIO_PIN_SET)?true:false
 
 
 /* USER CODE END Private defines */

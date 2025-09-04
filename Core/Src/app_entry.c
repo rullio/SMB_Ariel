@@ -37,14 +37,14 @@
 osThreadId_t Thread_INIT_Handler;
 osThreadId_t Thread_CLI_Handler;
 osThreadId_t Thread_MAN_Handler;
+osThreadId_t Thread_RB_Handler;
 osThreadId_t Thread_IAP_Handler;
-osThreadId_t Thread_ADC_Handler;
 
 void smb_thread_init (void *arg);
 void smb_thread_cli (void *arg);
 void smb_thread_manager (void *arg);
-void solbench_thread_rb (void *arg);
-void solbench_thread_adc (void *arg);
+void smb_thread_rb (void *arg);
+void smb_thread_iap (void *arg);
 
 /******************************************************************************
  * Thread Initial attributes
@@ -99,7 +99,7 @@ const osThreadAttr_t SMB_Cli_Thread_attr = {
 #define CFG_RB_THREAD_PRIORITY    osPriorityAboveNormal
 #define CFG_RB_THREAD_STACK_SIZE  (configMINIMAL_STACK_SIZE * 8)
 
-const osThreadAttr_t SolBench_RB_Thread_Attr = {
+const osThreadAttr_t SMB_RB_Thread_Attr = {
 		.name = 		CFG_RB_THREAD_NAME,
 		.attr_bits = 	CFG_RB_THREAD_ATTR_BITS,
 		.cb_mem = 		CFG_RB_THREAD_CB_MEM,
@@ -131,24 +131,24 @@ const osThreadAttr_t SMB_MANAGER_Thread_Attr = {
 };
 
 /******************************************************************************
- * Thread ADC attributes
+ * Thread Initial attributes
  ******************************************************************************/
-#define CFG_ADC_THREAD_NAME        "THREAD_ADC"
-#define CFG_ADC_THREAD_ATTR_BITS   (0)
-#define CFG_ADC_THREAD_CB_MEM      (0)
-#define CFG_ADC_THREAD_CB_SIZE     (0)
-#define CFG_ADC_THREAD_STACK_MEM   (0)
-#define CFG_ADC_THREAD_PRIORITY    osPriorityLow
-#define CFG_ADC_THREAD_STACK_SIZE  (configMINIMAL_STACK_SIZE * 8)
+#define CFG_IAP_THREAD_NAME        "THREAD_IAP"
+#define CFG_IAP_THREAD_ATTR_BITS   (0)
+#define CFG_IAP_THREAD_CB_MEM      (0)
+#define CFG_IAP_THREAD_CB_SIZE     (0)
+#define CFG_IAP_THREAD_STACK_MEM   (0)
+#define CFG_IAP_THREAD_PRIORITY    osPriorityAboveNormal
+#define CFG_IAP_THREAD_STACK_SIZE  (configMINIMAL_STACK_SIZE * 32)		// IAP 도 file access 해야 하므로 stack 을 키워주어야 한다.
 
-const osThreadAttr_t SolBench_ADC_Thread_Attr = {
-		.name = 		CFG_ADC_THREAD_NAME,
-		.attr_bits = 	CFG_ADC_THREAD_ATTR_BITS,
-		.cb_mem = 		CFG_ADC_THREAD_CB_MEM,
-		.cb_size = 		CFG_ADC_THREAD_CB_SIZE,
-		.stack_mem = 	CFG_ADC_THREAD_STACK_MEM,
-		.stack_size = 	CFG_ADC_THREAD_STACK_SIZE,
-		.priority = 	CFG_ADC_THREAD_PRIORITY
+const osThreadAttr_t SMB_IAP_Thread_Attr = {
+		.name = 		CFG_IAP_THREAD_NAME,
+		.attr_bits = 	CFG_IAP_THREAD_ATTR_BITS,
+		.cb_mem = 		CFG_IAP_THREAD_CB_MEM,
+		.cb_size = 		CFG_IAP_THREAD_CB_SIZE,
+		.stack_mem = 	CFG_IAP_THREAD_STACK_MEM,
+		.stack_size = 	CFG_IAP_THREAD_STACK_SIZE,
+		.priority = 	CFG_IAP_THREAD_PRIORITY
 };
 
 bool app_entry ()
@@ -162,11 +162,11 @@ bool app_entry ()
 	Thread_MAN_Handler = osThreadNew(smb_thread_manager, NULL, &SMB_MANAGER_Thread_Attr);
 	assert (Thread_MAN_Handler != NULL);
 
-//	Thread_IAP_Handler = osThreadNew(solbench_thread_rb, NULL, &SolBench_RB_Thread_Attr);
-//	assert (Thread_IAP_Handler != NULL);
-//
-//	Thread_ADC_Handler = osThreadNew(solbench_thread_adc, NULL, &SolBench_ADC_Thread_Attr);
-//	assert (Thread_ADC_Handler != NULL);
+	Thread_RB_Handler = osThreadNew(smb_thread_rb, NULL, &SMB_RB_Thread_Attr);
+	assert (Thread_RB_Handler != NULL);
+
+	Thread_IAP_Handler = osThreadNew(smb_thread_iap, NULL, &SMB_IAP_Thread_Attr);
+	assert (Thread_IAP_Handler != NULL);
 
 	return true;
 }

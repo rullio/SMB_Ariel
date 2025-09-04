@@ -47,25 +47,9 @@ static bool SMBIntrObj_init(SMBIntrObj_t *psio)
 
 static bool SMBConfigObj_init(SMB_ConfigObj_t *pconfig)
 {
-	lfs_file_t file;
-	uint32_t calculated_crc;
-
 	if (get_SMB_config(pconfig) != true) {
 		assert (get_factory_default(pconfig) == true);
-
-		// config 파일이 없으므로 factory default 를 가져온 다음에 그 값들로 config 파일을 새로 만들어 준다.
-		assert (lfs_file_open(&lfs, &file, CONFIG_FILE_NAME, LFS_O_RDWR | LFS_O_CREAT) == LFS_ERR_OK);
-		assert (lfs_file_write(&lfs, &file, pconfig, sizeof(SMB_ConfigObj_t)) == sizeof(SMB_ConfigObj_t));
-		assert (lfs_file_close(&lfs, &file) == LFS_ERR_OK);
-
-		// 새로 만든 config 파일의 crc 를 계산해서 crc 파일을 만들어 준다..
-		assert (HAL_CRC_GetState(&hcrc)== HAL_CRC_STATE_READY);
-		calculated_crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)pconfig, sizeof(SMB_ConfigObj_t));
-		printf("%s() Newly generated crc = %lx"LINE_TERM, __FUNCTION__, calculated_crc);
-
-		assert (lfs_file_open(&lfs, &file, CONFIG_CRC_FILE_NAME, LFS_O_RDWR | LFS_O_CREAT) == LFS_ERR_OK);
-		assert (lfs_file_write(&lfs, &file, (void *)&calculated_crc, sizeof(calculated_crc)) == sizeof(calculated_crc));
-		assert (lfs_file_close(&lfs, &file) == LFS_ERR_OK);
+		save_smb_configObj_onto_fs(pconfig);
 	}
 
 	return true;
@@ -172,6 +156,7 @@ static bool SMBControlObj_init(SMB_ControlObj_t *pControlObj)
 
 	/*******************************************************************************
 	 SPEAKER Object
+	 TPA3136D2 (TI Class-D Audio Amp 의 /SD pin 으로 연결됨) High 줘야 Amp output enable.
 	 *******************************************************************************/
 	speakerObj_init(&pControlObj->speakerObj);
 	pControlObj->speakerObj.speaker_set(SPEAKER_OFF);
@@ -181,6 +166,12 @@ static bool SMBControlObj_init(SMB_ControlObj_t *pControlObj)
 	 *******************************************************************************/
 	lcdObj_init(&pControlObj->lcdObj);
 	pControlObj->lcdObj.lcd_set(LCD_OFF);
+
+	/*******************************************************************************
+	 LAMP Object
+	 *******************************************************************************/
+	lampObj_init(&pControlObj->lampObj);
+	pControlObj->lampObj.lamp_set(LAMP_OFF);
 
 	return true;
 }

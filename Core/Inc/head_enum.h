@@ -160,6 +160,23 @@ typedef enum {
 	LCD_ON,
 } lcd_on_off_t;
 
+/*******************************************************************************
+ LAMP Object
+ *******************************************************************************/
+typedef enum {
+	LAMP_OFF = 0,
+	LAMP_LEVEL_0 = LAMP_OFF,
+	LAMP_LEVEL_1,
+	LAMP_LEVEL_2,
+	LAMP_LEVEL_3,
+	LAMP_LEVEL_4,
+	LAMP_LEVEL_5,
+	LAMP_LEVEL_6,
+	LAMP_LEVEL_7,
+	LAMP_LEVEL_8,
+	LAMP_LEVEL_9,
+} lamp_level_t;
+
 // *****************************************************************************
 // Message type for MANAGER thread
 // *****************************************************************************
@@ -192,10 +209,305 @@ typedef enum {
 	SONIC_MOTION_NO = !SONIC_MOTION_YES,
 } sonic_motion_t;
 
+// *****************************************************************************
+// Message of Raspberry
+// *****************************************************************************
+typedef enum {
+	RB_HEAD_TYPE_BASE = 0,
+	RB_INFO_0x00 = RB_HEAD_TYPE_BASE,
+	RB_INFO_RB_WORK_BEGIN,		// Raspberry 가 booting 한 후에 Sensor 로 줘야 하는 1st command
+	RB_INFO_0x02,
+	RB_INFO_RB_WORK_HALT,		// Raspberry 가 정기적인 rebooting 할 때 Sensor 로 주는 command
+	RB_INFO_0x04,
+	RB_INFO_0x05,
+	RB_INFO_0x06,
+	RB_INFO_0x07,
+	RB_INFO_0x08,
+	RB_INFO_0x09,
+	RB_INFO_0x0A,
+	RB_INFO_0x0B,
+	RB_INFO_0x0C,
+	RB_INFO_0x0D,
+	RB_INFO_0x0E,
+	RB_INFO_0x0F,
 
+	RB_CMD_SENSOR_RESET,		// RB 에서 센서보드를 rebooting 시킬 때..
+	RB_CMD_SENSOR_STATUS,		// RB 에서 센서보드 전체 상태를 원할 때
+	RB_CMD_0x12,
+	RB_CMD_LEDBAR,				// RB 에서 미세먼지 상태에 따라 LEDBAR 설정
+	RB_CMD_0x14,
+	RB_CMD_0x15,
+	RB_CMD_0x16,
+	RB_CMD_0x17,
+	RB_CMD_0x18,
+	RB_CMD_0x19,
+	RB_CMD_0x1A,
+	RB_CMD_0x1B,
+	RB_CMD_0x1C,
+	RB_CMD_0x1D,
+	RB_CMD_0x1E,
+	RB_CMD_0x1F,
 
+	RB_MANIPULATE_LEDBAR,		// OFF/RED/YELLOW/GREEN/BLUE/WHITE, 지속시간 (< 10sec)
+	RB_MANIPULATE_SIREN,		// On/Off, 지속시간 (< 10sec)
+	RB_MANIPULATE_LTE_PWR,		// On/Off, 지속시간 (< 10sec)
+	RB_MANIPULATE_CHARGER,		// On/Off, 지속시간 (< 10sec)
+	RB_MANIPULATE_INVERTER,	// On/Off, 지속시간 (< 10sec)
+	RB_MANIPULATE_LCD_PWR,		// On/Off, 지속시간 (< 10sec)
+	RB_MANIPULATE_PTC,			// On/Off, 지속시간 (< 10sec)
+	RB_MANIPULATE_LAMP,		// On/Off, 지속시간 (< 10sec)
+	RB_MANIPULATE_YUCHAR,		// On/Off, 지속시간 (< 10sec)
+	RB_MANIPULATE_MUCHAR1,		// On/Off, 지속시간 (< 10sec)
+	RB_MANIPULATE_MUCHAR2,		// On/Off, 지속시간 (< 10sec)
+	RB_MANIPULATE_FAN,			// On/Off, 지속시간 (< 10sec)
+	RB_MANIPULATE_0x2C,
+	RB_MANIPULATE_0x2D,
+	RB_MANIPULATE_0x2E,
+	RB_MANIPULATE_0x2F,
 
+	RB_REPORT_HW_VERSION,
+	RB_REPORT_0x31,
+	RB_REPORT_0x32,
+	RB_REPORT_0x33,
+	RB_REPORT_0x34,
+	RB_REPORT_0x35,
+	RB_REPORT_0x36,
+	RB_REPORT_0x37,
+	RB_REPORT_0x38,
+	RB_REPORT_0x39,
+	RB_REPORT_0x3A,
+	RB_REPORT_0x3B,
+	RB_REPORT_0x3C,
+	RB_REPORT_0x3D,
+	RB_REPORT_0x3E,
+	RB_REPORT_0x3F,
 
+	// thread sensor 에서 detect 를 하고 thread rb 로 보내고, thread rb 는 다시 Raspberry 에게 보내는 방식인데...
+	// 일단 기존 방식대로 구현하고 차후에 thread rb 에서 직접 처리하는 방식으로 바꾸는 것이 더 나을지 검토해 보자.. jay..
+	RB_REPORT_EMER_BTN_PRESS,
+	RB_REPORT_EMER_BTN_RELEASE,
+	RB_REPORT_FIRE_DOOR_OPEN,
+	RB_REPORT_FIRE_DOOR_CLOSED,
+	RB_REPORT_AED_DOOR_OPEN,
+	RB_REPORT_AED_DOOR_CLOSED,
+	RB_REPORT_FLOOD_HAPPEN,
+	RB_REPORT_FLOOD_CLEAR,
+	RB_REPORT_0x47,
+	RB_REPORT_0x48,
+	RB_REPORT_0x49,
+	RB_REPORT_0x4A,
+	RB_REPORT_0x4B,
+	RB_REPORT_0x4C,
+	RB_REPORT_0x4E,
+	RB_REPORT_0x4F,
+
+	RB_REPORT_SENSOR_STATUS,	// Hearbeat 대용. 1초 주기
+	RB_REPORT_YUIW,
+	RB_REPORT_MUI1W,
+	RB_REPORT_MUI2W,
+	RB_REPORT_AEDT,
+	RB_REPORT_CDS,
+	RB_REPORT_LEDBAR_COLOR,
+	RB_REPORT_0x57,
+	RB_REPORT_0x58,
+	RB_REPORT_0x59,
+	RB_REPORT_0x5A,
+	RB_REPORT_0x5B,
+	RB_REPORT_0x5C,
+	RB_REPORT_0x5D,
+	RB_REPORT_0x5E,
+	RB_REPORT_0x5F,
+
+	RB_CONFIG_UNIX_DATE,					// RTC 설정용
+	RB_CONFIG_UNIX_TIME,					// RTC 설정용
+	RB_CONFIG_SIREN_ON_DURATION,			// 비상상황, 즉 비상버튼을 눌렀을 때 siren 이 울려야 하는 시간. 받으면 Running Config/Default Config 동시 저장
+	RB_CONFIG_MOTION_LATENCY,				// 움직임을 감지했을 때 LAMP 를 점등하는 시간. 받으면 Running Config/Default Config 동시 저장
+	RB_CONFIG_OFF_DUTY_TIME,				// 시, 분 (24시간제) 이 시간 이후로 lamp 는 off
+	RB_CONFIG_ON_DUTY_TIME,					// 시, 분 (24시간제) 이 시간 이후로 lamp 는 on
+	RB_CONFIG_CMD_0x66,
+	RB_CONFIG_CMD_0x67,
+	RB_CONFIG_CMD_0x68,
+	RB_CONFIG_CMD_0x69,
+	RB_CONFIG_CMD_0x6A,
+	RB_CONFIG_CMD_0x6B,
+	RB_CONFIG_CMD_0x6C,
+	RB_CONFIG_CMD_0x6D,
+	RB_CONFIG_CMD_0x6E,
+	RB_CONFIG_CMD_0x6F,
+
+	RB_CONFIG_CMD_0x70,
+	RB_CONFIG_CMD_0x71,
+	RB_CONFIG_CMD_0x72,
+	RB_CONFIG_CMD_0x73,
+	RB_CONFIG_CMD_0x74,
+	RB_CONFIG_CMD_0x75,
+	RB_CONFIG_CMD_0x76,
+	RB_CONFIG_CMD_0x77,
+	RB_CONFIG_CMD_0x78,
+	RB_CONFIG_CMD_0x79,
+	RB_CONFIG_CMD_0x7A,
+	RB_CONFIG_CMD_0x7B,
+	RB_CONFIG_CMD_0x7C,
+	RB_CONFIG_CMD_0x7D,
+	RB_CONFIG_CMD_0x7E,
+	RB_CONFIG_CMD_0x7F,
+
+	RB_IAP_CMD_0x80,
+	RB_IAP_CMD_0x81,
+	RB_IAP_CMD_0x82,
+	RB_IAP_CMD_0x83,
+	RB_IAP_CMD_0x84,
+	RB_IAP_CMD_0x85,
+	RB_IAP_CMD_0x86,
+	RB_IAP_CMD_0x87,
+	RB_IAP_CMD_0x88,
+	RB_IAP_CMD_0x89,
+	RB_IAP_CMD_0x8A,
+	RB_IAP_CMD_0x8B,
+	RB_IAP_CMD_0x8C,
+	RB_IAP_CMD_0x8D,
+	RB_IAP_CMD_0x8E,
+	RB_IAP_CMD_0x8F,
+
+	RB_IAP_CMD_0x90,
+	RB_IAP_CMD_0x91,
+	RB_IAP_CMD_0x92,
+	RB_IAP_CMD_0x93,
+	RB_IAP_CMD_0x94,
+	RB_IAP_CMD_0x95,
+	RB_IAP_CMD_0x96,
+	RB_IAP_CMD_0x97,
+	RB_IAP_CMD_0x98,
+	RB_IAP_CMD_0x99,
+	RB_IAP_CMD_0x9A,
+	RB_IAP_CMD_0x9B,
+	RB_IAP_CMD_0x9C,
+	RB_IAP_CMD_0x9D,
+	RB_IAP_CMD_0x9E,
+	RB_IAP_CMD_0x9F,
+
+	RB_HEAD_TYPE_0xA0,
+	RB_HEAD_TYPE_0xA1,
+	RB_HEAD_TYPE_0xA2,
+	RB_HEAD_TYPE_0xA3,
+	RB_HEAD_TYPE_0xA4,
+	RB_HEAD_TYPE_0xA5,
+	RB_HEAD_TYPE_0xA6,
+	RB_HEAD_TYPE_0xA7,
+	RB_HEAD_TYPE_0xA8,
+	RB_HEAD_TYPE_0xA9,
+	RB_HEAD_TYPE_0xAA,
+	RB_HEAD_TYPE_0xAB,
+	RB_HEAD_TYPE_0xAC,
+	RB_HEAD_TYPE_0xAD,
+	RB_HEAD_TYPE_0xAE,
+	RB_HEAD_TYPE_0xAF,
+
+	RB_HEAD_TYPE_0xB0,
+	RB_HEAD_TYPE_0xB1,
+	RB_HEAD_TYPE_0xB2,
+	RB_HEAD_TYPE_0xB3,
+	RB_HEAD_TYPE_0xB4,
+	RB_HEAD_TYPE_0xB5,
+	RB_HEAD_TYPE_0xB6,
+	RB_HEAD_TYPE_0xB7,
+	RB_HEAD_TYPE_0xB8,
+	RB_HEAD_TYPE_0xB9,
+	RB_HEAD_TYPE_0xBA,
+	RB_HEAD_TYPE_0xBB,
+	RB_HEAD_TYPE_0xBC,
+	RB_HEAD_TYPE_0xBD,
+	RB_HEAD_TYPE_0xBE,
+	RB_HEAD_TYPE_0xBF,
+
+	RB_HEAD_TYPE_0xC0,
+	RB_HEAD_TYPE_0xC1,
+	RB_HEAD_TYPE_0xC2,
+	RB_HEAD_TYPE_0xC3,
+	RB_HEAD_TYPE_0xC4,
+	RB_HEAD_TYPE_0xC5,
+	RB_HEAD_TYPE_0xC6,
+	RB_HEAD_TYPE_0xC7,
+	RB_HEAD_TYPE_0xC8,
+	RB_HEAD_TYPE_0xC9,
+	RB_HEAD_TYPE_0xCA,
+	RB_HEAD_TYPE_0xCB,
+	RB_HEAD_TYPE_0xCC,
+	RB_HEAD_TYPE_0xCD,
+	RB_HEAD_TYPE_0xCE,
+	RB_HEAD_TYPE_0xCF,
+
+	RB_HEAD_TYPE_0xD0,
+	RB_HEAD_TYPE_0xD1,
+	RB_HEAD_TYPE_0xD2,
+	RB_HEAD_TYPE_0xD3,
+	RB_HEAD_TYPE_0xD4,
+	RB_HEAD_TYPE_0xD5,
+	RB_HEAD_TYPE_0xD6,
+	RB_HEAD_TYPE_0xD7,
+	RB_HEAD_TYPE_0xD8,
+	RB_HEAD_TYPE_0xD9,
+	RB_HEAD_TYPE_0xDA,
+	RB_HEAD_TYPE_0xDB,
+	RB_HEAD_TYPE_0xDC,
+	RB_HEAD_TYPE_0xDD,
+	RB_HEAD_TYPE_0xDE,
+	RB_HEAD_TYPE_0xDF,
+
+	RB_HEAD_TYPE_0xE0,
+	RB_HEAD_TYPE_0xE1,
+	RB_HEAD_TYPE_0xE2,
+	RB_HEAD_TYPE_0xE3,
+	RB_HEAD_TYPE_0xE4,
+	RB_HEAD_TYPE_0xE5,
+	RB_HEAD_TYPE_0xE6,
+	RB_HEAD_TYPE_0xE7,
+	RB_HEAD_TYPE_0xE8,
+	RB_HEAD_TYPE_0xE9,
+	RB_HEAD_TYPE_0xEA,
+	RB_HEAD_TYPE_0xEB,
+	RB_HEAD_TYPE_0xEC,
+	RB_HEAD_TYPE_0xED,
+	RB_HEAD_TYPE_0xEE,
+	RB_HEAD_TYPE_0xEF,
+
+	RB_HEAD_TYPE_0xF0,
+	RB_HEAD_TYPE_0xF1,
+	RB_HEAD_TYPE_0xF2,
+	RB_HEAD_TYPE_0xF3,
+	RB_HEAD_TYPE_0xF4,
+	RB_HEAD_TYPE_0xF5,
+	RB_HEAD_TYPE_0xF6,
+	RB_HEAD_TYPE_0xF7,
+	RB_HEAD_TYPE_0xF8,
+	RB_HEAD_TYPE_0xF9,
+	RB_HEAD_TYPE_0xFA,
+	RB_HEAD_TYPE_0xFB,
+	RB_HEAD_TYPE_0xFC,
+	RB_HEAD_TYPE_0xFD,
+	RB_HEAD_TYPE_0xFE,
+	RB_HEAD_TYPE_0xFF,
+	RB_HEAD_TYPE_MAX,
+} rb_head_type_t;
+
+// *****************************************************************************
+// Event for RB thread
+// *****************************************************************************
+typedef enum {
+	RB_MSG_BASE = 0,
+	RB_MSG_COMMAND,
+	RB_MSG_STATUS_REPORT,
+	RB_MSG_END,
+} RB_Msg_type_t;
+
+extern UART_HandleTypeDef huart2;
+#define RbUartHandle huart2
+#define RB_MSG_SIZE				64U
+#define RBERRY_MSG_LENGTH		8U   // type (1B) + len (1B) + body (4B) + checksum(1B) + end_marker (1B)
+#define RBERRY_BODY_LENGTH		4U   // type (1B) + len (1B) + body (4B) + checksum(1B) + end_marker (1B)
+#define END_MARKER				0xFFU
+#define GUI_OPERATION_LATENCY	(10*1000U)
+#define SEC_TO_MSEC(sec)		(sec * 1000U)
 
 
 

@@ -36,14 +36,24 @@
 #define INC_HEAD_HEAD_FUNC_H_
 
 
+bool save_smb_configObj_onto_fs(SMB_ConfigObj_t *pconfig);
 
+HAL_StatusTypeDef Serial_PutByte( uint8_t param );
 
+bool rb_command_handler_tbl_init();
 
+bool sb_report_to_rb (rb_head_type_t type, uint32_t value);
 
+bool rb_cmd_handler(rb_msg_t *pq_msg);
 
+uint8_t checksum(uint8_t *addr, uint8_t count);
+void doSystemReset();
 
 int16_t __LL_ADC_CALC_DATA_TO_TEMPERATURE(uint16_t);
 
+bool func_lamp_set(lamp_level_t lamp_level);
+lampObj_t *get_lamp_handle();
+bool lampObj_init(lampObj_t *plampObj);
 
 bool lcdObj_init(lcdObj_t *plcdObj);
 lcdObj_t *get_lcd_handle();

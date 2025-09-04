@@ -54,24 +54,23 @@ const SMB_ConfigObj_t SMBConfig_fac_default = {
 		.running_fw = "Installed at Factory",
 
 		.luminance_threshold = 0x80,			// LUMINANCE_BRIGHT or LUMINANCE_DARK 를 판단하는 IMS 센서값의 기준
-		.sonic_threshold = 0x1260,				// Sonic value 를 이용해서 사람이 있는지 없는지를 판단하는 IMS 센서값의 기준
-//
-//		.motion_latency = 30,		// 움직임이 감지된 후 motion 이 있다고 판단하는 지연시간 (sec)
-//		.lamp_off_duty.Hours = 10,
-//		.lamp_off_duty.Minutes = 0,
-//		.lamp_off_duty.Seconds = 0,
-//		.lamp_off_duty.TimeFormat = RTC_HOURFORMAT_24,
-//		.lamp_on_duty.Hours = 18,
-//		.lamp_on_duty.Minutes = 0,
-//		.lamp_on_duty.Seconds = 0,
-//		.lamp_on_duty.TimeFormat = RTC_HOURFORMAT_24,
-//		.siren_on_time = 30,
-//
-//		.fan_on_aedt_high = 35,		// fan 동작의 기준점
-//		.fan_on_aedt_low = 30,
-//		.ptc_on_aedt_high = 10,
-//		.ptc_on_aedt_low = 5,		// ptc 동작의 기준점
-//		.sonic_threshold = 0x1260,	// sonic data 기준. 모델마다 값이 다를 수 있기 때문에 현장에서 설치할 때 sonic raw data 를 보고 설정
+		.sonic_threshold = 0x1260,				// Sonic value 를 이용해서 사람이 있는지 없는지를 판단하는 IMS 센서값의 기준. sonic data 기준. 모델마다 값이 다를 수 있기 때문에 현장에서 설치할 때 sonic raw data 를 보고 설정
+
+		.motion_latency = 30,		// 움직임이 감지된 후 motion 이 있다고 판단하는 지연시간 (sec)
+		.lamp_off_duty.Hours = 10,
+		.lamp_off_duty.Minutes = 0,
+		.lamp_off_duty.Seconds = 0,
+		.lamp_off_duty.TimeFormat = RTC_HOURFORMAT_24,
+		.lamp_on_duty.Hours = 18,
+		.lamp_on_duty.Minutes = 0,
+		.lamp_on_duty.Seconds = 0,
+		.lamp_on_duty.TimeFormat = RTC_HOURFORMAT_24,
+		.siren_on_time = 30,
+
+		.fan_on_aedt_high = 35,		// fan 동작의 기준점
+		.fan_on_aedt_low = 30,
+		.ptc_on_aedt_high = 10,
+		.ptc_on_aedt_low = 5,		// ptc 동작의 기준점
 };
 
 bool get_SMB_config (SMB_ConfigObj_t *pconfig)

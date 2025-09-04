@@ -45,6 +45,24 @@ uint8_t 				ims_rx_buffer[IMS_RX_BUF_SIZE];
 manager_msg_func		manager_msg_handler_tbl[MANAGER_MSG_END];
 osMessageQueueId_t		managerThreadQ;
 
+static bool smb_peripheral_outpout_set(SMB_ControlObj_t *pControlObj)
+{
+	pControlObj->ledbarObj.ledbar_color_set(LEDBAR_OFF);
+	pControlObj->sirenObj.siren_set(SIREN_OFF);
+	pControlObj->lteObj.lte_set(LTE_OFF);
+	pControlObj->ptcObj.ptc_set(PTC_OFF);
+	pControlObj->yucharObj.yuchar_set(YUCHAR_ON);
+	pControlObj->muchar1Obj.muchar1_set(MUCHAR_ON);
+	pControlObj->muchar2Obj.muchar2_set(MUCHAR_ON);
+	pControlObj->fanObj.fan_set(FAN_OFF);
+	pControlObj->inverterObj.inverter_set(INVERTER_OFF);
+	pControlObj->speakerObj.speaker_set(SPEAKER_OFF);
+	pControlObj->lcdObj.lcd_set(LCD_OFF);
+	pControlObj->lampObj.lamp_set(LAMP_OFF);
+
+	return true;
+}
+
 void smb_thread_manager (void *arg)
 {
 	manager_msg_t manager_msg;
@@ -54,6 +72,7 @@ void smb_thread_manager (void *arg)
 	assert (adc_read_begin() == true);
 	assert (data_show_begin() == true);
 	assert (ims_sensor_channel_open() == true);
+	assert (smb_peripheral_outpout_set(&SMB_ControlObj) == true);
 
 	managerThreadQ = osMessageQueueNew(MAN_MSG_Q_DEPTH, sizeof(manager_msg), NULL);
 	while (1) {

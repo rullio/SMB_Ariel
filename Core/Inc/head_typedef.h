@@ -147,6 +147,15 @@ typedef struct {
 } lcdObj_t;
 
 
+/*******************************************************************************
+ LAMP Object
+ *******************************************************************************/
+typedef bool (* lamp_set_func)(lamp_level_t lamp);
+
+typedef struct {
+	lamp_level_t			lamp_level;
+	lamp_set_func			lamp_set;
+} lampObj_t;
 
 /*******************************************************************************
  SMB Control Object
@@ -160,6 +169,7 @@ typedef struct {
 	muchar1Obj_t		muchar1Obj;
 	muchar2Obj_t		muchar2Obj;
 	fanObj_t			fanObj;
+	lampObj_t			lampObj;
 	inverterObj_t		inverterObj;
 	speakerObj_t		speakerObj;
 	lcdObj_t			lcdObj;
@@ -188,6 +198,8 @@ typedef enum {
 	TMR_IDX_ADC_READ,
 
 	TMR_IDX_SMB_DATA_SHOW,
+	TMR_IDX_SMB_STATUS_REPORT,
+	TMR_IDX_SMB_IAP_REQUEST,
 	TMR_IDX_END,
 } osTimerIndex_t;
 
@@ -273,6 +285,7 @@ typedef struct {
 
 #define	SMB_ADC_READ_TIMEOUT		TIMEOUT_1_SEC
 #define	SMB_DATA_SHOW_TIMEOUT		TIMEOUT_1_SEC
+#define	SMB_STATUS_REPORT_TIMEOUT	TIMEOUT_1_SEC
 
 // *****************************************************************************
 // Luminance
@@ -307,7 +320,16 @@ typedef struct {
 	RTC_DateTypeDef 	fw_update_Date;
 	char				running_fw[SMB_CONFIG_STRING_SIZE_MAX];
 	uint8_t				luminance_threshold;
-	uint16_t			sonic_threshold;
+
+	RTC_TimeTypeDef		lamp_on_duty;		// lamp 를 켜도 되는 시작 시간
+	RTC_TimeTypeDef		lamp_off_duty;		// lamp 를 꺼야 하는 시작 시간
+	uint16_t			sonic_threshold;	// sonic data 기준. 모델마다 값이 다를 수 있기 때문에 현장에서 설치할 때 sonic raw data 를 보고 설정.
+	uint32_t			motion_latency;
+	uint32_t			siren_on_time;
+	uint16_t			fan_on_aedt_high;	// fan on
+	uint16_t			fan_on_aedt_low;	// low -> high, fan 을 돌리기 시작하는 온도
+	uint16_t			ptc_on_aedt_high;	// high-> low, ptc 를 켜야 하는 온도
+	uint16_t			ptc_on_aedt_low;	// ptc 를 꺼야 하는 온도
 } SMB_ConfigObj_t;
 
 /*******************************************************************************
@@ -337,6 +359,71 @@ typedef struct {
 	smb_motion_t		smb_motion;
 	bool				smb_data_show_flag;
 	bool				peri_manual_control_flag;
+	uint32_t			counter_rb_report;
+	bool				rb_working;
+
 } SMB_StatusObj_t;
+
+/*******************************************************************************
+ RB thread message format
+ *******************************************************************************/
+typedef struct {
+	uint8_t			type;
+	uint8_t			len;
+	uint8_t			body[RBERRY_BODY_LENGTH]; // 8 - 2 - 2 = 4
+	uint8_t			checksum;
+	uint8_t			end_marker;
+} rb_report_t;
+
+typedef struct {
+	uint8_t			type;
+	uint8_t			len;
+	uint8_t			body[RBERRY_BODY_LENGTH]; // 8 - 2 - 2 = 4
+	uint8_t			checksum;
+	uint8_t			end_marker;
+} rb_command_t;
+
+typedef struct {
+	RB_Msg_type_t		type;
+	WorkModule_Entity_t	dst;
+	WorkModule_Entity_t	src;
+	uint8_t				len;
+} RB_msg_head_t;
+
+typedef struct {
+	uint8_t				Byte[RB_MSG_SIZE];
+} rb_msg_body_t;
+
+typedef struct {
+	RB_msg_head_t 		head;
+	rb_command_t		rb_command;
+} rb_msg_t;
+
+typedef struct {
+	uint32_t 			emer_btn	: 1;	// emer. btn press or released
+	uint32_t 			aed_door	: 1;	// aed door open or closed
+	uint32_t 			fire_door	: 1;	// fire door open or closed
+	uint32_t 			flood		: 1;	// foolding happen or not
+	uint32_t 			siren		: 1;	// siren on or not
+	uint32_t 			lamp		: 1;	// siren on or not
+	uint32_t 			ltepwr		: 1;	// siren on or not
+	uint32_t 			ptc			: 1;	// ptc on or not
+	uint32_t 			fan			: 1;	// fan on or not
+	uint32_t 			yuchar		: 1;	// yuchar on or not
+	uint32_t 			muchar1		: 1;	// muchar1 on or not
+	uint32_t 			muchar2		: 1;	// muchar2 on or not
+	uint32_t 			charger		: 1;	// charger on or not
+	uint32_t 			inverter	: 1;	// inverter on or not
+	uint32_t 			rsvd		: 18;	// rsvd
+} rb_sensor_status_t;
+
+typedef bool (* rb_msg_func)(rb_msg_t *);
+
+
+
+
+
+
+
 
 #endif /* INC_HEAD_TYPEDEF_H_ */

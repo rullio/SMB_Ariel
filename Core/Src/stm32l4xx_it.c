@@ -26,6 +26,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
+extern uint8_t 						Rb_Rx_Buf[];
 
 /* USER CODE END TD */
 
@@ -58,7 +59,6 @@
 extern DMA_HandleTypeDef hdma_adc1;
 extern ADC_HandleTypeDef hadc1;
 extern SPI_HandleTypeDef hspi1;
-extern TIM_HandleTypeDef htim4;
 extern DMA_HandleTypeDef hdma_uart4_rx;
 extern DMA_HandleTypeDef hdma_uart4_tx;
 extern DMA_HandleTypeDef hdma_usart1_tx;
@@ -309,21 +309,6 @@ void TIM1_UP_TIM16_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles TIM4 global interrupt.
-  */
-void TIM4_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM4_IRQn 0 */
-	SMBIntrObj.TIM4_count++;
-
-  /* USER CODE END TIM4_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim4);
-  /* USER CODE BEGIN TIM4_IRQn 1 */
-
-  /* USER CODE END TIM4_IRQn 1 */
-}
-
-/**
   * @brief This function handles SPI1 global interrupt.
   */
 void SPI1_IRQHandler(void)
@@ -534,6 +519,36 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 		memcpy(&manager_msg.body.Byte, (void *)ims_rx_buffer, Size);
 		osMessageQueuePut(managerThreadQ, &manager_msg, 0U, 0U);
 		HAL_UARTEx_ReceiveToIdle_DMA(huart, ims_rx_buffer, IMS_RX_BUF_SIZE);
+	}
+	else if (huart->Instance == USART2) {	// Raspberry
+		rb_msg_t rb_msg;
+		assert (Size < RB_MSG_SIZE);
+		memset (&rb_msg, 0, sizeof(rb_msg));
+
+		rb_msg.head.type = RB_MSG_COMMAND;
+		rb_msg.head.dst = WORKM_RB;
+		rb_msg.head.src = WORKM_UART2;
+		rb_msg.head.len = Size;
+
+		memcpy(&rb_msg.rb_command, (void *)Rb_Rx_Buf, Size);
+		osMessageQueuePut(rbThreadQ, &rb_msg, 0U, 0U);
+		HAL_UARTEx_ReceiveToIdle_DMA(huart, Rb_Rx_Buf, RB_MSG_SIZE);
+		__HAL_DMA_DISABLE_IT(&hdma_usart2_rx, DMA_IT_HT);		// 매번 HAL_UARTEx_ReceiveToIdle_DMA() 마다 해주어야 한다.
+	}
+	else if (huart->Instance == UART4) {	// IAP packet 가장 먼저 하는 이유는 packet 이 쪼개져서 들어오는 경우에 그 다음 packet 이 들어오는 시간이 짧을 수 있어서 시간에 가장 critical 하기 때문이다.
+		iap_msg_t iap_msg;
+		void *mpool = iapObj.Iap_Rx_mpool;
+
+		iapObj.Iap_Rx_mpool = (uint8_t *)malloc(IAP_MSG_LENGTH_MAX);		// memset() 루틴 사용 금지. 1K 넘게 memory 에 값을 써주는 루틴이 시간이 걸려서 Interrupt 를 까먹게 만드는 원인이 되더라.
+		HAL_UARTEx_ReceiveToIdle_DMA(huart, iapObj.Iap_Rx_mpool, IAP_MSG_LENGTH_MAX);
+		__HAL_DMA_DISABLE_IT(&hdma_uart4_rx, DMA_IT_HT);		// 매번 HAL_UARTEx_ReceiveToIdle_DMA() 마다 해주어야 한다.
+
+		iap_msg.head.type = IAP_MSG_YMODEM_PKT;
+		iap_msg.head.dst = WORKM_IAP;
+		iap_msg.head.src = WORKM_UART4;
+		iap_msg.head.len = Size;
+		iap_msg.body.mpool = (void *)mpool;
+		osMessageQueuePut(iapThreadQ, &iap_msg, 0U, 0U);		// 일단 받은 갯수만큼만 IAP 로 보낸다.
 	}
 	else {
 		assert (0 == 1);

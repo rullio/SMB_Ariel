@@ -33,7 +33,6 @@
 
 #include "main.h"
 
-void doSystemReset();
 
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
 {

@@ -94,6 +94,34 @@ static void smb_data_show_cb (void *arg)
 	osMessageQueuePut(managerThreadQ, &manager_msg, 0U, 0U);
 }
 
+static void smb_status_report (void *arg)
+{
+	rb_msg_t rb_msg;
+
+	memset (&rb_msg, 0, sizeof(rb_msg));
+	rb_msg.head.type = RB_MSG_STATUS_REPORT;
+	rb_msg.head.dst = WORKM_RB;
+	rb_msg.head.src = WORKM_TIMER;
+	rb_msg.head.len = RBERRY_MSG_LENGTH;
+
+	osMessageQueuePut(rbThreadQ, &rb_msg, 0U, 0U);
+}
+
+
+static void SOH_req_timeout_cb (void *arg)
+{
+	iap_msg_t iap_msg;
+
+	memset (&iap_msg, 0, sizeof(iap_msg));
+
+	iap_msg.head.type = IAP_MSG_SOH_REQ_TIMEOUT;
+	iap_msg.head.dst = WORKM_IAP;
+	iap_msg.head.src = WORKM_UART4;
+	iap_msg.head.len = 0;
+
+	iap_msg.body.mpool = NULL;
+	osMessageQueuePut(iapThreadQ, &iap_msg, 0U, 0U);
+}
 
 bool osTimerList_init(osTimerEntry_t osTimerList[])
 {
@@ -139,6 +167,20 @@ bool osTimerList_init(osTimerEntry_t osTimerList[])
 	osTimerList[TMR_IDX_SMB_DATA_SHOW].osTimerId = osTimerNew(osTimerList[TMR_IDX_SMB_DATA_SHOW].timeout_cb, osTimerList[TMR_IDX_SMB_DATA_SHOW].timeout_tick, NULL, NULL);
 	assert (osTimerList[TMR_IDX_SMB_DATA_SHOW].osTimerId != NULL);
 	strcpy (osTimerList[TMR_IDX_SMB_DATA_SHOW].timer_description, "TMR_IDX_SMB_DATA_SHOW");
+
+	osTimerList[TMR_IDX_SMB_STATUS_REPORT].osTimerType = osTimerOnce;
+	osTimerList[TMR_IDX_SMB_STATUS_REPORT].timeout_tick = SMB_STATUS_REPORT_TIMEOUT;
+	osTimerList[TMR_IDX_SMB_STATUS_REPORT].timeout_cb = smb_status_report;
+	osTimerList[TMR_IDX_SMB_STATUS_REPORT].osTimerId = osTimerNew(osTimerList[TMR_IDX_SMB_STATUS_REPORT].timeout_cb, osTimerList[TMR_IDX_SMB_STATUS_REPORT].timeout_tick, NULL, NULL);
+	assert (osTimerList[TMR_IDX_SMB_STATUS_REPORT].osTimerId != NULL);
+	strcpy (osTimerList[TMR_IDX_SMB_STATUS_REPORT].timer_description, "TMR_IDX_SMB_STATUS_REPORT");
+
+	osTimerList[TMR_IDX_SMB_IAP_REQUEST].osTimerType = osTimerOnce;
+	osTimerList[TMR_IDX_SMB_IAP_REQUEST].timeout_tick = SOH_REQ_TIMEOUT;
+	osTimerList[TMR_IDX_SMB_IAP_REQUEST].timeout_cb = SOH_req_timeout_cb;
+	osTimerList[TMR_IDX_SMB_IAP_REQUEST].osTimerId = osTimerNew(osTimerList[TMR_IDX_SMB_IAP_REQUEST].timeout_cb, osTimerList[TMR_IDX_SMB_IAP_REQUEST].timeout_tick, NULL, NULL);
+	assert (osTimerList[TMR_IDX_SMB_IAP_REQUEST].osTimerId != NULL);
+	strcpy (osTimerList[TMR_IDX_SMB_IAP_REQUEST].timer_description, "TMR_IDX_SMB_IAP_REQUEST");
 
 	assert (led_act_toggle_begin() == true);
 	assert (uptime_counter_begin() == true);

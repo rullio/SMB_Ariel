@@ -281,17 +281,7 @@ static void smb_cmd_set_lamp (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv
 	if (lamp_level > 9) goto USAGE;
 	if (lamp_level < 0) goto USAGE;
 
-	assert (HAL_TIM_PWM_Stop(&htim4, TIM_CHANNEL_2) == HAL_OK);
-
-	// 아래는 tim.c 에서 베껴옴..
-	TIM_OC_InitTypeDef sConfigOC = {0};
-	sConfigOC.OCMode = TIM_OCMODE_PWM1;
-	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-
-	sConfigOC.Pulse = (uint32_t)(lamp_level * 100);
-	assert (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_2) == HAL_OK);
-	assert (HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2) == HAL_OK);
+	SMB_ControlObj.lampObj.lamp_set((lamp_level_t)lamp_level);
 	return;
 
 	USAGE:
