@@ -94,6 +94,7 @@ static bool SMBStatusObj_init(SMB_StatusObj_t *pStatusObj)
 	pStatusObj->smb_luminance.luminance = 0;
 	pStatusObj->smb_luminance.luminance_threshold = SMB_ConfigObj.luminance_threshold;
 	pStatusObj->smb_motion.sonic_threshold = SMB_ConfigObj.sonic_threshold;
+	pStatusObj->smb_manipulation = false;
 
 	return true;
 }

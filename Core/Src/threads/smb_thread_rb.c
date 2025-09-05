@@ -62,9 +62,9 @@ void smb_thread_rb (void *arg)
 	while (1) {
 		memset (&rb_msg, 0, sizeof(rb_msg));
 		assert (osMessageQueueGet(rbThreadQ, &rb_msg, NULL, osWaitForever) == osOK);
-		assert (rb_msg.head.type < RB_MSG_END);
-		assert (rb_msg.head.dst == WORKM_RB);
-		assert (rb_msg.head.len == RBERRY_MSG_LENGTH);
+		if (rb_msg.head.type >= RB_MSG_END) continue;
+		if (rb_msg.head.dst != WORKM_RB) continue;
+		if (rb_msg.head.len != RBERRY_MSG_LENGTH) continue;
 
 		assert (rb_msg_handler_tbl[rb_msg.head.type](&rb_msg) == true);
 	}

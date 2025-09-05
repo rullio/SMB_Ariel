@@ -496,7 +496,6 @@ typedef enum {
 typedef enum {
 	RB_MSG_BASE = 0,
 	RB_MSG_COMMAND,
-	RB_MSG_STATUS_REPORT,
 	RB_MSG_END,
 } RB_Msg_type_t;
 

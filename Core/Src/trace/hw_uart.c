@@ -21,11 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
-#define CFG_HW_USART1_ENABLED	1
-
-#if (CFG_HW_USART1_ENABLED == 1)
 extern UART_HandleTypeDef huart1;
-#endif
 
 /* Macros --------------------------------------------------------------------*/
 #define HW_UART_RX_IT(__HANDLE__, __USART_BASE__)                                                   \
@@ -50,24 +46,17 @@ extern UART_HandleTypeDef huart1;
 
 /* Variables -----------------------------------------------------------------*/
 
-#if (CFG_HW_USART1_ENABLED == 1)
 void (*HW_huart1RxCb)(void);
 void (*HW_huart1TxCb)(void);
-#endif
+void (*HW_huart2TxCb)(void);
 
 void HW_UART_Receive_IT(hw_uart_id_t hw_uart_id, uint8_t *p_data, uint16_t size, void (*cb)(void))
 {
-
-#if (CFG_HW_USART1_ENABLED == 1)
-	HW_huart1RxCb = cb;
-#endif
-
 	switch (hw_uart_id) {
-#if (CFG_HW_USART1_ENABLED == 1)
 	case hw_usart1:
+		HW_huart1RxCb = cb;
 		HW_UART_RX_IT(huart1, USART1);
 		break;
-#endif
 
 	default:
 		break;
@@ -82,14 +71,15 @@ hw_status_t HW_UART_Transmit_DMA(hw_uart_id_t hw_uart_id, uint8_t *p_data, uint1
 	hw_status_t hw_status = hw_uart_ok;
 
 	switch (hw_uart_id) {
-
-#if (CFG_HW_USART1_ENABLED == 1)
 	case hw_usart1:
 		HW_huart1TxCb = cb;
-		huart1.Instance = USART1;
 		hal_status = HAL_UART_Transmit_DMA(&huart1, p_data, size);
 		break;
-#endif
+
+	case hw_usart2:
+		HW_huart2TxCb = cb;
+		hal_status = HAL_UART_Transmit_DMA(&huart2, p_data, size);
+		break;
 
 	default:
 		break;
@@ -119,36 +109,18 @@ hw_status_t HW_UART_Transmit_DMA(hw_uart_id_t hw_uart_id, uint8_t *p_data, uint1
 	return hw_status;
 }
 
-void HW_UART_Interrupt_Handler(hw_uart_id_t hw_uart_id)
-{
-	switch (hw_uart_id) {
-
-#if (CFG_HW_USART1_ENABLED == 1)
-	case hw_usart1:
-		HAL_UART_IRQHandler(&huart1);
-		break;
-#endif
-
-	default:
-		break;
-	}
-
-	return;
-}
-
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	switch ((uint32_t)huart->Instance) {
 
-#if (CFG_HW_USART1_ENABLED == 1)
 	case (uint32_t)USART1:
 			if(HW_huart1RxCb) {
 				HW_huart1RxCb();
 			}
 	break;
-#endif
 
 	default:
+		assert (0 == 1);
 		break;
 	}
 
@@ -158,14 +130,17 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
 	switch ((uint32_t)huart->Instance) {
-
-#if (CFG_HW_USART1_ENABLED == 1)
 	case (uint32_t)USART1:
 			if(HW_huart1TxCb) {
 				HW_huart1TxCb();
 			}
 	break;
-#endif
+
+	case (uint32_t)USART2:
+			if(HW_huart2TxCb) {
+				HW_huart2TxCb();
+			}
+	break;
 
 	default:
 		break;

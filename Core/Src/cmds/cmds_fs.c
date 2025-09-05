@@ -532,9 +532,96 @@ static void smb_cmd_format (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 	return;
 }
 
+static void config_display(SYS_CMD_DEVICE_NODE* pCmdIO, SMB_ConfigObj_t *p)
+{
+	const void* cmdIoParam = pCmdIO->cmdIoParam;
+
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "machine_serial_no \t= %#010"PRIx32 LINE_TERM, p->machine_serial_no);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "site address \t\t= %s"LINE_TERM, p->site_address);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "install_worker \t\t= %s"LINE_TERM, p->install_worker);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "install date \t\t= 20%02d/%d/%d"LINE_TERM, p->install_Date.Year, p->install_Date.Month, p->install_Date.Date);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "manufacture date \t= 20%02d/%d/%d"LINE_TERM, p->manufacture_Date.Year, p->manufacture_Date.Month, p->manufacture_Date.Date);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "firmware update date \t= 20%02d/%d/%d"LINE_TERM, p->fw_update_Date.Year, p->fw_update_Date.Month, p->fw_update_Date.Date);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "running firmware \t= %s"LINE_TERM, p->running_fw);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "motion_latency \t\t= %d (sec)"LINE_TERM, p->motion_latency);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "siren_on_time \t\t= %d (sec)"LINE_TERM, p->siren_on_time);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "fan_on_aedt_high \t= %d (do)"LINE_TERM, p->fan_on_aedt_high);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "fan_on_aedt_low \t= %d (do)"LINE_TERM, p->fan_on_aedt_low);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "ptc_on_aedt_high \t= %d (do)"LINE_TERM, p->ptc_on_aedt_high);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "ptc_on_aedt_low \t= %d (do)"LINE_TERM, p->ptc_on_aedt_low);
+
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "lamp_on_duty_time \t= %2d:%2d:%2d %s"LINE_TERM, \
+			p->lamp_on_duty.Hours, p->lamp_on_duty.Minutes, p->lamp_on_duty.Seconds, (p->lamp_on_duty.Hours < 12)?"am":"pm");
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "lamp_off_duty_time \t= %2d:%2d:%2d %s"LINE_TERM, \
+			p->lamp_off_duty.Hours, p->lamp_off_duty.Minutes, p->lamp_off_duty.Seconds, (p->lamp_off_duty.Hours < 12)?"am":"pm");
+
+	return;
+}
+
+static void smb_cmd_showfsconfig (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+{
+	const void* cmdIoParam = pCmdIO->cmdIoParam;
+	lfs_file_t file;
+	SMB_ConfigObj_t temp_SMB_ConfigObj;
+	if (argc != 1) goto USAGE;
+
+	assert (lfs_file_open(&lfs, &file, CONFIG_FILE_NAME, LFS_O_RDWR | LFS_O_CREAT) == LFS_ERR_OK);
+	assert (lfs_file_read(&lfs, &file, &temp_SMB_ConfigObj, sizeof(SMB_ConfigObj_t)) == sizeof(SMB_ConfigObj_t));
+	assert (lfs_file_close(&lfs, &file) == LFS_ERR_OK);
+
+	config_display(pCmdIO, &temp_SMB_ConfigObj);
+
+	return;
+
+	USAGE:
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "showfsconfig"LINE_TERM);
+	return;
+}
+
+static void smb_cmd_showconfig (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+{
+	const void* cmdIoParam = pCmdIO->cmdIoParam;
+
+	if (argc != 1) goto USAGE;
+
+	config_display(pCmdIO, &SMB_ConfigObj);
+	return;
+
+	USAGE:
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "showconfig"LINE_TERM);
+	return;
+}
+
+static void smb_cmd_fstest (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+{
+	const void* cmdIoParam = pCmdIO->cmdIoParam;
+	lfs_file_t file;
+	uint32_t calculated_crc;
+
+	if (argc != 1) goto USAGE;
+
+	assert (lfs_file_open(&lfs, &file, CONFIG_FILE_NAME, LFS_O_RDWR | LFS_O_CREAT) == LFS_ERR_OK);
+	assert (lfs_file_write(&lfs, &file, &SMB_ConfigObj, sizeof(SMB_ConfigObj_t)) == sizeof(SMB_ConfigObj_t));
+	assert (lfs_file_close(&lfs, &file) == LFS_ERR_OK);
+
+	// 새로 만든 config 파일의 crc 를 계산해서 crc 파일을 만들어 준다..
+	assert (HAL_CRC_GetState(&hcrc)== HAL_CRC_STATE_READY);
+	calculated_crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&SMB_ConfigObj, sizeof(SMB_ConfigObj_t));
+	printf("%s() Newly generated crc = %lx"LINE_TERM, __FUNCTION__, calculated_crc);
+
+	assert (lfs_file_open(&lfs, &file, CONFIG_CRC_FILE_NAME, LFS_O_RDWR | LFS_O_CREAT) == LFS_ERR_OK);
+	assert (lfs_file_write(&lfs, &file, (void *)&calculated_crc, sizeof(calculated_crc)) == sizeof(calculated_crc));
+	assert (lfs_file_close(&lfs, &file) == LFS_ERR_OK);
+	return;
+
+	USAGE:
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "fstest"LINE_TERM);
+	return;
+}
+
 static const SYS_CMD_DESCRIPTOR    FileSystem_CommandTbl []=
 {
-		{"fsshow", 			smb_cmd_fsshow, 			"\t\t- show little file system in detail"},
+		{"fsshow", 			smb_cmd_fsshow, 		"\t\t- show little file system in detail"},
 		{"ls", 				smb_cmd_fsls,			"\t\t\t- ls"},
 		{"mkfile", 			smb_cmd_fsmkfile,		"\t\t- mkfile file_name"},
 		{"del", 			smb_cmd_fsdelfile,		"\t\t- del file or directory name"},
@@ -545,9 +632,12 @@ static const SYS_CMD_DESCRIPTOR    FileSystem_CommandTbl []=
 		{"append", 			smb_cmd_fs_append,		"\t\t- append file_name foo bar (for example)"},
 		{"trunc", 			smb_cmd_fs_trunc,		"\t\t- truncate file_name offset (for example)"},
 
-		{"mkdir", 			smb_cmd_fsmkdir,			"\t\t- mkdir dir_name"},
+		{"mkdir", 			smb_cmd_fsmkdir,		"\t\t- mkdir dir_name"},
 		{"dir", 			smb_cmd_fsdir,			"\t\t- dir"},
 		{"format", 			smb_cmd_format,			"\t\t- format"},
+		{"showfsconfig", 	smb_cmd_showfsconfig,	"\t\t- showfsconfig"},
+		{"showconfig", 		smb_cmd_showconfig,		"\t\t- showconfig"},
+		{"fstest", 			smb_cmd_fstest,			"\t\t- fstest"},
 };
 
 bool smb_cmd_fs_add ()

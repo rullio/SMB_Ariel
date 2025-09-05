@@ -200,6 +200,8 @@ typedef enum {
 	TMR_IDX_SMB_DATA_SHOW,
 	TMR_IDX_SMB_STATUS_REPORT,
 	TMR_IDX_SMB_IAP_REQUEST,
+	TMR_IDX_SMB_MANIPULATION,
+	TMR_IDX_SMB_MANIPULATION_TEST,
 	TMR_IDX_END,
 } osTimerIndex_t;
 
@@ -286,6 +288,7 @@ typedef struct {
 #define	SMB_ADC_READ_TIMEOUT		TIMEOUT_1_SEC
 #define	SMB_DATA_SHOW_TIMEOUT		TIMEOUT_1_SEC
 #define	SMB_STATUS_REPORT_TIMEOUT	TIMEOUT_1_SEC
+#define	SMB_MANIPULATION_TIMEOUT	TIMEOUT_1_SEC
 
 // *****************************************************************************
 // Luminance
@@ -361,6 +364,7 @@ typedef struct {
 	bool				peri_manual_control_flag;
 	uint32_t			counter_rb_report;
 	bool				rb_working;
+	bool				smb_manipulation;
 
 } SMB_StatusObj_t;
 

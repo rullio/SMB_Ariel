@@ -94,18 +94,6 @@ bool rb_msg_build_up (rb_msg_t *rbmp, RB_Msg_type_t type, WorkModule_Entity_t ds
 	return true;
 }
 
-static bool rb_status_report(rb_msg_t *pq_msg)
-{
-//	printf("%s() : rb_msg = %d"LINE_TERM, __FUNCTION__, pq_msg->head.type);
-
-	// 정기적인 status report 는 우선 순위에서 밀려야 하므로  osTimerOnce 를 선택한다.
-	assert (osTimerList[TMR_IDX_SMB_STATUS_REPORT].osTimerId != NULL);
-	assert (osTimerStart(osTimerList[TMR_IDX_SMB_STATUS_REPORT].osTimerId, SMB_STATUS_REPORT_TIMEOUT) == osOK);
-
-	return true;
-}
-
-
 bool rb_msg_handler_tbl_init()
 {
 	for (uint32_t i = 0 ; i < RB_MSG_END ; i++) {
@@ -113,7 +101,6 @@ bool rb_msg_handler_tbl_init()
 	}
 
 	rb_msg_handler_tbl[RB_MSG_COMMAND] = rb_cmd_handler;
-	rb_msg_handler_tbl[RB_MSG_STATUS_REPORT] = rb_status_report;
 
 	assert (rb_command_handler_tbl_init() == true);
 

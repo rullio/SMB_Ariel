@@ -413,6 +413,25 @@ static void smb_cmd_show_adc (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv
 	return;
 }
 
+bool smb_manipulation_begin (void);
+
+static void smb_cmd_benchtest (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+{
+	const void* cmdIoParam = pCmdIO->cmdIoParam;
+
+	if (argc != 1) {
+		goto USAGE;
+	}
+
+	SMB_StatusObj.smb_manipulation = true;
+	smb_manipulation_begin();
+	return;
+
+	USAGE:
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "showadc"LINE_TERM);
+	return;
+}
+
 #if 0
 
 static void smb_cmd_set_offduty (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
@@ -482,6 +501,7 @@ static const SYS_CMD_DESCRIPTOR    bench_CommandTbl []=
 		{"ledlia1",			smb_cmd_set_ledlia1,	"\t\t- ledlia1 on/off"},
 		{"ledlia2",			smb_cmd_set_ledlia2,	"\t\t- ledlia2 on/off"},
 		{"showadc",			smb_cmd_show_adc,		"\t\t- showadc"},
+		{"benchtest",		smb_cmd_benchtest,		"\t\t- benchtest"},
 #if 0
 		{"setoffduty",		smb_cmd_set_offduty,	"\t\t- setoffduty 6 10 (for example 6:10 am)"},
 		{"setonduty",		smb_cmd_set_onduty,		"\t\t- setonduty 18 15 (for example 18:15 pm)"},

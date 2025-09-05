@@ -424,7 +424,7 @@ static bool s_SOH_soh_handler(ymodem_packet_t *ymp, uint16_t pkt_len)
 	assert (iapObj_init(&iapObj) == true);
 	//	assert (pkt_len == SOH_PACKET_SIZE);
 	// 이렇게 하면 SOH packet 이 깨지는 경우에 대한 대비가 없어서 발생하면 시스템이 죽어버린다...
-	if (pkt_len == SOH_PACKET_SIZE) {
+	if (pkt_len != SOH_PACKET_SIZE) {
 		assert (osTimerList[TMR_IDX_SMB_IAP_REQUEST].osTimerId != NULL);
 		assert (osTimerStop(osTimerList[TMR_IDX_SMB_IAP_REQUEST].osTimerId) == osOK);
 		assert (osTimerStart(osTimerList[TMR_IDX_SMB_IAP_REQUEST].osTimerId, SOH_REQ_TIMEOUT) == osOK);

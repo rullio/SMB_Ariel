@@ -169,7 +169,6 @@ static bool iap_SOH_req_handler(iap_msg_t *iap_msgp)
 	if (iapObj.iap_state == IAP_STATE_SOH) {
 		Serial_PutByte(CRC16);
 	}
-	assert (SOH_req_begin() == true);
 	return true;
 }
 

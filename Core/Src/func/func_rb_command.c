@@ -78,19 +78,6 @@ bool RB_CMD_SENSOR_RESET_handler(rb_command_t *rb_cmdp)
 	return true;
 }
 
-bool RB_CMD_SENSOR_STATUS_handler(rb_command_t *rb_cmdp)
-{
-	printf("%s()"LINE_TERM, __FUNCTION__);
-	sb_report_to_rb(RB_REPORT_SENSOR_STATUS, 0);
-	sb_report_to_rb(RB_REPORT_YUIW,			(uint32_t)SMB_adc_value.YUI);
-	sb_report_to_rb(RB_REPORT_MUI1W,		(uint32_t)SMB_adc_value.MUI1);
-	sb_report_to_rb(RB_REPORT_MUI2W,		(uint32_t)SMB_adc_value.MUI2);
-	sb_report_to_rb(RB_REPORT_AEDT,			(uint32_t)SMB_adc_value.AEDT);
-	sb_report_to_rb(RB_REPORT_CDS,			(uint32_t)SMB_adc_value.CDS);
-	sb_report_to_rb(RB_REPORT_LEDBAR_COLOR,	(uint32_t)SMB_ControlObj.ledbarObj.ledbar_color);
-	return true;
-}
-
 bool RB_CMD_LEDBAR_handler(rb_command_t *rb_cmdp)
 {
 	printf("%s() ", __FUNCTION__);
@@ -108,6 +95,14 @@ bool RB_CMD_LEDBAR_handler(rb_command_t *rb_cmdp)
 	return true;
 }
 
+bool smb_manipulation_begin (void)
+{
+	SMB_StatusObj.smb_manipulation = true;
+	assert (osTimerList[TMR_IDX_SMB_MANIPULATION].osTimerId != NULL);
+	assert (osTimerStart(osTimerList[TMR_IDX_SMB_MANIPULATION].osTimerId, SMB_MANIPULATION_TIMEOUT) == osOK);
+	return true;
+}
+
 bool RB_MANIPULATE_LEDBAR_handler(rb_command_t *rb_cmdp)
 {
 	printf("%s() "LINE_TERM, __FUNCTION__);
@@ -122,6 +117,7 @@ bool RB_MANIPULATE_LEDBAR_handler(rb_command_t *rb_cmdp)
 	}
 
 	SMB_ControlObj.ledbarObj.ledbar_color_set((ledbar_color_t)rb_cmdp->body[0]);
+	smb_manipulation_begin();
 	return true;
 }
 
@@ -132,6 +128,7 @@ bool RB_MANIPULATE_SIREN_handler(rb_command_t *rb_cmdp)
 	if (rb_cmdp->body[0] == 1) SMB_ControlObj.sirenObj.siren_set(SIREN_ON);
 	else SMB_ControlObj.sirenObj.siren_set(SIREN_OFF);
 
+	smb_manipulation_begin();
 	return true;
 }
 
@@ -139,15 +136,18 @@ bool RB_MANIPULATE_LTE_PWR_handler(rb_command_t *rb_cmdp)
 {
 	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
 
-	if (rb_cmdp->body[0] == 1) SMB_ControlObj.lteObj.lte_set(LTE_ON);
-	else SMB_ControlObj.lteObj.lte_set(LTE_OFF);
-
+//	 LTE 조절 금지..
+//	if (rb_cmdp->body[0] == 1) SMB_ControlObj.lteObj.lte_set(LTE_ON);
+//	else SMB_ControlObj.lteObj.lte_set(LTE_OFF);
+//
+//	smb_manipulation_begin();
 	return true;
 }
 
 bool RB_MANIPULATE_CHARGER_handler(rb_command_t *rb_cmdp)
 {
 
+	smb_manipulation_begin();
 	return true;
 }
 
@@ -157,6 +157,7 @@ bool RB_MANIPULATE_INVERTER_handler(rb_command_t *rb_cmdp)
 	if (rb_cmdp->body[0] == 1) SMB_ControlObj.inverterObj.inverter_set(INVERTER_ON);
 	else SMB_ControlObj.inverterObj.inverter_set(INVERTER_OFF);
 
+	smb_manipulation_begin();
 	return true;
 }
 
@@ -167,6 +168,7 @@ bool RB_MANIPULATE_LCD_PWR_handler(rb_command_t *rb_cmdp)
 	if (rb_cmdp->body[0] == 1) SMB_ControlObj.lcdObj.lcd_set(LCD_ON);
 	else SMB_ControlObj.lcdObj.lcd_set(LCD_OFF);
 
+	smb_manipulation_begin();
 	return true;
 }
 
@@ -176,6 +178,7 @@ bool RB_MANIPULATE_PTC_handler(rb_command_t *rb_cmdp)
 	if (rb_cmdp->body[0] == 1) SMB_ControlObj.ptcObj.ptc_set(PTC_ON);
 	else SMB_ControlObj.ptcObj.ptc_set(PTC_OFF);
 
+	smb_manipulation_begin();
 	return true;
 }
 
@@ -185,6 +188,7 @@ bool RB_MANIPULATE_LAMP_handler(rb_command_t *rb_cmdp)
 	if (rb_cmdp->body[0] == 1) SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_9);
 	else SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_0);
 
+	smb_manipulation_begin();
 	return true;
 }
 
@@ -194,6 +198,7 @@ bool RB_MANIPULATE_YUCHAR_handler(rb_command_t *rb_cmdp)
 	if (rb_cmdp->body[0] == 1) SMB_ControlObj.yucharObj.yuchar_set(YUCHAR_ON);
 	else SMB_ControlObj.yucharObj.yuchar_set(YUCHAR_OFF);
 
+	smb_manipulation_begin();
 	return true;
 }
 
@@ -203,6 +208,7 @@ bool RB_MANIPULATE_MUCHAR1_handler(rb_command_t *rb_cmdp)
 	if (rb_cmdp->body[0] == 1) SMB_ControlObj.muchar1Obj.muchar1_set(MUCHAR_ON);
 	else SMB_ControlObj.muchar1Obj.muchar1_set(MUCHAR_OFF);
 
+	smb_manipulation_begin();
 	return true;
 }
 
@@ -212,6 +218,7 @@ bool RB_MANIPULATE_MUCHAR2_handler(rb_command_t *rb_cmdp)
 	if (rb_cmdp->body[0] == 1) SMB_ControlObj.muchar2Obj.muchar2_set(MUCHAR_ON);
 	else SMB_ControlObj.muchar2Obj.muchar2_set(MUCHAR_OFF);
 
+	smb_manipulation_begin();
 	return true;
 }
 
@@ -221,12 +228,13 @@ bool RB_MANIPULATE_FAN_handler(rb_command_t *rb_cmdp)
 	if (rb_cmdp->body[0] == 1) SMB_ControlObj.fanObj.fan_set(FAN_ON);
 	else SMB_ControlObj.fanObj.fan_set(FAN_OFF);
 
+	smb_manipulation_begin();
 	return true;
 }
 
 bool RB_REPORT_SENSOR_STATUS_handler(rb_command_t *rb_cmdp)
 {
-	printf("%s() ", __FUNCTION__);
+//	printf("%s() "LINE_TERM, __FUNCTION__);
 	sb_report_to_rb(RB_REPORT_SENSOR_STATUS, 0);
 	sb_report_to_rb(RB_REPORT_YUIW,			(uint32_t)SMB_adc_value.YUI);
 	sb_report_to_rb(RB_REPORT_MUI1W,		(uint32_t)SMB_adc_value.MUI1);
@@ -266,7 +274,7 @@ bool RB_CONFIG_UNIX_DATE_handler(rb_command_t *rb_cmdp)
 	sDate.Year = RTC_ByteToBcd2(Year);
 	sDate.Month = RTC_ByteToBcd2(Month);
 	sDate.Date = RTC_ByteToBcd2(Date);
-	sDate.WeekDay = 0;		// GUI 에서 요일은 주지 않기 때문에 그냥 일요일로 설정한다.
+	sDate.WeekDay = RTC_WEEKDAY_SUNDAY;		// GUI 에서 요일은 주지 않기 때문에 그냥 일요일로 설정한다.
 
 	assert (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) == HAL_OK);
 
@@ -312,6 +320,22 @@ bool RB_CONFIG_UNIX_TIME_handler(rb_command_t *rb_cmdp)
 	return true;
 }
 
+/***********************************************************************************************************************
+ *
+ *
+ * save_smb_configObj_onto_fs() 를 call 하는 모든 thread 는 app_entry() 에서 stack size 를 32 로 키워 주어야만 한다..
+ * save_smb_configObj_onto_fs() 를 call 하는 모든 thread 는 app_entry() 에서 stack size 를 32 로 키워 주어야만 한다..
+ * save_smb_configObj_onto_fs() 를 call 하는 모든 thread 는 app_entry() 에서 stack size 를 32 로 키워 주어야만 한다..
+ * save_smb_configObj_onto_fs() 를 call 하는 모든 thread 는 app_entry() 에서 stack size 를 32 로 키워 주어야만 한다..
+ * save_smb_configObj_onto_fs() 를 call 하는 모든 thread 는 app_entry() 에서 stack size 를 32 로 키워 주어야만 한다..
+ * save_smb_configObj_onto_fs() 를 call 하는 모든 thread 는 app_entry() 에서 stack size 를 32 로 키워 주어야만 한다..
+ * save_smb_configObj_onto_fs() 를 call 하는 모든 thread 는 app_entry() 에서 stack size 를 32 로 키워 주어야만 한다..
+ * save_smb_configObj_onto_fs() 를 call 하는 모든 thread 는 app_entry() 에서 stack size 를 32 로 키워 주어야만 한다..
+ * save_smb_configObj_onto_fs() 를 call 하는 모든 thread 는 app_entry() 에서 stack size 를 32 로 키워 주어야만 한다..
+ * save_smb_configObj_onto_fs() 를 call 하는 모든 thread 는 app_entry() 에서 stack size 를 32 로 키워 주어야만 한다..
+ *
+ *
+***********************************************************************************************************************/
 bool save_smb_configObj_onto_fs(SMB_ConfigObj_t *pconfig)
 {
 	lfs_file_t file;
@@ -370,7 +394,6 @@ bool RB_CONFIG_ON_DUTY_TIME_handler(rb_command_t *rb_cmdp)
 	assert (rb_cmdp->body[1] < 59);
 	SMB_ConfigObj.lamp_on_duty.Hours = rb_cmdp->body[0];
 	SMB_ConfigObj.lamp_on_duty.Minutes = rb_cmdp->body[1];
-
 	save_smb_configObj_onto_fs(&SMB_ConfigObj);
 
 	return true;
@@ -385,7 +408,8 @@ bool rb_command_handler_tbl_init()
 	rb_cmd_handler_tbl[RB_INFO_RB_WORK_BEGIN]		= RB_INFO_RB_WORK_BEGIN_handler;
 	rb_cmd_handler_tbl[RB_INFO_RB_WORK_HALT]		= RB_INFO_RB_WORK_HALT_handler;
 	rb_cmd_handler_tbl[RB_CMD_SENSOR_RESET]			= RB_CMD_SENSOR_RESET_handler;
-	rb_cmd_handler_tbl[RB_CMD_SENSOR_STATUS]		= RB_CMD_SENSOR_STATUS_handler;
+	//  RB thread 에서 timeout 에 의해 오는 것이지만 RB 에서 상태요청을 하는 RB_CMD_SENSOR_STATUS 명령을 받았을 때와 동일하게 처리한다.
+	rb_cmd_handler_tbl[RB_CMD_SENSOR_STATUS]		= RB_REPORT_SENSOR_STATUS_handler;
 	rb_cmd_handler_tbl[RB_CMD_LEDBAR]				= RB_CMD_LEDBAR_handler;
 	rb_cmd_handler_tbl[RB_MANIPULATE_LEDBAR]		= RB_MANIPULATE_LEDBAR_handler;
 	rb_cmd_handler_tbl[RB_MANIPULATE_SIREN]			= RB_MANIPULATE_SIREN_handler;
@@ -417,7 +441,7 @@ bool rb_command_handler_tbl_init()
 bool rb_cmd_handler(rb_msg_t *pq_msg)
 {
 	if ((SMB_StatusObj.rb_working != true) && (pq_msg->rb_command.type != RB_INFO_RB_WORK_BEGIN)) {
-		printf("%s() : SBStatusObj.rb_working = false"LINE_TERM, __FUNCTION__);
+		printf("%s() : SMB_StatusObj.rb_working = false"LINE_TERM, __FUNCTION__);
 		return true;
 	}
 	// Raspberry 가 흔들리면 여기서 실제로 checksum error 가 발생한다. checksum 이 맞을 때만 처리한다.

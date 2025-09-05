@@ -94,19 +94,24 @@ static void smb_data_show_cb (void *arg)
 	osMessageQueuePut(managerThreadQ, &manager_msg, 0U, 0U);
 }
 
-static void smb_status_report (void *arg)
+static void smb_status_report_cb (void *arg)
 {
 	rb_msg_t rb_msg;
 
 	memset (&rb_msg, 0, sizeof(rb_msg));
-	rb_msg.head.type = RB_MSG_STATUS_REPORT;
+
+	rb_msg.head.type = RB_MSG_COMMAND;
 	rb_msg.head.dst = WORKM_RB;
-	rb_msg.head.src = WORKM_TIMER;
+	rb_msg.head.src = WORKM_RB;
 	rb_msg.head.len = RBERRY_MSG_LENGTH;
+
+	rb_msg.rb_command.type = RB_REPORT_SENSOR_STATUS;
+	rb_msg.rb_command.len = 0;
+	rb_msg.rb_command.checksum = checksum((uint8_t *)&rb_msg.rb_command, 6);
+	rb_msg.rb_command.end_marker = END_MARKER;
 
 	osMessageQueuePut(rbThreadQ, &rb_msg, 0U, 0U);
 }
-
 
 static void SOH_req_timeout_cb (void *arg)
 {
@@ -123,6 +128,12 @@ static void SOH_req_timeout_cb (void *arg)
 	osMessageQueuePut(iapThreadQ, &iap_msg, 0U, 0U);
 }
 
+static void SMB_manipulation_timeout_cb (void *arg)
+{
+	printf("%s()"LINE_TERM, __FUNCTION__);
+	SMB_StatusObj.smb_manipulation = false;
+}
+
 bool osTimerList_init(osTimerEntry_t osTimerList[])
 {
 	for (uint32_t i = TMR_IDX_BEGIN ; i < TMR_IDX_END ; i++) {
@@ -136,51 +147,58 @@ bool osTimerList_init(osTimerEntry_t osTimerList[])
 	osTimerList[TMR_IDX_LED_ACT_TOGGLE].osTimerType = osTimerPeriodic;
 	osTimerList[TMR_IDX_LED_ACT_TOGGLE].timeout_tick = LED_ACT_TOGGLE_TIMEOUT;
 	osTimerList[TMR_IDX_LED_ACT_TOGGLE].timeout_cb = led_act_toggle_timeout_cb;
-	osTimerList[TMR_IDX_LED_ACT_TOGGLE].osTimerId = osTimerNew(osTimerList[TMR_IDX_LED_ACT_TOGGLE].timeout_cb, osTimerList[TMR_IDX_LED_ACT_TOGGLE].timeout_tick, NULL, NULL);
+	osTimerList[TMR_IDX_LED_ACT_TOGGLE].osTimerId = osTimerNew(osTimerList[TMR_IDX_LED_ACT_TOGGLE].timeout_cb, osTimerList[TMR_IDX_LED_ACT_TOGGLE].osTimerType, NULL, NULL);
 	assert (osTimerList[TMR_IDX_LED_ACT_TOGGLE].osTimerId != NULL);
 	strcpy (osTimerList[TMR_IDX_LED_ACT_TOGGLE].timer_description, "OS_TIMER_INDEX_LED_ACT_TOGGLE");
 
 	osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].osTimerType = osTimerPeriodic;
 	osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].timeout_tick = CONSOLE_SCAN_TIMEOUT;
 	osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].timeout_cb = console_scan_timeout_cb;
-	osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].osTimerId = osTimerNew(osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].timeout_cb, osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].timeout_tick, NULL, NULL);
+	osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].osTimerId = osTimerNew(osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].timeout_cb, osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].osTimerType, NULL, NULL);
 	assert (osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].osTimerId != NULL);
 	strcpy (osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].timer_description, "OS_TIMER_INDEX_CLI_CONSOLE_SCAN");
 
 	osTimerList[TMR_IDX_UPTIME_COUNT].osTimerType = osTimerPeriodic;
 	osTimerList[TMR_IDX_UPTIME_COUNT].timeout_tick = UPTIME_COUNT_TIMEOUT;
 	osTimerList[TMR_IDX_UPTIME_COUNT].timeout_cb = uptime_counter_timeout_cb;
-	osTimerList[TMR_IDX_UPTIME_COUNT].osTimerId = osTimerNew(osTimerList[TMR_IDX_UPTIME_COUNT].timeout_cb, osTimerList[TMR_IDX_UPTIME_COUNT].timeout_tick, NULL, NULL);
+	osTimerList[TMR_IDX_UPTIME_COUNT].osTimerId = osTimerNew(osTimerList[TMR_IDX_UPTIME_COUNT].timeout_cb, osTimerList[TMR_IDX_UPTIME_COUNT].osTimerType, NULL, NULL);
 	assert (osTimerList[TMR_IDX_UPTIME_COUNT].osTimerId != NULL);
 	strcpy (osTimerList[TMR_IDX_UPTIME_COUNT].timer_description, "OS_TIMER_INDEX_UPTIME_COUNT");
 
 	osTimerList[TMR_IDX_ADC_READ].osTimerType = osTimerPeriodic;
 	osTimerList[TMR_IDX_ADC_READ].timeout_tick = SMB_ADC_READ_TIMEOUT;
 	osTimerList[TMR_IDX_ADC_READ].timeout_cb = smb_adc_read_cb;
-	osTimerList[TMR_IDX_ADC_READ].osTimerId = osTimerNew(osTimerList[TMR_IDX_ADC_READ].timeout_cb, osTimerList[TMR_IDX_ADC_READ].timeout_tick, NULL, NULL);
+	osTimerList[TMR_IDX_ADC_READ].osTimerId = osTimerNew(osTimerList[TMR_IDX_ADC_READ].timeout_cb, osTimerList[TMR_IDX_ADC_READ].osTimerType, NULL, NULL);
 	assert (osTimerList[TMR_IDX_ADC_READ].osTimerId != NULL);
 	strcpy (osTimerList[TMR_IDX_ADC_READ].timer_description, "TMR_IDX_ADC_READ");
 
 	osTimerList[TMR_IDX_SMB_DATA_SHOW].osTimerType = osTimerPeriodic;
 	osTimerList[TMR_IDX_SMB_DATA_SHOW].timeout_tick = SMB_DATA_SHOW_TIMEOUT;
 	osTimerList[TMR_IDX_SMB_DATA_SHOW].timeout_cb = smb_data_show_cb;
-	osTimerList[TMR_IDX_SMB_DATA_SHOW].osTimerId = osTimerNew(osTimerList[TMR_IDX_SMB_DATA_SHOW].timeout_cb, osTimerList[TMR_IDX_SMB_DATA_SHOW].timeout_tick, NULL, NULL);
+	osTimerList[TMR_IDX_SMB_DATA_SHOW].osTimerId = osTimerNew(osTimerList[TMR_IDX_SMB_DATA_SHOW].timeout_cb, osTimerList[TMR_IDX_SMB_DATA_SHOW].osTimerType, NULL, NULL);
 	assert (osTimerList[TMR_IDX_SMB_DATA_SHOW].osTimerId != NULL);
 	strcpy (osTimerList[TMR_IDX_SMB_DATA_SHOW].timer_description, "TMR_IDX_SMB_DATA_SHOW");
 
-	osTimerList[TMR_IDX_SMB_STATUS_REPORT].osTimerType = osTimerOnce;
+	osTimerList[TMR_IDX_SMB_STATUS_REPORT].osTimerType = osTimerPeriodic;
 	osTimerList[TMR_IDX_SMB_STATUS_REPORT].timeout_tick = SMB_STATUS_REPORT_TIMEOUT;
-	osTimerList[TMR_IDX_SMB_STATUS_REPORT].timeout_cb = smb_status_report;
-	osTimerList[TMR_IDX_SMB_STATUS_REPORT].osTimerId = osTimerNew(osTimerList[TMR_IDX_SMB_STATUS_REPORT].timeout_cb, osTimerList[TMR_IDX_SMB_STATUS_REPORT].timeout_tick, NULL, NULL);
+	osTimerList[TMR_IDX_SMB_STATUS_REPORT].timeout_cb = smb_status_report_cb;
+	osTimerList[TMR_IDX_SMB_STATUS_REPORT].osTimerId = osTimerNew(osTimerList[TMR_IDX_SMB_STATUS_REPORT].timeout_cb, osTimerList[TMR_IDX_SMB_STATUS_REPORT].osTimerType, NULL, NULL);
 	assert (osTimerList[TMR_IDX_SMB_STATUS_REPORT].osTimerId != NULL);
 	strcpy (osTimerList[TMR_IDX_SMB_STATUS_REPORT].timer_description, "TMR_IDX_SMB_STATUS_REPORT");
 
-	osTimerList[TMR_IDX_SMB_IAP_REQUEST].osTimerType = osTimerOnce;
+	osTimerList[TMR_IDX_SMB_IAP_REQUEST].osTimerType = osTimerPeriodic;
 	osTimerList[TMR_IDX_SMB_IAP_REQUEST].timeout_tick = SOH_REQ_TIMEOUT;
 	osTimerList[TMR_IDX_SMB_IAP_REQUEST].timeout_cb = SOH_req_timeout_cb;
-	osTimerList[TMR_IDX_SMB_IAP_REQUEST].osTimerId = osTimerNew(osTimerList[TMR_IDX_SMB_IAP_REQUEST].timeout_cb, osTimerList[TMR_IDX_SMB_IAP_REQUEST].timeout_tick, NULL, NULL);
+	osTimerList[TMR_IDX_SMB_IAP_REQUEST].osTimerId = osTimerNew(osTimerList[TMR_IDX_SMB_IAP_REQUEST].timeout_cb, osTimerList[TMR_IDX_SMB_IAP_REQUEST].osTimerType, NULL, NULL);
 	assert (osTimerList[TMR_IDX_SMB_IAP_REQUEST].osTimerId != NULL);
 	strcpy (osTimerList[TMR_IDX_SMB_IAP_REQUEST].timer_description, "TMR_IDX_SMB_IAP_REQUEST");
+
+	osTimerList[TMR_IDX_SMB_MANIPULATION].osTimerType = osTimerOnce;
+	osTimerList[TMR_IDX_SMB_MANIPULATION].timeout_tick = SMB_MANIPULATION_TIMEOUT;
+	osTimerList[TMR_IDX_SMB_MANIPULATION].timeout_cb = SMB_manipulation_timeout_cb;
+	osTimerList[TMR_IDX_SMB_MANIPULATION].osTimerId = osTimerNew(osTimerList[TMR_IDX_SMB_MANIPULATION].timeout_cb, osTimerList[TMR_IDX_SMB_MANIPULATION].osTimerType, NULL, NULL);
+	assert (osTimerList[TMR_IDX_SMB_MANIPULATION].osTimerId != NULL);
+	strcpy (osTimerList[TMR_IDX_SMB_MANIPULATION].timer_description, "TMR_IDX_SMB_MANIPULATION");
 
 	assert (led_act_toggle_begin() == true);
 	assert (uptime_counter_begin() == true);

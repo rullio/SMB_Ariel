@@ -97,7 +97,7 @@ const osThreadAttr_t SMB_Cli_Thread_attr = {
 #define CFG_RB_THREAD_CB_SIZE     (0)
 #define CFG_RB_THREAD_STACK_MEM   (0)
 #define CFG_RB_THREAD_PRIORITY    osPriorityAboveNormal
-#define CFG_RB_THREAD_STACK_SIZE  (configMINIMAL_STACK_SIZE * 8)
+#define CFG_RB_THREAD_STACK_SIZE  (configMINIMAL_STACK_SIZE * 32)		// IAP 도 file access 해야 하므로 stack 을 키워주어야 한다.
 
 const osThreadAttr_t SMB_RB_Thread_Attr = {
 		.name = 		CFG_RB_THREAD_NAME,
