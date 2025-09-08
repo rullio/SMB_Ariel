@@ -86,13 +86,13 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : EMER_BTN_Pin FLOOD_Pin */
   GPIO_InitStruct.Pin = EMER_BTN_Pin|FLOOD_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
   /*Configure GPIO pins : FIRE_DOOR_Pin AED_DOOR_Pin */
   GPIO_InitStruct.Pin = FIRE_DOOR_Pin|AED_DOOR_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 

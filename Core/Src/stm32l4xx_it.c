@@ -179,7 +179,7 @@ void DebugMon_Handler(void)
 void RCC_IRQHandler(void)
 {
   /* USER CODE BEGIN RCC_IRQn 0 */
-	SMBIntrObj.RCC_Intr_count++;
+	SMB_IntrObj.RCC_Intr_count++;
 
   /* USER CODE END RCC_IRQn 0 */
   /* USER CODE BEGIN RCC_IRQn 1 */
@@ -193,7 +193,7 @@ void RCC_IRQHandler(void)
 void DMA1_Channel1_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
-	SMBIntrObj.DMA1_Chan_1_count++;
+	SMB_IntrObj.DMA1_Chan_1_count++;
 
   /* USER CODE END DMA1_Channel1_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_adc1);
@@ -208,7 +208,7 @@ void DMA1_Channel1_IRQHandler(void)
 void DMA1_Channel3_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel3_IRQn 0 */
-	SMBIntrObj.DMA1_Chan_3_count++;
+	SMB_IntrObj.DMA1_Chan_3_count++;
 
   /* USER CODE END DMA1_Channel3_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_usart3_rx);
@@ -223,7 +223,7 @@ void DMA1_Channel3_IRQHandler(void)
 void DMA1_Channel4_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel4_IRQn 0 */
-	SMBIntrObj.DMA1_Chan_4_count++;
+	SMB_IntrObj.DMA1_Chan_4_count++;
 
   /* USER CODE END DMA1_Channel4_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_usart1_tx);
@@ -238,7 +238,7 @@ void DMA1_Channel4_IRQHandler(void)
 void DMA1_Channel6_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel6_IRQn 0 */
-	SMBIntrObj.DMA1_Chan_6_count++;
+	SMB_IntrObj.DMA1_Chan_6_count++;
 
   /* USER CODE END DMA1_Channel6_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_usart2_rx);
@@ -253,7 +253,7 @@ void DMA1_Channel6_IRQHandler(void)
 void DMA1_Channel7_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel7_IRQn 0 */
-	SMBIntrObj.DMA1_Chan_7_count++;
+	SMB_IntrObj.DMA1_Chan_7_count++;
 
   /* USER CODE END DMA1_Channel7_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_usart2_tx);
@@ -268,7 +268,7 @@ void DMA1_Channel7_IRQHandler(void)
 void ADC1_2_IRQHandler(void)
 {
   /* USER CODE BEGIN ADC1_2_IRQn 0 */
-	SMBIntrObj.ADC1_2_count++;
+	SMB_IntrObj.ADC1_2_count++;
 
   /* USER CODE END ADC1_2_IRQn 0 */
   HAL_ADC_IRQHandler(&hadc1);
@@ -283,7 +283,7 @@ void ADC1_2_IRQHandler(void)
 void EXTI9_5_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI9_5_IRQn 0 */
-	SMBIntrObj.EXTI9_5_count++;
+	SMB_IntrObj.EXTI9_5_count++;
 
   /* USER CODE END EXTI9_5_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(EMER_BTN_Pin);
@@ -299,7 +299,7 @@ void EXTI9_5_IRQHandler(void)
 void TIM1_UP_TIM16_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 0 */
-	SMBIntrObj.TIM1_UP_16_count++;
+	SMB_IntrObj.TIM1_UP_16_count++;
 
   /* USER CODE END TIM1_UP_TIM16_IRQn 0 */
   HAL_TIM_IRQHandler(&htim16);
@@ -314,7 +314,7 @@ void TIM1_UP_TIM16_IRQHandler(void)
 void SPI1_IRQHandler(void)
 {
   /* USER CODE BEGIN SPI1_IRQn 0 */
-	SMBIntrObj.SPI1_count++;
+	SMB_IntrObj.SPI1_count++;
 
   /* USER CODE END SPI1_IRQn 0 */
   HAL_SPI_IRQHandler(&hspi1);
@@ -329,7 +329,7 @@ void SPI1_IRQHandler(void)
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
-	SMBIntrObj.USART1_count++;
+	SMB_IntrObj.USART1_count++;
 
   /* USER CODE END USART1_IRQn 0 */
   HAL_UART_IRQHandler(&huart1);
@@ -344,7 +344,7 @@ void USART1_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
-	SMBIntrObj.USART2_count++;
+	SMB_IntrObj.USART2_count++;
 
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
@@ -359,7 +359,7 @@ void USART2_IRQHandler(void)
 void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
-	SMBIntrObj.USART3_count++;
+	SMB_IntrObj.USART3_count++;
 
   /* USER CODE END USART3_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);
@@ -374,7 +374,7 @@ void USART3_IRQHandler(void)
 void EXTI15_10_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
-	SMBIntrObj.EXTI15_10_count++;
+	SMB_IntrObj.EXTI15_10_count++;
 
   /* USER CODE END EXTI15_10_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(AED_DOOR_Pin);
@@ -390,7 +390,7 @@ void EXTI15_10_IRQHandler(void)
 void UART4_IRQHandler(void)
 {
   /* USER CODE BEGIN UART4_IRQn 0 */
-	SMBIntrObj.USART4_count++;
+	SMB_IntrObj.USART4_count++;
 
   /* USER CODE END UART4_IRQn 0 */
   HAL_UART_IRQHandler(&huart4);
@@ -405,7 +405,7 @@ void UART4_IRQHandler(void)
 void DMA2_Channel3_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA2_Channel3_IRQn 0 */
-	SMBIntrObj.DMA2_Chan_3_count++;
+	SMB_IntrObj.DMA2_Chan_3_count++;
 
   /* USER CODE END DMA2_Channel3_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_uart4_tx);
@@ -420,7 +420,7 @@ void DMA2_Channel3_IRQHandler(void)
 void DMA2_Channel5_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA2_Channel5_IRQn 0 */
-	SMBIntrObj.DMA2_Chan_5_count++;
+	SMB_IntrObj.DMA2_Chan_5_count++;
 
   /* USER CODE END DMA2_Channel5_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_uart4_rx);

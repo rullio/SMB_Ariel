@@ -39,13 +39,13 @@ bool get_SMB_config (SMB_ConfigObj_t *pconfig);
 bool get_factory_default (SMB_ConfigObj_t *pconfig);
 bool osTimerList_init(osTimerEntry_t osTimerList[]);
 
-static bool SMBIntrObj_init(SMBIntrObj_t *psio)
+static bool SMB_IntrObj_init(SMB_IntrObj_t *psio)
 {
-	memset ((void *)psio, 0, sizeof(SMBIntrObj_t));
+	memset ((void *)psio, 0, sizeof(SMB_IntrObj_t));
 	return true;
 }
 
-static bool SMBConfigObj_init(SMB_ConfigObj_t *pconfig)
+static bool SMB_ConfigObj_init(SMB_ConfigObj_t *pconfig)
 {
 	if (get_SMB_config(pconfig) != true) {
 		assert (get_factory_default(pconfig) == true);
@@ -55,7 +55,7 @@ static bool SMBConfigObj_init(SMB_ConfigObj_t *pconfig)
 	return true;
 }
 
-static bool SMBStatusObj_init(SMB_StatusObj_t *pStatusObj)
+static bool SMB_StatusObj_init(SMB_StatusObj_t *pStatusObj)
 {
 	memset(pStatusObj, 0, sizeof(SMB_StatusObj_t));
 
@@ -100,7 +100,9 @@ static bool SMBStatusObj_init(SMB_StatusObj_t *pStatusObj)
 	return true;
 }
 
-static bool SMBControlObj_init(SMB_ControlObj_t *pControlObj)
+//여기는 구조체 초기화하고 맨 처음 초기값만 잡는다.
+//실제로 출력값은 smb_thread_manager() 에서 부르는 smb_peripheral_outpout_set() 에서 설정한다.
+static bool SMB_ControlObj_init(SMB_ControlObj_t *pControlObj)
 {
 	/*******************************************************************************
 	 LEDBAR Object
@@ -181,12 +183,12 @@ static bool SMBControlObj_init(SMB_ControlObj_t *pControlObj)
 void smb_thread_init (void *arg)
 {
 	DbgTraceInit();
-	assert (SMBIntrObj_init(&SMBIntrObj) == true);
 	assert (eflash_ifc_init(NULL) == true);
 	assert (LittleFS_init() == true);
-	assert (SMBConfigObj_init(&SMB_ConfigObj) == true);
-	assert (SMBStatusObj_init(&SMB_StatusObj) == true);
-	assert (SMBControlObj_init(&SMB_ControlObj) == true);
+	assert (SMB_IntrObj_init(&SMB_IntrObj) == true);
+	assert (SMB_ConfigObj_init(&SMB_ConfigObj) == true);
+	assert (SMB_StatusObj_init(&SMB_StatusObj) == true);
+	assert (SMB_ControlObj_init(&SMB_ControlObj) == true);
 	assert (SMB_ManiObj_backup(&SMB_ManiObj, &SMB_ControlObj) == true);
 	assert (osTimerList_init(osTimerList) == true);
 

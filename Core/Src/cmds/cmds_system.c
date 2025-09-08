@@ -756,24 +756,24 @@ static void smb_cmd_show_intr (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **arg
 
 	if (argc != 1) goto USAGE;
 
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "RCC_Intr_count = %d"LINE_TERM, SMBIntrObj.RCC_Intr_count);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "DMA1_Chan_1_count = %d"LINE_TERM, SMBIntrObj.DMA1_Chan_1_count);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "DMA1_Chan_3_count = %d"LINE_TERM, SMBIntrObj.DMA1_Chan_3_count);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "DMA1_Chan_4_count = %d"LINE_TERM, SMBIntrObj.DMA1_Chan_4_count);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "DMA1_Chan_6_count = %d"LINE_TERM, SMBIntrObj.DMA1_Chan_6_count);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "DMA1_Chan_7_count = %d"LINE_TERM, SMBIntrObj.DMA1_Chan_7_count);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "ADC1_2_count = %d"LINE_TERM,SMBIntrObj. ADC1_2_count);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "EXTI9_5_count = %d"LINE_TERM, SMBIntrObj.EXTI9_5_count);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "TIM1_UP_16_count = %d"LINE_TERM, SMBIntrObj.TIM1_UP_16_count);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "TIM4_count = %d"LINE_TERM, SMBIntrObj.TIM4_count);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "SPI1_count = %d"LINE_TERM, SMBIntrObj.SPI1_count);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "USART1_count = %d"LINE_TERM, SMBIntrObj.USART1_count);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "USART2_count = %d"LINE_TERM, SMBIntrObj.USART2_count);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "USART3_count = %d"LINE_TERM, SMBIntrObj.USART3_count);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "EXTI15_10_count = %d"LINE_TERM, SMBIntrObj.EXTI15_10_count);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "USART4_count = %d"LINE_TERM, SMBIntrObj.USART4_count);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "DMA2_Chan_3_count = %d"LINE_TERM, SMBIntrObj.DMA2_Chan_3_count);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "DMA2_Chan_5_count = %d"LINE_TERM, SMBIntrObj.DMA2_Chan_5_count);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "RCC_Intr_count = %d"LINE_TERM, SMB_IntrObj.RCC_Intr_count);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "DMA1_Chan_1_count = %d"LINE_TERM, SMB_IntrObj.DMA1_Chan_1_count);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "DMA1_Chan_3_count = %d"LINE_TERM, SMB_IntrObj.DMA1_Chan_3_count);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "DMA1_Chan_4_count = %d"LINE_TERM, SMB_IntrObj.DMA1_Chan_4_count);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "DMA1_Chan_6_count = %d"LINE_TERM, SMB_IntrObj.DMA1_Chan_6_count);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "DMA1_Chan_7_count = %d"LINE_TERM, SMB_IntrObj.DMA1_Chan_7_count);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "ADC1_2_count = %d"LINE_TERM,SMB_IntrObj. ADC1_2_count);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "EXTI9_5_count = %d"LINE_TERM, SMB_IntrObj.EXTI9_5_count);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "TIM1_UP_16_count = %d"LINE_TERM, SMB_IntrObj.TIM1_UP_16_count);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "TIM4_count = %d"LINE_TERM, SMB_IntrObj.TIM4_count);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "SPI1_count = %d"LINE_TERM, SMB_IntrObj.SPI1_count);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "USART1_count = %d"LINE_TERM, SMB_IntrObj.USART1_count);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "USART2_count = %d"LINE_TERM, SMB_IntrObj.USART2_count);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "USART3_count = %d"LINE_TERM, SMB_IntrObj.USART3_count);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "EXTI15_10_count = %d"LINE_TERM, SMB_IntrObj.EXTI15_10_count);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "USART4_count = %d"LINE_TERM, SMB_IntrObj.USART4_count);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "DMA2_Chan_3_count = %d"LINE_TERM, SMB_IntrObj.DMA2_Chan_3_count);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "DMA2_Chan_5_count = %d"LINE_TERM, SMB_IntrObj.DMA2_Chan_5_count);
 
 	return;
 

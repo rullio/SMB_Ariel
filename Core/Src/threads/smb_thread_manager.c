@@ -49,7 +49,7 @@ static bool smb_peripheral_outpout_set(SMB_ControlObj_t *pControlObj)
 {
 	pControlObj->ledbarObj.ledbar_color_set(LEDBAR_OFF);
 	pControlObj->sirenObj.siren_set(SIREN_OFF);
-	pControlObj->lteObj.lte_set(LTE_OFF);
+	pControlObj->lteObj.lte_set(LTE_ON);
 	pControlObj->ptcObj.ptc_set(PTC_OFF);
 	pControlObj->yucharObj.yuchar_set(YUCHAR_ON);
 	pControlObj->muchar1Obj.muchar1_set(MUCHAR1_ON);

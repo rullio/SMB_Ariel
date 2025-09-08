@@ -537,6 +537,7 @@ static void config_display(SYS_CMD_DEVICE_NODE* pCmdIO, SMB_ConfigObj_t *p)
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
 
 	(*pCmdIO->pCmdApi->print)(cmdIoParam, "machine_serial_no \t= %#010"PRIx32 LINE_TERM, p->machine_serial_no);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "work_mode \t\t= %s"LINE_TERM, (p->work_mode == SMB_MODE_NETWORK)?"SMB_MODE_NETWORK":"SMB_MODE_STANDALONE");
 	(*pCmdIO->pCmdApi->print)(cmdIoParam, "site address \t\t= %s"LINE_TERM, p->site_address);
 	(*pCmdIO->pCmdApi->print)(cmdIoParam, "install_worker \t\t= %s"LINE_TERM, p->install_worker);
 	(*pCmdIO->pCmdApi->print)(cmdIoParam, "install date \t\t= 20%02d/%d/%d"LINE_TERM, p->install_Date.Year, p->install_Date.Month, p->install_Date.Date);
@@ -545,15 +546,18 @@ static void config_display(SYS_CMD_DEVICE_NODE* pCmdIO, SMB_ConfigObj_t *p)
 	(*pCmdIO->pCmdApi->print)(cmdIoParam, "running firmware \t= %s"LINE_TERM, p->running_fw);
 	(*pCmdIO->pCmdApi->print)(cmdIoParam, "motion_latency \t\t= %d (sec)"LINE_TERM, p->motion_latency);
 	(*pCmdIO->pCmdApi->print)(cmdIoParam, "siren_on_time \t\t= %d (sec)"LINE_TERM, p->siren_on_time);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "fan_on_aedt_high \t= %d (do)"LINE_TERM, p->fan_on_aedt_high);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "fan_on_aedt_low \t= %d (do)"LINE_TERM, p->fan_on_aedt_low);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "ptc_on_aedt_high \t= %d (do)"LINE_TERM, p->ptc_on_aedt_high);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "ptc_on_aedt_low \t= %d (do)"LINE_TERM, p->ptc_on_aedt_low);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "fan_on_aedt_high \t= %2d ºC"LINE_TERM, p->fan_on_aedt_high);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "fan_on_aedt_low \t= %2d ºC"LINE_TERM, p->fan_on_aedt_low);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "ptc_on_aedt_high \t= %2d ºC"LINE_TERM, p->ptc_on_aedt_high);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "ptc_on_aedt_low \t= %2d ºC"LINE_TERM, p->ptc_on_aedt_low);
 
 	(*pCmdIO->pCmdApi->print)(cmdIoParam, "lamp_on_duty_time \t= %2d:%2d:%2d %s"LINE_TERM, \
 			p->lamp_on_duty.Hours, p->lamp_on_duty.Minutes, p->lamp_on_duty.Seconds, (p->lamp_on_duty.Hours < 12)?"am":"pm");
 	(*pCmdIO->pCmdApi->print)(cmdIoParam, "lamp_off_duty_time \t= %2d:%2d:%2d %s"LINE_TERM, \
 			p->lamp_off_duty.Hours, p->lamp_off_duty.Minutes, p->lamp_off_duty.Seconds, (p->lamp_off_duty.Hours < 12)?"am":"pm");
+
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "sonic_threshold \t= 0x%04x"LINE_TERM, p->sonic_threshold);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "luminance_threshold \t= 0x%04x"LINE_TERM, p->luminance_threshold);
 
 	return;
 }

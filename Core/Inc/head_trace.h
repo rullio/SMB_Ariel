@@ -65,7 +65,7 @@
  * max buffer Size to queue data traces and max data trace allowed.
  * Only Used if DBG_TRACE_USE_CIRCULAR_QUEUE is defined
  */
-#define DBG_TRACE_MSG_QUEUE_SIZE	2048
+#define DBG_TRACE_MSG_QUEUE_SIZE	4096		// 2048 로 했더니 smb 명령에서 자꾸 화면이 깨진다. 그래서 4096으로 했더니 안깨진다.
 
 /******************************************************************************
  * Configure Log level for Application

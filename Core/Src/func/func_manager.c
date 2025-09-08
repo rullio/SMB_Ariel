@@ -125,6 +125,7 @@ static bool manager_msg_handler_data_show (manager_msg_t *pmsg)
 
 static bool manager_msg_handler_emer_btn (manager_msg_t *pmsg)
 {
+	printf("%s()"LINE_TERM, __FUNCTION__);
 	led_com_toggle;
 
 	return true;
@@ -132,6 +133,7 @@ static bool manager_msg_handler_emer_btn (manager_msg_t *pmsg)
 
 static bool manager_msg_handler_fire_door (manager_msg_t *pmsg)
 {
+	printf("%s()"LINE_TERM, __FUNCTION__);
 	led_com_toggle;
 
 	return true;
@@ -139,6 +141,7 @@ static bool manager_msg_handler_fire_door (manager_msg_t *pmsg)
 
 static bool manager_msg_handler_aed_door (manager_msg_t *pmsg)
 {
+	printf("%s()"LINE_TERM, __FUNCTION__);
 	led_com_toggle;
 
 	return true;
@@ -146,6 +149,7 @@ static bool manager_msg_handler_aed_door (manager_msg_t *pmsg)
 
 static bool manager_msg_handler_flooding (manager_msg_t *pmsg)
 {
+	printf("%s()"LINE_TERM, __FUNCTION__);
 	led_com_toggle;
 
 	return true;

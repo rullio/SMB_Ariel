@@ -245,7 +245,7 @@ typedef struct {
 	uint32_t 		USART4_count;
 	uint32_t 		DMA2_Chan_3_count;		// IAP Tx
 	uint32_t 		DMA2_Chan_5_count;		// IAP Rx
-} SMBIntrObj_t;
+} SMB_IntrObj_t;
 
 // *****************************************************************************
 // Message type for MANAGER thread
@@ -340,11 +340,11 @@ typedef struct {
 	RTC_DateTypeDef 	manufacture_Date;
 	RTC_DateTypeDef 	fw_update_Date;
 	char				running_fw[SMB_CONFIG_STRING_SIZE_MAX];
-	uint8_t				luminance_threshold;
 
 	RTC_TimeTypeDef		lamp_on_duty;		// lamp 를 켜도 되는 시작 시간
 	RTC_TimeTypeDef		lamp_off_duty;		// lamp 를 꺼야 하는 시작 시간
 	uint16_t			sonic_threshold;	// sonic data 기준. 모델마다 값이 다를 수 있기 때문에 현장에서 설치할 때 sonic raw data 를 보고 설정.
+	uint8_t				luminance_threshold;
 	uint32_t			motion_latency;
 	uint32_t			siren_on_time;
 	uint16_t			fan_on_aedt_high;	// fan on
