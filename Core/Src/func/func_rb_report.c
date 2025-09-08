@@ -67,8 +67,8 @@ bool sb_report_to_rb (rb_head_type_t type, uint32_t value)
 		rssp->ptc = SMB_ControlObj.ptcObj.ptc_on_off_flag;
 		rssp->fan = SMB_ControlObj.fanObj.fan_on_off_flag;
 		rssp->yuchar = SMB_ControlObj.yucharObj.yuchar_on_off_flag;
-		rssp->muchar1 = SMB_ControlObj.muchar1Obj.muchar_on_off_flag;
-		rssp->muchar2 = SMB_ControlObj.muchar2Obj.muchar_on_off_flag;
+		rssp->muchar1 = SMB_ControlObj.muchar1Obj.muchar1_on_off_flag;
+		rssp->muchar2 = SMB_ControlObj.muchar2Obj.muchar2_on_off_flag;
 		rssp->charger = 0;		// 이거를 audio 로 바꾸면 어떨까???
 		rssp->inverter = SMB_ControlObj.inverterObj.inverter_on_off_flag;
 		rssp->rsvd = 0;
@@ -168,6 +168,8 @@ static size_t send_report_to_rb (unsigned char *buf, size_t bufSize)
 {
 	size_t chars_sent = 0;
 	uint8_t *buffer;
+
+	led_com_on;
 
 	BACKUP_PRIMASK();
 

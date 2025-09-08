@@ -88,8 +88,8 @@ void func_data_show()
 	printf ("LTE \t\t= %s"LINE_TERM, (SMB_ControlObj.lteObj.lte_on_off_flag == LTE_OFF)?"LTE_OFF":"LTE_ON ");
 	printf ("FAN \t\t= %s"LINE_TERM, (SMB_ControlObj.fanObj.fan_on_off_flag == FAN_OFF)?"FAN_OFF":"FAN_ON ");
 	printf ("YUCHAR \t\t= %s"LINE_TERM, (SMB_ControlObj.yucharObj.yuchar_on_off_flag == YUCHAR_OFF)?"YUCHAR_OFF":"YUCHAR_ON ");
-	printf ("MUCHAR1 \t= %s"LINE_TERM, (SMB_ControlObj.muchar1Obj.muchar_on_off_flag == MUCHAR_OFF)?"MUCHAR_OFF":"MUCHAR_ON ");
-	printf ("MUCHAR2 \t= %s"LINE_TERM, (SMB_ControlObj.muchar2Obj.muchar_on_off_flag == MUCHAR_OFF)?"MUCHAR_OFF":"MUCHAR_ON ");
+	printf ("MUCHAR1 \t= %s"LINE_TERM, (SMB_ControlObj.muchar1Obj.muchar1_on_off_flag == MUCHAR1_OFF)?"MUCHAR1_OFF":"MUCHAR1_ON ");
+	printf ("MUCHAR2 \t= %s"LINE_TERM, (SMB_ControlObj.muchar2Obj.muchar2_on_off_flag == MUCHAR2_OFF)?"MUCHAR2_OFF":"MUCHAR2_ON ");
 	printf ("INVERTER \t= %s"LINE_TERM, (SMB_ControlObj.inverterObj.inverter_on_off_flag == INVERTER_OFF)?"INVERTER_OFF":"INVERTER_ON ");
 	printf ("SIREN \t\t= %s"LINE_TERM, (SMB_ControlObj.sirenObj.siren_on_off_flag == SIREN_OFF)?"SIREN_OFF":"SIREN_ON ");
 	printf ("SPEAKER \t= %s"LINE_TERM, (SMB_ControlObj.speakerObj.speaker_on_off_flag == SPEAKER_OFF)?"SPEAKER_OFF":"SPEAKER_ON ");

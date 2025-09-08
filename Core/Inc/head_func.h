@@ -36,6 +36,11 @@
 #define INC_HEAD_HEAD_FUNC_H_
 
 
+
+
+bool SMB_ManiObj_backup(SMB_ManiObj_t *pManiObj, SMB_ControlObj_t *pControlObj);
+bool SMB_ManiObj_restore(SMB_ManiObj_t *pManiObj, SMB_ControlObj_t *pControlObj);
+
 bool save_smb_configObj_onto_fs(SMB_ConfigObj_t *pconfig);
 
 HAL_StatusTypeDef Serial_PutByte( uint8_t param );
@@ -73,11 +78,11 @@ bool func_fan_set(fan_on_off_t fan_on_off_flag);
 
 bool muchar2Obj_init(muchar2Obj_t *pmuchar2Obj);
 muchar2Obj_t *get_muchar2_handle();
-bool func_muchar2_set(muchar_on_off_t muchar_on_off_flag);
+bool func_muchar2_set(muchar2_on_off_t muchar2_on_off_flag);
 
 bool muchar1Obj_init(muchar1Obj_t *pmuchar1Obj);
 muchar1Obj_t *get_muchar1_handle();
-bool func_muchar1_set(muchar_on_off_t muchar_on_off_flag);
+bool func_muchar1_set(muchar1_on_off_t muchar1_on_off_flag);
 
 bool yucharObj_init(yucharObj_t *pyucharObj);
 yucharObj_t *get_yuchar_handle();

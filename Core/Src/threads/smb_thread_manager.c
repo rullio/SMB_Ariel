@@ -52,8 +52,8 @@ static bool smb_peripheral_outpout_set(SMB_ControlObj_t *pControlObj)
 	pControlObj->lteObj.lte_set(LTE_OFF);
 	pControlObj->ptcObj.ptc_set(PTC_OFF);
 	pControlObj->yucharObj.yuchar_set(YUCHAR_ON);
-	pControlObj->muchar1Obj.muchar1_set(MUCHAR_ON);
-	pControlObj->muchar2Obj.muchar2_set(MUCHAR_ON);
+	pControlObj->muchar1Obj.muchar1_set(MUCHAR1_ON);
+	pControlObj->muchar2Obj.muchar2_set(MUCHAR2_ON);
 	pControlObj->fanObj.fan_set(FAN_OFF);
 	pControlObj->inverterObj.inverter_set(INVERTER_OFF);
 	pControlObj->speakerObj.speaker_set(SPEAKER_OFF);

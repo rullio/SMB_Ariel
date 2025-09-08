@@ -41,6 +41,7 @@
 
 
 
+extern SMB_ManiObj_t	SMB_ManiObj;
 
 extern iapObj_t 		iapObj;
 extern iap_se_func			iap_se_machine[IAP_STATE_END][YPKT_EVENT_END];

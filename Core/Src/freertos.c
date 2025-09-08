@@ -50,6 +50,7 @@ SMB_ConfigObj_t SMB_ConfigObj;
 SMB_StatusObj_t SMB_StatusObj;
 SMB_ControlObj_t SMB_ControlObj;
 SMBIntrObj_t	SMBIntrObj;
+SMB_ManiObj_t	SMB_ManiObj;
 osTimerEntry_t	osTimerList[TMR_IDX_END];
 
 /* USER CODE END Variables */

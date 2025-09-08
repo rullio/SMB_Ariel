@@ -95,17 +95,84 @@ bool RB_CMD_LEDBAR_handler(rb_command_t *rb_cmdp)
 	return true;
 }
 
-bool smb_manipulation_begin (void)
+bool SMB_ManiObj_backup(SMB_ManiObj_t *pManiObj, SMB_ControlObj_t *pControlObj)
 {
+	pManiObj->ledbar_color = pControlObj->ledbarObj.ledbar_color;
+	pManiObj->siren_on_off_flag = pControlObj->sirenObj.siren_on_off_flag;
+	pManiObj->lte_on_off_flag = pControlObj->lteObj.lte_on_off_flag;
+	pManiObj->ptc_on_off_flag = pControlObj->ptcObj.ptc_on_off_flag;
+	pManiObj->lamp_level = pControlObj->lampObj.lamp_level;
+	pManiObj->inverter_on_off_flag = pControlObj->inverterObj.inverter_on_off_flag;
+	pManiObj->lcd_on_off_flag = pControlObj->lcdObj.lcd_on_off_flag;
+	pManiObj->yuchar_on_off_flag = pControlObj->yucharObj.yuchar_on_off_flag;
+	pManiObj->muchar1_on_off_flag = pControlObj->muchar1Obj.muchar1_on_off_flag;
+	pManiObj->muchar2_on_off_flag = pControlObj->muchar2Obj.muchar2_on_off_flag;
+	pManiObj->fan_on_off_flag = pControlObj->fanObj.fan_on_off_flag;
+
+	return true;
+}
+
+bool SMB_ManiObj_restore(SMB_ManiObj_t *pManiObj, SMB_ControlObj_t *pControlObj)
+{
+	// LEDBAR 상태 복원
+	pControlObj->ledbarObj.ledbar_color_set(pManiObj->ledbar_color);
+
+	// SIREN 상태 복원
+	pControlObj->sirenObj.siren_set(pManiObj->siren_on_off_flag);
+	// 여기서 SIREN wailing timer 를 stop 시켜야 한다.
+
+	// LTE POWER 상태 복원
+	pControlObj->lteObj.lte_set(pManiObj->lte_on_off_flag);
+
+	// PTC 상태 복원
+	pControlObj->ptcObj.ptc_set(pManiObj->ptc_on_off_flag);
+
+	// LAMP 상태 복원
+	pControlObj->lampObj.lamp_set(pManiObj->lamp_level);
+
+	// INVERTER POWER 상태 복원
+	pControlObj->inverterObj.inverter_set(pManiObj->inverter_on_off_flag);
+
+	// LCD PIWER 상태 복원
+	pControlObj->lcdObj.lcd_set(pManiObj->lcd_on_off_flag);
+
+	// YUCHAR 상태 복원
+	pControlObj->yucharObj.yuchar_set(pManiObj->yuchar_on_off_flag);
+
+	// MUCHAR1 상태 복원
+	pControlObj->muchar1Obj.muchar1_set(pManiObj->muchar1_on_off_flag);
+
+	// MUCHAR2 상태 복원
+	pControlObj->muchar2Obj.muchar2_set(pManiObj->muchar2_on_off_flag);
+
+	// FAN 상태 복원
+	pControlObj->fanObj.fan_set(pManiObj->fan_on_off_flag);
+
+	return true;
+}
+
+void smb_manipulation_begin (void)
+{
+	// 기존에 어떤 manipulation 이 돌고 있으면 동작하지 않는다..
+	if (SMB_StatusObj.smb_manipulation == true) return;
+
+	SMB_ManiObj_backup(&SMB_ManiObj, &SMB_ControlObj);
+
 	SMB_StatusObj.smb_manipulation = true;
 	assert (osTimerList[TMR_IDX_SMB_MANIPULATION].osTimerId != NULL);
 	assert (osTimerStart(osTimerList[TMR_IDX_SMB_MANIPULATION].osTimerId, SMB_MANIPULATION_TIMEOUT) == osOK);
-	return true;
+	return;
 }
 
 bool RB_MANIPULATE_LEDBAR_handler(rb_command_t *rb_cmdp)
 {
-	printf("%s() "LINE_TERM, __FUNCTION__);
+	if (SMB_StatusObj.smb_manipulation == true) {
+		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+		return true;
+	}
+	smb_manipulation_begin();
+
+	printf("%s()"LINE_TERM, __FUNCTION__);
 	switch ((ledbar_color_t)rb_cmdp->body[0]) {
 	case LEDBAR_OFF :		printf("LEDBAR_OFF"LINE_TERM); break;
 	case LEDBAR_RED :		printf("LEDBAR_RED"LINE_TERM); break;
@@ -117,124 +184,178 @@ bool RB_MANIPULATE_LEDBAR_handler(rb_command_t *rb_cmdp)
 	}
 
 	SMB_ControlObj.ledbarObj.ledbar_color_set((ledbar_color_t)rb_cmdp->body[0]);
-	smb_manipulation_begin();
 	return true;
 }
 
 bool RB_MANIPULATE_SIREN_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.smb_manipulation == true) {
+		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+		return true;
+	}
+	smb_manipulation_begin();
+
 	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
 
 	if (rb_cmdp->body[0] == 1) SMB_ControlObj.sirenObj.siren_set(SIREN_ON);
 	else SMB_ControlObj.sirenObj.siren_set(SIREN_OFF);
 
-	smb_manipulation_begin();
 	return true;
 }
 
 bool RB_MANIPULATE_LTE_PWR_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.smb_manipulation == true) {
+		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+		return true;
+	}
+
 	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
 
-//	 LTE 조절 금지..
-//	if (rb_cmdp->body[0] == 1) SMB_ControlObj.lteObj.lte_set(LTE_ON);
-//	else SMB_ControlObj.lteObj.lte_set(LTE_OFF);
-//
-//	smb_manipulation_begin();
+	//	 LTE 조절 금지..
+	//	if (rb_cmdp->body[0] == 1) SMB_ControlObj.lteObj.lte_set(LTE_ON);
+	//	else SMB_ControlObj.lteObj.lte_set(LTE_OFF);
+	//
+	//	smb_manipulation_begin();
 	return true;
 }
 
 bool RB_MANIPULATE_CHARGER_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.smb_manipulation == true) {
+		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+		return true;
+	}
 
 	smb_manipulation_begin();
+
 	return true;
 }
 
 bool RB_MANIPULATE_INVERTER_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.smb_manipulation == true) {
+		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+		return true;
+	}
+	smb_manipulation_begin();
+
 	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
 	if (rb_cmdp->body[0] == 1) SMB_ControlObj.inverterObj.inverter_set(INVERTER_ON);
 	else SMB_ControlObj.inverterObj.inverter_set(INVERTER_OFF);
 
-	smb_manipulation_begin();
 	return true;
 }
 
 bool RB_MANIPULATE_LCD_PWR_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.smb_manipulation == true) {
+		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+		return true;
+	}
+	smb_manipulation_begin();
+
 	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
 
 	if (rb_cmdp->body[0] == 1) SMB_ControlObj.lcdObj.lcd_set(LCD_ON);
 	else SMB_ControlObj.lcdObj.lcd_set(LCD_OFF);
 
-	smb_manipulation_begin();
 	return true;
 }
 
 bool RB_MANIPULATE_PTC_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.smb_manipulation == true) {
+		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+		return true;
+	}
+	smb_manipulation_begin();
+
 	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
 	if (rb_cmdp->body[0] == 1) SMB_ControlObj.ptcObj.ptc_set(PTC_ON);
 	else SMB_ControlObj.ptcObj.ptc_set(PTC_OFF);
 
-	smb_manipulation_begin();
 	return true;
 }
 
 bool RB_MANIPULATE_LAMP_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.smb_manipulation == true) {
+		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+		return true;
+	}
+	smb_manipulation_begin();
+
 	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
 	if (rb_cmdp->body[0] == 1) SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_9);
 	else SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_0);
 
-	smb_manipulation_begin();
 	return true;
 }
 
 bool RB_MANIPULATE_YUCHAR_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.smb_manipulation == true) {
+		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+		return true;
+	}
+	smb_manipulation_begin();
+
 	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
 	if (rb_cmdp->body[0] == 1) SMB_ControlObj.yucharObj.yuchar_set(YUCHAR_ON);
 	else SMB_ControlObj.yucharObj.yuchar_set(YUCHAR_OFF);
 
-	smb_manipulation_begin();
 	return true;
 }
 
 bool RB_MANIPULATE_MUCHAR1_handler(rb_command_t *rb_cmdp)
 {
-	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
-	if (rb_cmdp->body[0] == 1) SMB_ControlObj.muchar1Obj.muchar1_set(MUCHAR_ON);
-	else SMB_ControlObj.muchar1Obj.muchar1_set(MUCHAR_OFF);
-
+	if (SMB_StatusObj.smb_manipulation == true) {
+		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+		return true;
+	}
 	smb_manipulation_begin();
+
+	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
+	if (rb_cmdp->body[0] == 1) SMB_ControlObj.muchar1Obj.muchar1_set(MUCHAR1_ON);
+	else SMB_ControlObj.muchar1Obj.muchar1_set(MUCHAR1_OFF);
+
 	return true;
 }
 
 bool RB_MANIPULATE_MUCHAR2_handler(rb_command_t *rb_cmdp)
 {
-	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
-	if (rb_cmdp->body[0] == 1) SMB_ControlObj.muchar2Obj.muchar2_set(MUCHAR_ON);
-	else SMB_ControlObj.muchar2Obj.muchar2_set(MUCHAR_OFF);
-
+	if (SMB_StatusObj.smb_manipulation == true) {
+		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+		return true;
+	}
 	smb_manipulation_begin();
+
+	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
+	if (rb_cmdp->body[0] == 1) SMB_ControlObj.muchar2Obj.muchar2_set(MUCHAR2_ON);
+	else SMB_ControlObj.muchar2Obj.muchar2_set(MUCHAR2_OFF);
+
 	return true;
 }
 
 bool RB_MANIPULATE_FAN_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.smb_manipulation == true) {
+		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+		return true;
+	}
+	smb_manipulation_begin();
+
 	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
 	if (rb_cmdp->body[0] == 1) SMB_ControlObj.fanObj.fan_set(FAN_ON);
 	else SMB_ControlObj.fanObj.fan_set(FAN_OFF);
 
-	smb_manipulation_begin();
 	return true;
 }
 
 bool RB_REPORT_SENSOR_STATUS_handler(rb_command_t *rb_cmdp)
 {
-//	printf("%s() "LINE_TERM, __FUNCTION__);
+	//	printf("%s() "LINE_TERM, __FUNCTION__);
 	sb_report_to_rb(RB_REPORT_SENSOR_STATUS, 0);
 	sb_report_to_rb(RB_REPORT_YUIW,			(uint32_t)SMB_adc_value.YUI);
 	sb_report_to_rb(RB_REPORT_MUI1W,		(uint32_t)SMB_adc_value.MUI1);
@@ -335,7 +456,7 @@ bool RB_CONFIG_UNIX_TIME_handler(rb_command_t *rb_cmdp)
  * save_smb_configObj_onto_fs() 를 call 하는 모든 thread 는 app_entry() 에서 stack size 를 32 로 키워 주어야만 한다..
  *
  *
-***********************************************************************************************************************/
+ ***********************************************************************************************************************/
 bool save_smb_configObj_onto_fs(SMB_ConfigObj_t *pconfig)
 {
 	lfs_file_t file;

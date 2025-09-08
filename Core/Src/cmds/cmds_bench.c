@@ -166,8 +166,8 @@ static void smb_cmd_set_muchar1 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **a
 		goto USAGE;
 	}
 
-	if (!strcmp (argv[1], "on")) SMB_ControlObj.muchar1Obj.muchar1_set(MUCHAR_ON);
-	else if (!strcmp (argv[1], "off")) SMB_ControlObj.muchar1Obj.muchar1_set(MUCHAR_OFF);
+	if (!strcmp (argv[1], "on")) SMB_ControlObj.muchar1Obj.muchar1_set(MUCHAR1_ON);
+	else if (!strcmp (argv[1], "off")) SMB_ControlObj.muchar1Obj.muchar1_set(MUCHAR1_OFF);
 	else goto USAGE;
 	return;
 
@@ -184,8 +184,8 @@ static void smb_cmd_set_muchar2 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **a
 		goto USAGE;
 	}
 
-	if (!strcmp (argv[1], "on")) SMB_ControlObj.muchar2Obj.muchar2_set(MUCHAR_ON);
-	else if (!strcmp (argv[1], "off")) SMB_ControlObj.muchar2Obj.muchar2_set(MUCHAR_OFF);
+	if (!strcmp (argv[1], "on")) SMB_ControlObj.muchar2Obj.muchar2_set(MUCHAR2_ON);
+	else if (!strcmp (argv[1], "off")) SMB_ControlObj.muchar2Obj.muchar2_set(MUCHAR2_OFF);
 	else goto USAGE;
 	return;
 
@@ -413,8 +413,7 @@ static void smb_cmd_show_adc (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv
 	return;
 }
 
-bool smb_manipulation_begin (void);
-
+void smb_manipulation_begin (void);
 static void smb_cmd_benchtest (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
@@ -423,12 +422,11 @@ static void smb_cmd_benchtest (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **arg
 		goto USAGE;
 	}
 
-	SMB_StatusObj.smb_manipulation = true;
 	smb_manipulation_begin();
 	return;
 
 	USAGE:
-	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "showadc"LINE_TERM);
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "benchtest"LINE_TERM);
 	return;
 }
 
@@ -482,7 +480,7 @@ static void smb_cmd_set_onduty (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **ar
 static const SYS_CMD_DESCRIPTOR    bench_CommandTbl []=
 {
 		{"showbench",		smb_cmd_show_bench,		"\t\t- showbench"},
-		{"smb",				smb_cmd_show_bench,		"\t\t\t- smb"},
+		{"smb",				smb_cmd_show_bench,		"\t\t- smb"},
 		{"ledbar",			smb_cmd_set_ledbar,		"\t\t- ledbar off/red/green/blue/yellow/white"},
 		{"siren",			smb_cmd_set_siren,		"\t\t- siren on/off"},
 		{"lte",				smb_cmd_set_ltepwr,		"\t\t- lte on/off"},

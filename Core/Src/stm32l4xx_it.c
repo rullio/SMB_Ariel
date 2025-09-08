@@ -521,6 +521,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 		HAL_UARTEx_ReceiveToIdle_DMA(huart, ims_rx_buffer, IMS_RX_BUF_SIZE);
 	}
 	else if (huart->Instance == USART2) {	// Raspberry
+		led_com_on;
 		rb_msg_t rb_msg;
 		assert (Size < RB_MSG_SIZE);
 		memset (&rb_msg, 0, sizeof(rb_msg));

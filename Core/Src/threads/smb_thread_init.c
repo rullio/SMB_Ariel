@@ -94,6 +94,7 @@ static bool SMBStatusObj_init(SMB_StatusObj_t *pStatusObj)
 	pStatusObj->smb_luminance.luminance = 0;
 	pStatusObj->smb_luminance.luminance_threshold = SMB_ConfigObj.luminance_threshold;
 	pStatusObj->smb_motion.sonic_threshold = SMB_ConfigObj.sonic_threshold;
+	pStatusObj->rb_working = true;		// test 용으로 잠시 true 로 만듬
 	pStatusObj->smb_manipulation = false;
 
 	return true;
@@ -135,13 +136,13 @@ static bool SMBControlObj_init(SMB_ControlObj_t *pControlObj)
 	 MUCHAR1 Object
 	 *******************************************************************************/
 	muchar1Obj_init(&pControlObj->muchar1Obj);
-	pControlObj->muchar1Obj.muchar1_set(MUCHAR_OFF);
+	pControlObj->muchar1Obj.muchar1_set(MUCHAR1_OFF);
 
 	/*******************************************************************************
 	 MUCHAR2 Object
 	 *******************************************************************************/
 	muchar2Obj_init(&pControlObj->muchar2Obj);
-	pControlObj->muchar2Obj.muchar2_set(MUCHAR_OFF);
+	pControlObj->muchar2Obj.muchar2_set(MUCHAR2_OFF);
 
 	/*******************************************************************************
 	 FAN Object
@@ -186,6 +187,7 @@ void smb_thread_init (void *arg)
 	assert (SMBConfigObj_init(&SMB_ConfigObj) == true);
 	assert (SMBStatusObj_init(&SMB_StatusObj) == true);
 	assert (SMBControlObj_init(&SMB_ControlObj) == true);
+	assert (SMB_ManiObj_backup(&SMB_ManiObj, &SMB_ControlObj) == true);
 	assert (osTimerList_init(osTimerList) == true);
 
 	HAL_Delay(100);

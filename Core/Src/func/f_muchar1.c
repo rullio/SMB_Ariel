@@ -36,12 +36,12 @@
 /*******************************************************************************
  MUCHAR1 Object
  *******************************************************************************/
-bool func_muchar1_set(muchar_on_off_t muchar_on_off_flag)
+bool func_muchar1_set(muchar1_on_off_t muchar1_on_off_flag)
 {
-	if (muchar_on_off_flag == MUCHAR_ON) muchar1_on;
+	if (muchar1_on_off_flag == MUCHAR1_ON) muchar1_on;
 	else muchar1_off;
 
-	SMB_ControlObj.muchar1Obj.muchar_on_off_flag = muchar_on_off_flag;
+	SMB_ControlObj.muchar1Obj.muchar1_on_off_flag = muchar1_on_off_flag;
 
 	return true;
 }
@@ -53,7 +53,7 @@ muchar1Obj_t *get_muchar1_handle()
 
 bool muchar1Obj_init(muchar1Obj_t *pmuchar1Obj)
 {
-	pmuchar1Obj->muchar_on_off_flag = MUCHAR_OFF;
+	pmuchar1Obj->muchar1_on_off_flag = MUCHAR1_OFF;
 	pmuchar1Obj->muchar1_set = func_muchar1_set;
 
 	return true;

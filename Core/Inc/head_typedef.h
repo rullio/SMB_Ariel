@@ -89,20 +89,20 @@ typedef struct {
 /*******************************************************************************
  MUCHAR1 Object
  *******************************************************************************/
-typedef bool (* muchar1_set_func)(muchar_on_off_t muchar1);
+typedef bool (* muchar1_set_func)(muchar1_on_off_t muchar1);
 
 typedef struct {
-	muchar_on_off_t			muchar_on_off_flag;
+	muchar1_on_off_t		muchar1_on_off_flag;
 	muchar1_set_func		muchar1_set;
 } muchar1Obj_t;
 
 /*******************************************************************************
  MUCHAR2 Object
  *******************************************************************************/
-typedef bool (* muchar2_set_func)(muchar_on_off_t muchar2);
+typedef bool (* muchar2_set_func)(muchar2_on_off_t muchar2);
 
 typedef struct {
-	muchar_on_off_t			muchar_on_off_flag;
+	muchar2_on_off_t		muchar2_on_off_flag;
 	muchar2_set_func		muchar2_set;
 } muchar2Obj_t;
 
@@ -175,6 +175,24 @@ typedef struct {
 	lcdObj_t			lcdObj;
 } SMB_ControlObj_t;
 
+
+/*******************************************************************************
+ SMBManiObj Object
+ *******************************************************************************/
+typedef struct {
+	ledbar_color_t			ledbar_color;
+	siren_on_off_t			siren_on_off_flag;
+	lte_on_off_t			lte_on_off_flag;
+	// charger 삭제
+	ptc_on_off_t			ptc_on_off_flag;
+	lamp_level_t			lamp_level;
+	inverter_on_off_t		inverter_on_off_flag;
+	lcd_on_off_t			lcd_on_off_flag;
+	yuchar_on_off_t			yuchar_on_off_flag;
+	muchar1_on_off_t		muchar1_on_off_flag;
+	muchar2_on_off_t		muchar2_on_off_flag;
+	fan_on_off_t			fan_on_off_flag;
+} SMB_ManiObj_t;
 
 /*******************************************************************************************
  * osTimer
@@ -288,7 +306,7 @@ typedef struct {
 #define	SMB_ADC_READ_TIMEOUT		TIMEOUT_1_SEC
 #define	SMB_DATA_SHOW_TIMEOUT		TIMEOUT_1_SEC
 #define	SMB_STATUS_REPORT_TIMEOUT	TIMEOUT_1_SEC
-#define	SMB_MANIPULATION_TIMEOUT	TIMEOUT_1_SEC
+#define	SMB_MANIPULATION_TIMEOUT	TIMEOUT_3_SEC
 
 // *****************************************************************************
 // Luminance

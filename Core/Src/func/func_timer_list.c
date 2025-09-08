@@ -38,6 +38,7 @@ extern osMessageQueueId_t		managerThreadQ;
 static void led_act_toggle_timeout_cb (void *arg)
 {
 	led_act_toggle;
+	led_com_off;
 }
 
 static bool led_act_toggle_begin()
@@ -132,6 +133,7 @@ static void SMB_manipulation_timeout_cb (void *arg)
 {
 	printf("%s()"LINE_TERM, __FUNCTION__);
 	SMB_StatusObj.smb_manipulation = false;
+	SMB_ManiObj_restore(&SMB_ManiObj, &SMB_ControlObj);
 }
 
 bool osTimerList_init(osTimerEntry_t osTimerList[])
