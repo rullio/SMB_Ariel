@@ -38,6 +38,7 @@
 rb_msg_func						rb_msg_handler_tbl[RB_MSG_END];
 osMessageQueueId_t				rbThreadQ;
 uint8_t 						Rb_Rx_Buf[RB_MSG_SIZE];
+osSemaphoreId_t 				sem_rb_tx;
 
 bool rb_channel_open (UART_HandleTypeDef *);
 bool rb_msg_handler_tbl_init ();
@@ -57,6 +58,7 @@ void smb_thread_rb (void *arg)
 	assert (rb_msg_handler_tbl_init() == true);
 	assert (rb_channel_open(&RbUartHandle) == true);
 	assert (RbSendQueueBuffInit() == true);
+	sem_rb_tx = osSemaphoreNew(1, 1, NULL);
 	assert (rb_status_report_begin() == true);
 	rbThreadQ = osMessageQueueNew(RB_MSG_Q_DEPTH, sizeof(rb_msg_t), NULL);
 	while (1) {

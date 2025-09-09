@@ -40,6 +40,7 @@
 
 
 
+extern osSemaphoreId_t 				sem_rb_tx;
 
 extern SMB_ManiObj_t	SMB_ManiObj;
 

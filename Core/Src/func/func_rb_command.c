@@ -166,6 +166,8 @@ void smb_manipulation_begin (void)
 
 bool RB_MANIPULATE_LEDBAR_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.EMERGENCY == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
+
 	if (SMB_StatusObj.smb_manipulation == true) {
 		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
@@ -189,6 +191,8 @@ bool RB_MANIPULATE_LEDBAR_handler(rb_command_t *rb_cmdp)
 
 bool RB_MANIPULATE_SIREN_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.EMERGENCY == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
+
 	if (SMB_StatusObj.smb_manipulation == true) {
 		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
@@ -205,6 +209,8 @@ bool RB_MANIPULATE_SIREN_handler(rb_command_t *rb_cmdp)
 
 bool RB_MANIPULATE_LTE_PWR_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.EMERGENCY == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
+
 	if (SMB_StatusObj.smb_manipulation == true) {
 		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
@@ -222,6 +228,8 @@ bool RB_MANIPULATE_LTE_PWR_handler(rb_command_t *rb_cmdp)
 
 bool RB_MANIPULATE_CHARGER_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.EMERGENCY == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
+
 	if (SMB_StatusObj.smb_manipulation == true) {
 		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
@@ -234,6 +242,8 @@ bool RB_MANIPULATE_CHARGER_handler(rb_command_t *rb_cmdp)
 
 bool RB_MANIPULATE_INVERTER_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.EMERGENCY == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
+
 	if (SMB_StatusObj.smb_manipulation == true) {
 		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
@@ -249,6 +259,8 @@ bool RB_MANIPULATE_INVERTER_handler(rb_command_t *rb_cmdp)
 
 bool RB_MANIPULATE_LCD_PWR_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.EMERGENCY == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
+
 	if (SMB_StatusObj.smb_manipulation == true) {
 		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
@@ -265,6 +277,8 @@ bool RB_MANIPULATE_LCD_PWR_handler(rb_command_t *rb_cmdp)
 
 bool RB_MANIPULATE_PTC_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.EMERGENCY == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
+
 	if (SMB_StatusObj.smb_manipulation == true) {
 		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
@@ -280,6 +294,8 @@ bool RB_MANIPULATE_PTC_handler(rb_command_t *rb_cmdp)
 
 bool RB_MANIPULATE_LAMP_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.EMERGENCY == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
+
 	if (SMB_StatusObj.smb_manipulation == true) {
 		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
@@ -295,6 +311,8 @@ bool RB_MANIPULATE_LAMP_handler(rb_command_t *rb_cmdp)
 
 bool RB_MANIPULATE_YUCHAR_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.EMERGENCY == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
+
 	if (SMB_StatusObj.smb_manipulation == true) {
 		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
@@ -310,6 +328,8 @@ bool RB_MANIPULATE_YUCHAR_handler(rb_command_t *rb_cmdp)
 
 bool RB_MANIPULATE_MUCHAR1_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.EMERGENCY == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
+
 	if (SMB_StatusObj.smb_manipulation == true) {
 		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
@@ -325,6 +345,8 @@ bool RB_MANIPULATE_MUCHAR1_handler(rb_command_t *rb_cmdp)
 
 bool RB_MANIPULATE_MUCHAR2_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.EMERGENCY == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
+
 	if (SMB_StatusObj.smb_manipulation == true) {
 		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
@@ -340,6 +362,8 @@ bool RB_MANIPULATE_MUCHAR2_handler(rb_command_t *rb_cmdp)
 
 bool RB_MANIPULATE_FAN_handler(rb_command_t *rb_cmdp)
 {
+	if (SMB_StatusObj.EMERGENCY == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
+
 	if (SMB_StatusObj.smb_manipulation == true) {
 		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;

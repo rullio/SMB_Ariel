@@ -305,7 +305,7 @@ typedef struct {
 
 #define	SMB_ADC_READ_TIMEOUT		TIMEOUT_1_SEC
 #define	SMB_DATA_SHOW_TIMEOUT		TIMEOUT_1_SEC
-#define	SMB_STATUS_REPORT_TIMEOUT	TIMEOUT_1_SEC
+#define	SMB_STATUS_REPORT_TIMEOUT	TIMEOUT_10_SEC
 #define	SMB_MANIPULATION_TIMEOUT	TIMEOUT_3_SEC
 
 // *****************************************************************************
@@ -383,12 +383,18 @@ typedef struct {
 	uint32_t			counter_rb_report;
 	bool				rb_working;
 	bool				smb_manipulation;
+	bool				EMERGENCY;
+	emer_btn_status_t	emer_btn_status;
+	aed_door_status_t	aed_door_status;
+	fire_door_status_t	fire_door_status;
+	flood_status_t		flood_status;
 
 } SMB_StatusObj_t;
 
 /*******************************************************************************
  RB thread message format
  *******************************************************************************/
+#define RB_REPORT_HISTORY_FILE		"rb_report_history.txt"
 typedef struct {
 	uint8_t			type;
 	uint8_t			len;

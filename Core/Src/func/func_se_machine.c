@@ -278,13 +278,13 @@ static bool fw_upgrade_history_add(char file_name[])
 
 	len += sprintf(&fw_update_string[0], "%s is updated on ", file_name);
 	len += sprintf(&fw_update_string[len], "%4d/%2d/%2d %2d:%2d:%2d", \
-			2000 + SMB_StatusObj.currentDate.Year, SMB_StatusObj.currentDate.Month, SMB_StatusObj.currentDate.Date, \
-			SMB_StatusObj.currentTime.Hours, SMB_StatusObj.currentTime.Minutes, SMB_StatusObj.currentTime.Seconds);
+			2000 + RTC_Bcd2ToByte(SMB_StatusObj.currentDate.Year), RTC_Bcd2ToByte(SMB_StatusObj.currentDate.Month), RTC_Bcd2ToByte(SMB_StatusObj.currentDate.Date), \
+			RTC_Bcd2ToByte(SMB_StatusObj.currentTime.Hours), RTC_Bcd2ToByte(SMB_StatusObj.currentTime.Minutes), RTC_Bcd2ToByte(SMB_StatusObj.currentTime.Seconds));
+	len += sprintf(&fw_update_string[len], LINE_TERM);
 
 	assert (lfs_file_open(&lfs, &file, FW_UPGRADE_HISTORY_FILE, LFS_O_WRONLY | LFS_O_CREAT | LFS_O_APPEND) == LFS_ERR_OK);
 
 	lfs_file_write(&lfs, &file, fw_update_string, len);
-	lfs_file_write(&lfs, &file, LINE_TERM, 2);
 	assert (lfs_file_close(&lfs, &file) == LFS_ERR_OK);
 
 	return true;

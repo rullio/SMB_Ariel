@@ -36,8 +36,6 @@
 #define INC_HEAD_HEAD_FUNC_H_
 
 
-
-
 bool SMB_ManiObj_backup(SMB_ManiObj_t *pManiObj, SMB_ControlObj_t *pControlObj);
 bool SMB_ManiObj_restore(SMB_ManiObj_t *pManiObj, SMB_ControlObj_t *pControlObj);
 
@@ -110,6 +108,13 @@ bool SB_1sec_alarm_restart();
 
 void hexDump (SYS_CMD_DEVICE_NODE* pCmdIO, uint32_t nominal_addr, void *addr, uint32_t len);
 void HexDump (uint32_t nominal_addr, void *addr, uint32_t len);
+
+void show_banner_dsn(void);
+void show_banner_smart(void);
+void show_banner_bench(void);
+void show_banner_pee(void);
+void show_banner_shit(void);
+void show_banner_ballet(void);
 
 
 #endif /* INC_HEAD_HEAD_FUNC_H_ */

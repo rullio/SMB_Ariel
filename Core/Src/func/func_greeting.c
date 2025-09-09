@@ -32,14 +32,8 @@
  */
 
 #include "main.h"
-static void show_banner_dsn(void);
-static void show_banner_smart(void);
-static void show_banner_bench(void);
-static void show_banner_pee(void);
-static void show_banner_shit(void);
-static void show_banner_ballet(void);
 
-static void show_banner_dsn(void)
+void show_banner_dsn(void)
 {
 	printf (LINE_TERM "8 888888888o.         d888888o.   b.             8    ");
 	printf (LINE_TERM "8 8888    `^888.    .`8888:' `88. 888o.          8    ");
@@ -53,7 +47,7 @@ static void show_banner_dsn(void)
 	printf (LINE_TERM "8 888888888P'       `Y8888P ,88P' 8            `Yo    ");
 }
 
-static void show_banner_smart(void)
+void show_banner_smart(void)
 {
 	printf (LINE_TERM "	   d888888o.            ,8.       ,8.                   .8.          8 888888888o.   8888888 8888888888	");
 	printf (LINE_TERM "	 .`8888:' `88.         ,888.     ,888.                 .888.         8 8888    `88.        8 8888		");
@@ -67,7 +61,7 @@ static void show_banner_smart(void)
 	printf (LINE_TERM "	 `Y8888P ,88P' ,8'         `         `8.`8888. .8'       `8. `88888. 8 8888     `88.       8 8888		");
 }
 
-static void show_banner_bench(void)
+void show_banner_bench(void)
 {
 	printf (LINE_TERM "8 888888888o   8 8888888888   b.             8     ,o888888o.    8 8888        8	");
 	printf (LINE_TERM "8 8888    `88. 8 8888         888o.          8    8888     `88.  8 8888        8	");
@@ -81,7 +75,7 @@ static void show_banner_bench(void)
 	printf (LINE_TERM "8 888888888P   8 888888888888 8            `Yo     `8888888P'    8 8888        8	");
 }
 
-static void show_banner_pee(void)
+void show_banner_pee(void)
 {
 	printf (LINE_TERM "8 888888888o   8 8888888888   8 8888888888       ");
 	printf (LINE_TERM "8 8888    `88. 8 8888         8 8888             ");
@@ -95,7 +89,7 @@ static void show_banner_pee(void)
 	printf (LINE_TERM "8 8888         8 888888888888 8 888888888888     ");
 }
 
-static void show_banner_shit(void)
+void show_banner_shit(void)
 {
 	printf (LINE_TERM "   d888888o.   8 8888        8  8 8888 8888888 8888888888         ");
 	printf (LINE_TERM " .`8888:' `88. 8 8888        8  8 8888       8 8888               ");
@@ -109,7 +103,7 @@ static void show_banner_shit(void)
 	printf (LINE_TERM " `Y8888P ,88P' 8 8888        8  8 8888       8 8888               ");
 }
 
-static void show_banner_ballet(void)
+void show_banner_ballet(void)
 {
 	printf (LINE_TERM "                                  .,"); HAL_Delay(1);
 	printf (LINE_TERM "                                  $."); HAL_Delay(1);

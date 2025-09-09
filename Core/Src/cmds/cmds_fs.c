@@ -596,30 +596,35 @@ static void smb_cmd_showconfig (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **ar
 	return;
 }
 
-static void smb_cmd_fstest (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+// Raspberry 로 보내는 메세지를 history 에 계속 넣는 것이 맞을까? 일단 그 용도에 쓰기 위해 만들어 돔..
+static void smb_cmd_rbhist (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
 	lfs_file_t file;
-	uint32_t calculated_crc;
+	char fw_update_string[100];
+	int len = 0;
+	assert (IsFS_mount == true);
 
-	if (argc != 1) goto USAGE;
+	if (argc != 2) goto USAGE;
 
-	assert (lfs_file_open(&lfs, &file, CONFIG_FILE_NAME, LFS_O_RDWR | LFS_O_CREAT) == LFS_ERR_OK);
-	assert (lfs_file_write(&lfs, &file, &SMB_ConfigObj, sizeof(SMB_ConfigObj_t)) == sizeof(SMB_ConfigObj_t));
-	assert (lfs_file_close(&lfs, &file) == LFS_ERR_OK);
+	len += sprintf(&fw_update_string[0], "TEST RB message %d ", (uint16_t)strtoul(argv[1], NULL, 0));
+	len += sprintf(&fw_update_string[len], "%4d/%2d/%2d %2d:%2d:%2d", \
+			2000 + RTC_Bcd2ToByte(SMB_StatusObj.currentDate.Year), RTC_Bcd2ToByte(SMB_StatusObj.currentDate.Month), RTC_Bcd2ToByte(SMB_StatusObj.currentDate.Date), \
+			RTC_Bcd2ToByte(SMB_StatusObj.currentTime.Hours), RTC_Bcd2ToByte(SMB_StatusObj.currentTime.Minutes), RTC_Bcd2ToByte(SMB_StatusObj.currentTime.Seconds));
+	len += sprintf(&fw_update_string[len], LINE_TERM);
 
-	// 새로 만든 config 파일의 crc 를 계산해서 crc 파일을 만들어 준다..
-	assert (HAL_CRC_GetState(&hcrc)== HAL_CRC_STATE_READY);
-	calculated_crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&SMB_ConfigObj, sizeof(SMB_ConfigObj_t));
-	printf("%s() Newly generated crc = %lx"LINE_TERM, __FUNCTION__, calculated_crc);
-
-	assert (lfs_file_open(&lfs, &file, CONFIG_CRC_FILE_NAME, LFS_O_RDWR | LFS_O_CREAT) == LFS_ERR_OK);
-	assert (lfs_file_write(&lfs, &file, (void *)&calculated_crc, sizeof(calculated_crc)) == sizeof(calculated_crc));
+	assert (lfs_file_open(&lfs, &file, RB_REPORT_HISTORY_FILE, LFS_O_WRONLY | LFS_O_CREAT | LFS_O_APPEND) == LFS_ERR_OK);
+	lfs_file_write(&lfs, &file, fw_update_string, len);
 	assert (lfs_file_close(&lfs, &file) == LFS_ERR_OK);
 	return;
 
 	USAGE:
-	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "fstest"LINE_TERM);
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "fstest 100"LINE_TERM);
+	return;
+}
+
+static void smb_cmd_fstest (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+{
 	return;
 }
 
@@ -641,6 +646,7 @@ static const SYS_CMD_DESCRIPTOR    FileSystem_CommandTbl []=
 		{"format", 			smb_cmd_format,			"\t\t- format"},
 		{"showfsconfig", 	smb_cmd_showfsconfig,	"\t\t- showfsconfig"},
 		{"showconfig", 		smb_cmd_showconfig,		"\t\t- showconfig"},
+		{"rbhist", 			smb_cmd_rbhist,			"\t\t- rbhist 100"},
 		{"fstest", 			smb_cmd_fstest,			"\t\t- fstest"},
 };
 

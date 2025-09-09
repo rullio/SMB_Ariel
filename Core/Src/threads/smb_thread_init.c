@@ -97,6 +97,33 @@ static bool SMB_StatusObj_init(SMB_StatusObj_t *pStatusObj)
 	pStatusObj->rb_working = true;		// test 용으로 잠시 true 로 만듬
 	pStatusObj->smb_manipulation = false;
 
+	pStatusObj->EMERGENCY = false;
+	pStatusObj->emer_btn_status = get_emer_btn_status;
+	pStatusObj->fire_door_status = get_fire_door_status;
+	pStatusObj->aed_door_status = get_aed_door_status;
+	pStatusObj->flood_status = get_flood_status;
+
+	// 처음 booting 할 때 잘못된 emer btn/fire door/aed door/flood 가 잘못되어 있으면 이를 바로잡는 log 를 내보내지만 비상상황으로 처리하지는 않는다..
+	if (pStatusObj->emer_btn_status == EMER_BTN_PRESSED) {
+		printf("%s() : EMERGENCY BUTTON IS PRESSED!! RELEASE IT FIRST.."LINE_TERM, __FUNCTION__);
+		show_banner_ballet();
+		printf(LINE_TERM LINE_TERM);
+	}
+	if (pStatusObj->fire_door_status == FIRE_DOOR_OPEN) {
+		printf("%s() : FIRE DOOR IS OPEN!! CLOSE IT FIRST.."LINE_TERM, __FUNCTION__);
+		show_banner_ballet();
+		printf(LINE_TERM LINE_TERM);
+	}
+	if (pStatusObj->aed_door_status == AED_DOOR_OPEN) {
+		printf("%s() : AED DOOR IS OPEN!! CLOSE IT FIRST.."LINE_TERM, __FUNCTION__);
+		show_banner_ballet();
+		printf(LINE_TERM LINE_TERM);
+	}
+	if (pStatusObj->flood_status == FLOOD_HAPPEN) {
+		printf("%s() : FLOOD HAPPEN!! CLEAR IT FIRST.."LINE_TERM, __FUNCTION__);
+		show_banner_shit();
+		printf(LINE_TERM LINE_TERM);
+	}
 	return true;
 }
 

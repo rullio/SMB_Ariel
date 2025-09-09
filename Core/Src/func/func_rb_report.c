@@ -132,8 +132,11 @@ bool sb_report_to_rb (rb_head_type_t type, uint32_t value)
 	rb_report.checksum = checksum((uint8_t *)&rb_report, 6);
 	rb_report.end_marker = END_MARKER;
 
-	if (send_report_to_rb((unsigned char *)&rb_report, sizeof(rb_report)) == sizeof(rb_report)) return true;
-	else return false;
+	assert (osSemaphoreAcquire(sem_rb_tx, osWaitForever) == osOK);
+	assert (send_report_to_rb((unsigned char *)&rb_report, sizeof(rb_report)) == sizeof(rb_report));
+	assert (osSemaphoreRelease(sem_rb_tx) == osOK);
+
+	return true;
 }
 
 bool RbSendQueueBuffInit(void)

@@ -35,6 +35,7 @@
 
 void func_data_show()
 {
+	printf(CUI_ESC_CLR);
 	printf (CUI_ESC_CUR_HOME);
 	printf (RTT_COLOR_CODE_CYAN);
 	printf ("***************************************************"LINE_TERM);
@@ -54,50 +55,6 @@ void func_data_show()
 	printf ("uid1 \t\t= %#010"PRIx32 LINE_TERM, SMB_StatusObj.uid1);
 	printf ("uid2 \t\t= %#010"PRIx32 LINE_TERM, SMB_StatusObj.uid2);
 	printf(LINE_TERM);
-
-	// Launching date 정보 표시
-
-	printf("%4d/%02d/%02d ",											\
-			2000 + RTC_Bcd2ToByte(SMB_StatusObj.launchDate.Year),		\
-			RTC_Bcd2ToByte(SMB_StatusObj.launchDate.Month),				\
-			RTC_Bcd2ToByte(SMB_StatusObj.launchDate.Date));
-
-	switch (RTC_Bcd2ToByte(RTC_Bcd2ToByte(SMB_StatusObj.launchDate.WeekDay))) {
-	case RTC_WEEKDAY_MONDAY : 		printf("(Mon)"); break;
-	case RTC_WEEKDAY_TUESDAY : 		printf("(Tue)"); break;
-	case RTC_WEEKDAY_WEDNESDAY : 	printf("(Wed)"); break;
-	case RTC_WEEKDAY_THURSDAY : 	printf("(Thu)"); break;
-	case RTC_WEEKDAY_FRIDAY : 		printf("(Fri)"); break;
-	case RTC_WEEKDAY_SATURDAY : 	printf("(Sat)"); break;
-	case RTC_WEEKDAY_SUNDAY : 		printf("(Sun)"); break;
-	default : 						assert (0 == 1); break;
-	}
-
-	printf(" %2d : %2d : %2d"LINE_TERM,									\
-			RTC_Bcd2ToByte(SMB_StatusObj.launchTime.Hours),				\
-			RTC_Bcd2ToByte(SMB_StatusObj.launchTime.Minutes),			\
-			RTC_Bcd2ToByte(SMB_StatusObj.launchTime.Seconds));
-
-	printf("%4d/%02d/%02d ",											\
-			2000 + RTC_Bcd2ToByte(SMB_StatusObj.currentDate.Year),		\
-			RTC_Bcd2ToByte(SMB_StatusObj.currentDate.Month),			\
-			RTC_Bcd2ToByte(SMB_StatusObj.currentDate.Date));
-
-	switch (RTC_Bcd2ToByte(RTC_Bcd2ToByte(SMB_StatusObj.currentDate.WeekDay))) {
-	case RTC_WEEKDAY_MONDAY : 		printf("(Mon)"); break;
-	case RTC_WEEKDAY_TUESDAY : 		printf("(Tue)"); break;
-	case RTC_WEEKDAY_WEDNESDAY : 	printf("(Wed)"); break;
-	case RTC_WEEKDAY_THURSDAY : 	printf("(Thu)"); break;
-	case RTC_WEEKDAY_FRIDAY : 		printf("(Fri)"); break;
-	case RTC_WEEKDAY_SATURDAY : 	printf("(Sat)"); break;
-	case RTC_WEEKDAY_SUNDAY : 		printf("(Sun)"); break;
-	default : 						assert (0 == 1); break;
-	}
-
-	printf(" %2d : %2d : %2d"LINE_TERM,									\
-			RTC_Bcd2ToByte(SMB_StatusObj.currentTime.Hours),			\
-			RTC_Bcd2ToByte(SMB_StatusObj.currentTime.Minutes),			\
-			RTC_Bcd2ToByte(SMB_StatusObj.currentTime.Seconds));
 
 	printf ("luminance\t= 0x%04x"LINE_TERM, SMB_StatusObj.smb_luminance.luminance);
 	printf ("brightness\t= %s"LINE_TERM, (SMB_StatusObj.smb_luminance.bright_or_dark == LUMINANCE_BRIGHT)?"BRIGHT":"DARK  ");
@@ -143,14 +100,14 @@ void func_data_show()
 	case LEDBAR_YELLOW :printf("YELLOW"LINE_TERM); break;
 	}
 
+	printf(LINE_TERM);
+	printf("EMERGENCY \t= %s"LINE_TERM, (SMB_StatusObj.EMERGENCY == true)?"YES":"NO ");
+	printf("emer_btn \t= %s"LINE_TERM, (SMB_StatusObj.emer_btn_status == EMER_BTN_PRESSED)?"EMER_BTN_PRESSED":"EMER_BTN_RELEASED");
+	printf("fire_door \t= %s"LINE_TERM, (SMB_StatusObj.fire_door_status == FIRE_DOOR_OPEN)?"FIRE_DOOR_OPEN":"FIRE_DOOR_CLOSED");
+	printf("aed_door \t= %s"LINE_TERM, (SMB_StatusObj.aed_door_status == AED_DOOR_OPEN)?"AED_DOOR_OPEN":"AED_DOOR_CLOSED");
+	printf("flood \t\t= %s"LINE_TERM, (SMB_StatusObj.flood_status == FLOOD_HAPPEN)?"FLOOD_HAPPEN":"FLOOD_CLEAR");
+
 #if 0
-	printf ("Emer. Button \t= %s"LINE_TERM, (SBStatusObj.emegency_btn == EMER_BTN_PRESSED)?"PRESSED ":"RELEASED");
-	printf ("AED Door \t= %s"LINE_TERM, (SBStatusObj.aed_door == AED_DOOR_OPEN)?"OPEN  ":"CLOSED");
-	printf ("FIRE Door \t= %s"LINE_TERM, (SBStatusObj.fire_door == FIRE_DOOR_OPEN)?"OPEN  ":"CLOSED");
-	printf ("Flooding \t= %s"LINE_TERM, (SBStatusObj.flooding == FLOOD_HAPPEN)?"WATER":"DRY  ");
-	printf ("LAMP \t\t= %s"LINE_TERM, (lampObj.lamp_on_off == LAMP_OFF)?"OFF":"ON ");
-
-
 	printf("lamp_off_duty \t= %02d:%02d %s"LINE_TERM, \
 			SBConfigObj.lamp_off_duty.Hours, SBConfigObj.lamp_off_duty.Minutes, (SBConfigObj.lamp_off_duty.Hours < 12)?"am":"pm");
 	printf("lamp_on_duty \t= %02d:%02d %s"LINE_TERM, \
@@ -161,6 +118,52 @@ void func_data_show()
 	printf("Raspberry work \t= %s"LINE_TERM, (SBStatusObj.rb_working == true)?"YES ":"NO ");
 #endif
 
+	printf(LINE_TERM);
+	printf("Launching\t= ");
+	// Launching date/time 표시
+	printf("%4d/%02d/%02d ",											\
+			2000 + RTC_Bcd2ToByte(SMB_StatusObj.launchDate.Year),		\
+			RTC_Bcd2ToByte(SMB_StatusObj.launchDate.Month),				\
+			RTC_Bcd2ToByte(SMB_StatusObj.launchDate.Date));
+
+	switch (RTC_Bcd2ToByte(RTC_Bcd2ToByte(SMB_StatusObj.launchDate.WeekDay))) {
+	case RTC_WEEKDAY_MONDAY : 		printf("(Mon)"); break;
+	case RTC_WEEKDAY_TUESDAY : 		printf("(Tue)"); break;
+	case RTC_WEEKDAY_WEDNESDAY : 	printf("(Wed)"); break;
+	case RTC_WEEKDAY_THURSDAY : 	printf("(Thu)"); break;
+	case RTC_WEEKDAY_FRIDAY : 		printf("(Fri)"); break;
+	case RTC_WEEKDAY_SATURDAY : 	printf("(Sat)"); break;
+	case RTC_WEEKDAY_SUNDAY : 		printf("(Sun)"); break;
+	default : 						assert (0 == 1); break;
+	}
+
+	printf(" %2d : %2d : %2d"LINE_TERM,									\
+			RTC_Bcd2ToByte(SMB_StatusObj.launchTime.Hours),				\
+			RTC_Bcd2ToByte(SMB_StatusObj.launchTime.Minutes),			\
+			RTC_Bcd2ToByte(SMB_StatusObj.launchTime.Seconds));
+
+	printf("Currently\t= ");
+	// Current date/time 표시
+	printf("%4d/%02d/%02d ",											\
+			2000 + RTC_Bcd2ToByte(SMB_StatusObj.currentDate.Year),		\
+			RTC_Bcd2ToByte(SMB_StatusObj.currentDate.Month),			\
+			RTC_Bcd2ToByte(SMB_StatusObj.currentDate.Date));
+
+	switch (RTC_Bcd2ToByte(RTC_Bcd2ToByte(SMB_StatusObj.currentDate.WeekDay))) {
+	case RTC_WEEKDAY_MONDAY : 		printf("(Mon)"); break;
+	case RTC_WEEKDAY_TUESDAY : 		printf("(Tue)"); break;
+	case RTC_WEEKDAY_WEDNESDAY : 	printf("(Wed)"); break;
+	case RTC_WEEKDAY_THURSDAY : 	printf("(Thu)"); break;
+	case RTC_WEEKDAY_FRIDAY : 		printf("(Fri)"); break;
+	case RTC_WEEKDAY_SATURDAY : 	printf("(Sat)"); break;
+	case RTC_WEEKDAY_SUNDAY : 		printf("(Sun)"); break;
+	default : 						assert (0 == 1); break;
+	}
+
+	printf(" %2d : %2d : %2d"LINE_TERM,									\
+			RTC_Bcd2ToByte(SMB_StatusObj.currentTime.Hours),			\
+			RTC_Bcd2ToByte(SMB_StatusObj.currentTime.Minutes),			\
+			RTC_Bcd2ToByte(SMB_StatusObj.currentTime.Seconds));
 	{
 		uint8_t day, hour, min, sec;
 		uint64_t tmp;

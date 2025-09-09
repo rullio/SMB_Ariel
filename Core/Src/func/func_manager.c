@@ -125,32 +125,60 @@ static bool manager_msg_handler_data_show (manager_msg_t *pmsg)
 
 static bool manager_msg_handler_emer_btn (manager_msg_t *pmsg)
 {
-	printf("%s()"LINE_TERM, __FUNCTION__);
-	led_com_toggle;
+	SMB_StatusObj.emer_btn_status = get_emer_btn_status;
+	if (SMB_StatusObj.emer_btn_status == EMER_BTN_PRESSED) {
+		SMB_StatusObj.EMERGENCY = true;
+		sb_report_to_rb(RB_REPORT_EMER_BTN_PRESS, 0);
+	}
+	else {
+		sb_report_to_rb(RB_REPORT_EMER_BTN_RELEASE, 0);
+
+	}
 
 	return true;
 }
 
 static bool manager_msg_handler_fire_door (manager_msg_t *pmsg)
 {
-	printf("%s()"LINE_TERM, __FUNCTION__);
-	led_com_toggle;
+	SMB_StatusObj.fire_door_status = get_fire_door_status;
+	if (SMB_StatusObj.fire_door_status == FIRE_DOOR_OPEN) {
+		SMB_StatusObj.EMERGENCY = true;
+		sb_report_to_rb(RB_REPORT_FIRE_DOOR_OPEN, 0);
+	}
+	else {
+		sb_report_to_rb(RB_REPORT_FIRE_DOOR_CLOSED, 0);
+
+	}
 
 	return true;
 }
 
 static bool manager_msg_handler_aed_door (manager_msg_t *pmsg)
 {
-	printf("%s()"LINE_TERM, __FUNCTION__);
-	led_com_toggle;
+	SMB_StatusObj.aed_door_status = get_aed_door_status;
+	if (SMB_StatusObj.aed_door_status == AED_DOOR_OPEN) {
+		SMB_StatusObj.EMERGENCY = true;
+		sb_report_to_rb(RB_REPORT_AED_DOOR_OPEN, 0);
+	}
+	else {
+		sb_report_to_rb(RB_REPORT_AED_DOOR_CLOSED, 0);
+
+	}
 
 	return true;
 }
 
 static bool manager_msg_handler_flooding (manager_msg_t *pmsg)
 {
-	printf("%s()"LINE_TERM, __FUNCTION__);
-	led_com_toggle;
+	SMB_StatusObj.flood_status = get_flood_status;
+	if (SMB_StatusObj.flood_status == FLOOD_HAPPEN) {
+		SMB_StatusObj.EMERGENCY = true;
+		sb_report_to_rb(RB_REPORT_FLOOD_HAPPEN, 0);
+	}
+	else {
+		sb_report_to_rb(RB_REPORT_FLOOD_CLEAR, 0);
+
+	}
 
 	return true;
 }
