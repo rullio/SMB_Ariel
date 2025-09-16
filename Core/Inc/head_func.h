@@ -52,7 +52,7 @@ bool rb_cmd_handler(rb_msg_t *pq_msg);
 uint8_t checksum(uint8_t *addr, uint8_t count);
 void doSystemReset();
 
-int16_t __LL_ADC_CALC_DATA_TO_TEMPERATURE(uint16_t);
+int16_t __LL_ADC_CALC_DATA_TO_TEMP(uint16_t);
 
 bool func_lamp_set(lamp_level_t lamp_level);
 lampObj_t *get_lamp_handle();
@@ -115,6 +115,10 @@ void show_banner_bench(void);
 void show_banner_pee(void);
 void show_banner_shit(void);
 void show_banner_ballet(void);
+
+uint32_t DWT_Delay_Init(void);
+uint32_t DWT_GetTickUS(void);
+
 
 
 #endif /* INC_HEAD_HEAD_FUNC_H_ */

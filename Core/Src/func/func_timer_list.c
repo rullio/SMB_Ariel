@@ -132,7 +132,7 @@ static void SOH_req_timeout_cb (void *arg)
 static void SMB_manipulation_timeout_cb (void *arg)
 {
 	printf("%s()"LINE_TERM, __FUNCTION__);
-	SMB_StatusObj.smb_manipulation = false;
+	SMB_StatusObj.rb_mani_flag = false;
 	SMB_ManiObj_restore(&SMB_ManiObj, &SMB_ControlObj);
 }
 

@@ -88,14 +88,15 @@ static bool SMB_StatusObj_init(SMB_StatusObj_t *pStatusObj)
 	pStatusObj->ims_packet_error_counter = 0;
 
 	pStatusObj->smb_data_show_flag = false;
-	pStatusObj->peri_manual_control_flag = false;
+	pStatusObj->console_mani_flag = false;
 
 	pStatusObj->smb_luminance.bright_or_dark = LUMINANCE_BRIGHT;
 	pStatusObj->smb_luminance.luminance = 0;
 	pStatusObj->smb_luminance.luminance_threshold = SMB_ConfigObj.luminance_threshold;
 	pStatusObj->smb_motion.sonic_threshold = SMB_ConfigObj.sonic_threshold;
 	pStatusObj->rb_working = true;		// test 용으로 잠시 true 로 만듬
-	pStatusObj->smb_manipulation = false;
+	pStatusObj->console_mani_flag = false;
+	pStatusObj->rb_mani_flag = false;
 
 	pStatusObj->EMERGENCY = false;
 	pStatusObj->emer_btn_status = get_emer_btn_status;
@@ -218,8 +219,7 @@ void smb_thread_init (void *arg)
 	assert (SMB_ControlObj_init(&SMB_ControlObj) == true);
 	assert (SMB_ManiObj_backup(&SMB_ManiObj, &SMB_ControlObj) == true);
 	assert (osTimerList_init(osTimerList) == true);
-
-	HAL_Delay(100);
+	assert (DWT_Delay_Init() == 0);
 
 	osThreadExit();
 }

@@ -379,10 +379,9 @@ typedef struct {
 	smb_luminance_t		smb_luminance;
 	smb_motion_t		smb_motion;
 	bool				smb_data_show_flag;
-	bool				peri_manual_control_flag;
-	uint32_t			counter_rb_report;
 	bool				rb_working;
-	bool				smb_manipulation;
+	bool				console_mani_flag;		// console command 로 제어할 때..
+	bool				rb_mani_flag;			// Raspberry 에서 peripheral 제어할 때..
 	bool				EMERGENCY;
 	emer_btn_status_t	emer_btn_status;
 	aed_door_status_t	aed_door_status;

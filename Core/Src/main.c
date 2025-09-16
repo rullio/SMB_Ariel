@@ -143,6 +143,7 @@ int main(void)
   MX_RNG_Init();
   MX_CRC_Init();
   /* USER CODE BEGIN 2 */
+  siren_off;			// code 다운로드할 때 하도 시끄러워서..
 	assert (SMB_RTC_Init() == true);
 //	assert (SMB_set_alarm_a() == true);
 //	assert (SMB_set_alarm_b() == true);

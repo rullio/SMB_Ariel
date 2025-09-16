@@ -151,7 +151,7 @@ static const aed_adc_temp_t aed_temperature_table[AED_TEMP_TABLE_SIZE] = {
 		{59,	7},
 };
 
-int16_t __LL_ADC_CALC_DATA_TO_TEMPERATURE(uint16_t aedt_adc_value)
+int16_t __LL_ADC_CALC_DATA_TO_TEMP(uint16_t aedt_adc_value)
 {
 	for (uint32_t i = 0 ; i < AED_TEMP_TABLE_SIZE ; i++) {
 		if (aedt_adc_value >= aed_temperature_table[i].aed_adc_value) return (aed_temperature_table[i].converted_temperature);

@@ -42,8 +42,6 @@ extern "C" {
 #include "stm32l4xx_ll_system.h"
 #include "stm32l4xx_ll_rcc.h"
 
-
-
 #include "adc.h"
 #include "dma.h"
 #include "gpio.h"
@@ -54,8 +52,6 @@ extern "C" {
 #include "usart.h"
 #include "crc.h"
 
-
-
 #include "cJSON.h"
 #include "head_def.h"
 #include "head_enum.h"
@@ -63,7 +59,6 @@ extern "C" {
 #include "head_thread.h"
 #include "head_fs.h"
 #include "head_iap.h"
-
 
 #include "spif.h"
 
@@ -73,13 +68,6 @@ extern "C" {
 #include "stm_logging.h"
 #include "head_trace.h"
 #include "head_console.h"
-
-
-
-
-
-
-
 
 #include "head_data.h"
 #include "head_func.h"

@@ -450,7 +450,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 	SMB_adc_value.YUI			= __LL_ADC_CALC_DATA_TO_VOLTAGE(SMB_adc_value.VREF, aADCxConvertedData[0], LL_ADC_RESOLUTION_12B);
 	SMB_adc_value.MUI1			= __LL_ADC_CALC_DATA_TO_VOLTAGE(SMB_adc_value.VREF, aADCxConvertedData[1], LL_ADC_RESOLUTION_12B);
 	SMB_adc_value.MUI2			= __LL_ADC_CALC_DATA_TO_VOLTAGE(SMB_adc_value.VREF, aADCxConvertedData[2], LL_ADC_RESOLUTION_12B);
-	SMB_adc_value.AEDT			= __LL_ADC_CALC_DATA_TO_TEMPERATURE(aADCxConvertedData[3]) - AEDT_COMPENSATION_VALUE;	// AED 온도 센서가 비선형이라서 송 사장님이 주신 raw data table 을 사용해서 변환하는 것으로 함
+	SMB_adc_value.AEDT			= __LL_ADC_CALC_DATA_TO_TEMP(aADCxConvertedData[3]) - AEDT_COMPENSATION_VALUE;	// AED 온도 센서가 비선형이라서 송 사장님이 주신 raw data table 을 사용해서 변환하는 것으로 함
 	SMB_adc_value.CDS			= __LL_ADC_CALC_DATA_TO_VOLTAGE(SMB_adc_value.VREF, aADCxConvertedData[4], LL_ADC_RESOLUTION_12B);
 	SMB_adc_value.TEMP			= __LL_ADC_CALC_TEMPERATURE(SMB_adc_value.VREF, aADCxConvertedData[5], LL_ADC_RESOLUTION_12B);
 	SMB_adc_value.VBAT 			= __LL_ADC_CALC_DATA_TO_VOLTAGE(SMB_adc_value.VREF, aADCxConvertedData[6], LL_ADC_RESOLUTION_12B);

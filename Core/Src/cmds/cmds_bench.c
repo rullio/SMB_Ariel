@@ -33,6 +33,8 @@
 
 #include "main.h"
 
+void smb_manipulation_begin (void);
+
 static void smb_cmd_show_bench (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
@@ -381,6 +383,65 @@ static void smb_cmd_set_ledlia2 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **a
 	return;
 }
 
+static void smb_cmd_set_launchdate (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+{
+	const void* cmdIoParam = pCmdIO->cmdIoParam;
+	uint8_t Year, Month, Date, WeekDay;
+
+	if (argc != 5) {
+		goto USAGE;
+	}
+
+	Year = (uint8_t)strtoul(argv[1], NULL, 0);
+	Month = (uint8_t)strtoul(argv[2], NULL, 0);
+	Date = (uint8_t)strtoul(argv[3], NULL, 0);
+	WeekDay = (uint8_t)strtoul(argv[4], NULL, 0);
+
+	if (Year > 99) goto USAGE;
+	if (Month > 12) goto USAGE;
+	if (Date > 31) goto USAGE;
+	if (WeekDay > 7) goto USAGE;
+
+	SMB_StatusObj.launchDate.Year = RTC_ByteToBcd2(Year);
+	SMB_StatusObj.launchDate.Month = RTC_ByteToBcd2(Month);
+	SMB_StatusObj.launchDate.Date = RTC_ByteToBcd2(Date);
+	SMB_StatusObj.launchDate.WeekDay = RTC_ByteToBcd2(WeekDay);
+	return;
+
+	USAGE:
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "setlaunchdate 25 9 11 1 (Monday for example)"LINE_TERM);
+	return;
+}
+
+static void smb_cmd_set_launchtime (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+{
+	const void* cmdIoParam = pCmdIO->cmdIoParam;
+	uint8_t Hours, Minutes, Seconds;
+
+	if (argc != 4) {
+		goto USAGE;
+	}
+
+	Hours = (uint8_t)strtoul (argv[1], NULL, 0);
+	Minutes = (uint8_t)strtoul (argv[2], NULL, 0);
+	Seconds = (uint8_t)strtoul (argv[3], NULL, 0);
+
+	if (Hours > 23) goto USAGE;
+	if (Minutes > 59) goto USAGE;
+	if (Seconds > 59) goto USAGE;
+
+	SMB_StatusObj.launchTime.Hours = RTC_ByteToBcd2(Hours);
+	SMB_StatusObj.launchTime.Minutes = RTC_ByteToBcd2(Minutes);
+	SMB_StatusObj.launchTime.Seconds = RTC_ByteToBcd2(Seconds);
+	SMB_StatusObj.launchTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+	SMB_StatusObj.launchTime.StoreOperation = RTC_STOREOPERATION_RESET;
+	return;
+
+	USAGE:
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "setlaunchtime 13 39 11"LINE_TERM);
+	return;
+}
+
 static void smb_cmd_show_adc (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
@@ -413,7 +474,6 @@ static void smb_cmd_show_adc (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv
 	return;
 }
 
-void smb_manipulation_begin (void);
 static void smb_cmd_benchtest (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
@@ -427,6 +487,50 @@ static void smb_cmd_benchtest (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **arg
 
 	USAGE:
 	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "benchtest"LINE_TERM);
+	return;
+}
+
+static void smb_cmd_dwttest (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+{
+	const void* cmdIoParam = pCmdIO->cmdIoParam;
+	uint32_t delay_us_before, delay_us_after;
+
+	if (argc != 1) {
+		goto USAGE;
+	}
+
+	delay_us_before = DWT_GetTickUS();
+	osDelay(1);
+	delay_us_after = DWT_GetTickUS();
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "delay_us_before = %ld, delay_us_after = %ld"LINE_TERM, delay_us_before, delay_us_after);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "osDelay(1) = %ld"LINE_TERM, delay_us_after - delay_us_before);
+
+	delay_us_before = DWT_GetTickUS();
+	HAL_Delay(1);
+	delay_us_after = DWT_GetTickUS();
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "delay_us_before = %ld, delay_us_after = %ld"LINE_TERM, delay_us_before, delay_us_after);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "HAL_Delay(1) = %ld"LINE_TERM, delay_us_after - delay_us_before);
+
+	return;
+
+	USAGE:
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "dwttest"LINE_TERM);
+	return;
+}
+
+static void smb_cmd_mani (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+{
+	const void* cmdIoParam = pCmdIO->cmdIoParam;
+
+	if (argc != 1) {
+		goto USAGE;
+	}
+	SMB_StatusObj.console_mani_flag = !SMB_StatusObj.console_mani_flag;
+
+	return;
+
+	USAGE:
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "mani"LINE_TERM);
 	return;
 }
 
@@ -498,8 +602,12 @@ static const SYS_CMD_DESCRIPTOR    bench_CommandTbl []=
 		{"ledlia0",			smb_cmd_set_ledlia0,	"\t\t- ledlia0 on/off"},
 		{"ledlia1",			smb_cmd_set_ledlia1,	"\t\t- ledlia1 on/off"},
 		{"ledlia2",			smb_cmd_set_ledlia2,	"\t\t- ledlia2 on/off"},
+		{"setlaunchdate",	smb_cmd_set_launchdate,	"\t- setlaunchdate 25 9 11 1 (Monday for example)"},
+		{"setlaunchtime",	smb_cmd_set_launchtime,	"\t- setlaunchtime 13 39 11"},
 		{"showadc",			smb_cmd_show_adc,		"\t\t- showadc"},
 		{"benchtest",		smb_cmd_benchtest,		"\t\t- benchtest"},
+		{"dwttest",			smb_cmd_dwttest,		"\t\t- dwttest"},
+		{"mani",			smb_cmd_mani,		"\t\t- mani"},
 #if 0
 		{"setoffduty",		smb_cmd_set_offduty,	"\t\t- setoffduty 6 10 (for example 6:10 am)"},
 		{"setonduty",		smb_cmd_set_onduty,		"\t\t- setonduty 18 15 (for example 18:15 pm)"},

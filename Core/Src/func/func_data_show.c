@@ -106,6 +106,8 @@ void func_data_show()
 	printf("fire_door \t= %s"LINE_TERM, (SMB_StatusObj.fire_door_status == FIRE_DOOR_OPEN)?"FIRE_DOOR_OPEN":"FIRE_DOOR_CLOSED");
 	printf("aed_door \t= %s"LINE_TERM, (SMB_StatusObj.aed_door_status == AED_DOOR_OPEN)?"AED_DOOR_OPEN":"AED_DOOR_CLOSED");
 	printf("flood \t\t= %s"LINE_TERM, (SMB_StatusObj.flood_status == FLOOD_HAPPEN)?"FLOOD_HAPPEN":"FLOOD_CLEAR");
+	printf("console_mani \t= %s"LINE_TERM, (SMB_StatusObj.console_mani_flag == true)?"ON-GOING":"OFF");
+	printf("rb_mani_flag \t= %s"LINE_TERM, (SMB_StatusObj.rb_mani_flag == true)?"ON-GOING":"OFF");
 
 #if 0
 	printf("lamp_off_duty \t= %02d:%02d %s"LINE_TERM, \
