@@ -88,40 +88,56 @@ static bool SMB_StatusObj_init(SMB_StatusObj_t *pStatusObj)
 	pStatusObj->ims_packet_error_counter = 0;
 
 	pStatusObj->smb_data_show_flag = false;
-	pStatusObj->console_mani_flag = false;
 
 	pStatusObj->smb_luminance.bright_or_dark = LUMINANCE_BRIGHT;
 	pStatusObj->smb_luminance.luminance = 0;
-	pStatusObj->smb_luminance.luminance_threshold = SMB_ConfigObj.luminance_threshold;
+	pStatusObj->smb_luminance.bright_dark_boundary = SMB_ConfigObj.bright_dark_boundary;
 	pStatusObj->smb_motion.sonic_threshold = SMB_ConfigObj.sonic_threshold;
 	pStatusObj->rb_working = true;		// test 용으로 잠시 true 로 만듬
 	pStatusObj->console_mani_flag = false;
 	pStatusObj->rb_mani_flag = false;
 
-	pStatusObj->EMERGENCY = false;
 	pStatusObj->emer_btn_status = get_emer_btn_status;
 	pStatusObj->fire_door_status = get_fire_door_status;
 	pStatusObj->aed_door_status = get_aed_door_status;
 	pStatusObj->flood_status = get_flood_status;
 
-	// 처음 booting 할 때 잘못된 emer btn/fire door/aed door/flood 가 잘못되어 있으면 이를 바로잡는 log 를 내보내지만 비상상황으로 처리하지는 않는다..
 	if (pStatusObj->emer_btn_status == EMER_BTN_PRESSED) {
 		printf("%s() : EMERGENCY BUTTON IS PRESSED!! RELEASE IT FIRST.."LINE_TERM, __FUNCTION__);
-		show_banner_ballet();
-		printf(LINE_TERM LINE_TERM);
+		pStatusObj->EMERGENCY.emer_by_button = true;
 	}
+	else {
+		pStatusObj->EMERGENCY.emer_by_button = false;
+	}
+
 	if (pStatusObj->fire_door_status == FIRE_DOOR_OPEN) {
 		printf("%s() : FIRE DOOR IS OPEN!! CLOSE IT FIRST.."LINE_TERM, __FUNCTION__);
-		show_banner_ballet();
-		printf(LINE_TERM LINE_TERM);
+		pStatusObj->EMERGENCY.emer_by_fire_door = true;
 	}
+	else {
+		pStatusObj->EMERGENCY.emer_by_fire_door = false;
+	}
+
 	if (pStatusObj->aed_door_status == AED_DOOR_OPEN) {
 		printf("%s() : AED DOOR IS OPEN!! CLOSE IT FIRST.."LINE_TERM, __FUNCTION__);
-		show_banner_ballet();
-		printf(LINE_TERM LINE_TERM);
+		pStatusObj->EMERGENCY.emer_by_aed_door = true;
 	}
+	else {
+		pStatusObj->EMERGENCY.emer_by_aed_door = false;
+	}
+
 	if (pStatusObj->flood_status == FLOOD_HAPPEN) {
 		printf("%s() : FLOOD HAPPEN!! CLEAR IT FIRST.."LINE_TERM, __FUNCTION__);
+		pStatusObj->EMERGENCY.emer_by_flood = true;
+	}
+	else {
+		pStatusObj->EMERGENCY.emer_by_flood = false;
+	}
+
+	if ((pStatusObj->EMERGENCY.emer_by_button				\
+			|| pStatusObj->EMERGENCY.emer_by_fire_door		\
+			|| pStatusObj->EMERGENCY.emer_by_aed_door		\
+			|| pStatusObj->EMERGENCY.emer_by_flood) == true) {
 		show_banner_shit();
 		printf(LINE_TERM LINE_TERM);
 	}
@@ -208,6 +224,22 @@ static bool SMB_ControlObj_init(SMB_ControlObj_t *pControlObj)
 	return true;
 }
 
+static bool led_act_toggle_begin()
+{
+	assert (osTimerList[TMR_IDX_LED_ACT_TOGGLE].osTimerId != NULL);
+	assert (osTimerStart(osTimerList[TMR_IDX_LED_ACT_TOGGLE].osTimerId, osTimerList[TMR_IDX_LED_ACT_TOGGLE].timeout_tick) == osOK);
+
+	return true;
+}
+
+static bool uptime_counter_begin()
+{
+	assert (osTimerList[TMR_IDX_UPTIME_COUNT].osTimerId != NULL);
+	assert (osTimerStart(osTimerList[TMR_IDX_UPTIME_COUNT].osTimerId, osTimerList[TMR_IDX_UPTIME_COUNT].timeout_tick) == osOK);
+
+	return true;
+}
+
 void smb_thread_init (void *arg)
 {
 	DbgTraceInit();
@@ -220,6 +252,8 @@ void smb_thread_init (void *arg)
 	assert (SMB_ManiObj_backup(&SMB_ManiObj, &SMB_ControlObj) == true);
 	assert (osTimerList_init(osTimerList) == true);
 	assert (DWT_Delay_Init() == 0);
+	assert (led_act_toggle_begin() == true);
+	assert (uptime_counter_begin() == true);
 
 	osThreadExit();
 }

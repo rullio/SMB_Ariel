@@ -51,34 +51,39 @@ bool ims_sensor_channel_open(void)
 
 static bool ims_packet_integrity_check(manager_msg_t *pmsg)
 {
-	if (pmsg->head.len != 8) return false;
+	if (pmsg->head.len != 7) return false;
 	if (pmsg->body.Byte[0] != 0xA5) return false;
 	if (pmsg->body.Byte[1] != 0xA5) return false;
+	if (pmsg->body.Byte[5] != 0x5A) return false;
 	if (pmsg->body.Byte[6] != 0x5A) return false;
-	if (pmsg->body.Byte[7] != 0x5A) return false;
 
 	return true;
 }
 
 static bool manager_msg_handler_ims_data (manager_msg_t *pmsg)
 {
+	//	printf(LINE_TERM);
+	//	printf("head.len = %d"LINE_TERM, pmsg->head.len);
+	//	for (uint8_t i = 0 ; i < pmsg->head.len ; i++) {
+	//		printf("Byte[%d] = %2x ", i, pmsg->body.Byte[i]);
+	//	}
 	// IMS data 처리.. IMS data 가 깨지지 않은 경우에만 유효 수치로 처리한다.
 	if (ims_packet_integrity_check(pmsg) == true) {
-		printf("%s : luminance = 0x%x, motion = %s, sonic data = 0x%x", __FUNCTION__, pmsg->body.Byte[2], (pmsg->body.Byte[3] == 1)?"YES":"NO", pmsg->body.Byte[4]);
+		//		printf(" luminance = 0x%x, motion = %s, sonic data = 0x%x"LINE_TERM, pmsg->body.Byte[2], (pmsg->body.Byte[3] == 1)?"YES":"NO", pmsg->body.Byte[4]);
 		SMB_StatusObj.smb_luminance.luminance = pmsg->body.Byte[2];
 		// lamp 의 on/off, 밝기를 제어할 때 아래 밝은지 어두운지를 참고한다. 밝으면 무조건 끄면 된다...
-		if (pmsg->body.Byte[2] < SMB_ConfigObj.luminance_threshold) SMB_StatusObj.smb_luminance.bright_or_dark = LUMINANCE_BRIGHT;
+		if (pmsg->body.Byte[2] < SMB_ConfigObj.bright_dark_boundary) SMB_StatusObj.smb_luminance.bright_or_dark = LUMINANCE_BRIGHT;
 		else SMB_StatusObj.smb_luminance.bright_or_dark = LUMINANCE_DARK;
 
 		if ((motion_t)pmsg->body.Byte[3] == MOTION_YES) SMB_StatusObj.smb_motion.motion = MOTION_YES;
 		else SMB_StatusObj.smb_motion.motion = MOTION_NO;
 
-		SMB_StatusObj.smb_motion.sonic_raw_data = ((pmsg->body.Byte[4] << 8) | pmsg->body.Byte[5]);;
+		SMB_StatusObj.smb_motion.sonic_raw_data = ((pmsg->body.Byte[4] << 8) | pmsg->body.Byte[5]);
 		// 초음파 센서값이 기준값보다 작은 경우에 사람이 있는 것으로 간주하고 motion 감지했을 때와 동일한 동작을 수행한다. (초음파센서에 무언가 걸려 있으면 항상 사람이 있다고 될텐데... ???)
 		if (SMB_StatusObj.smb_motion.sonic_raw_data < SMB_StatusObj.smb_motion.sonic_threshold)	SMB_StatusObj.smb_motion.sonic_motion = SONIC_MOTION_YES;
 		else SMB_StatusObj.smb_motion.sonic_motion = SONIC_MOTION_NO;
 
-		// 여기서 위의 3가지 data 를 가지고 다음 동작을 결정한다.. 센서 보드 연결한 후에 결정하자.. 지금은 음성에 가 있음..
+		// 여기서 위의 3가지 data 를 update 하는 일만 하고 여기에 따른 lamp 의 조작은 manager_msg_handler_peri_oper() 에 맡긴다.
 	}
 	else {
 		// 수신 packet 이 error 가 나더라도 500ms 후에 다음 packet 이 올것이므로 수신 error 만 count 하고 버린다.
@@ -92,8 +97,15 @@ static bool manager_msg_handler_default(manager_msg_t *pmsg)
 	char manager_msg[100];
 
 	switch (pmsg->head.type) {
-	case MANAGER_MSG_ADC_READ : strcpy (manager_msg, "MANAGER_MSG_ADC_READ"); break;
-	default : strcpy (manager_msg, "UNKNOWN type"); break;
+	case MANAGER_MSG_ADC_READ :		strcpy (manager_msg, "MANAGER_MSG_ADC_READ"); break;
+	case MANAGER_MSG_IMS :			strcpy (manager_msg, "MANAGER_MSG_IMS"); break;
+	case MANAGER_MSG_DATA_SHOW :	strcpy (manager_msg, "MANAGER_MSG_DATA_SHOW"); break;
+	case MANAGER_MSG_PERI_OPER :	strcpy (manager_msg, "MANAGER_MSG_PERI_OPER"); break;
+	case MANAGER_MSG_EMER_BTN :		strcpy (manager_msg, "MANAGER_MSG_EMER_BTN"); break;
+	case MANAGER_MSG_FIRE_DOOR :	strcpy (manager_msg, "MANAGER_MSG_FIRE_DOOR"); break;
+	case MANAGER_MSG_AED_DOOR :		strcpy (manager_msg, "MANAGER_MSG_AED_DOOR"); break;
+	case MANAGER_MSG_FLOODING :		strcpy (manager_msg, "MANAGER_MSG_FLOODING"); break;
+	default :						strcpy (manager_msg, "UNKNOWN type"); break;
 	}
 
 	printf("%s() : manager_msg = %s"LINE_TERM, __FUNCTION__, manager_msg);
@@ -112,7 +124,7 @@ static bool manager_msg_handler_adc_read (manager_msg_t *pmsg)
 bool data_show_begin (void)
 {
 	assert (osTimerList[TMR_IDX_SMB_DATA_SHOW].osTimerId != NULL);
-	assert (osTimerStart(osTimerList[TMR_IDX_SMB_DATA_SHOW].osTimerId, SMB_DATA_SHOW_TIMEOUT) == osOK);
+	assert (osTimerStart(osTimerList[TMR_IDX_SMB_DATA_SHOW].osTimerId, osTimerList[TMR_IDX_SMB_DATA_SHOW].timeout_tick) == osOK);
 	return true;
 }
 
@@ -123,16 +135,30 @@ static bool manager_msg_handler_data_show (manager_msg_t *pmsg)
 	return true;
 }
 
+bool IsThisEmergency()
+{
+	bool res;
+
+	if (SMB_StatusObj.EMERGENCY.emer_by_button == true) res = true;
+	else if (SMB_StatusObj.EMERGENCY.emer_by_fire_door == true) res = true;
+	else if (SMB_StatusObj.EMERGENCY.emer_by_aed_door == true) res = true;
+	else if (SMB_StatusObj.EMERGENCY.emer_by_flood == true) res = true;
+	else res = false;
+
+	return res;
+}
+
 static bool manager_msg_handler_emer_btn (manager_msg_t *pmsg)
 {
 	SMB_StatusObj.emer_btn_status = get_emer_btn_status;
 	if (SMB_StatusObj.emer_btn_status == EMER_BTN_PRESSED) {
-		SMB_StatusObj.EMERGENCY = true;
+		SMB_StatusObj.EMERGENCY.emer_by_button = true;
 		sb_report_to_rb(RB_REPORT_EMER_BTN_PRESS, 0);
+		assert (osTimerList[TMR_IDX_EMER_BTN].osTimerId != NULL);
+		assert (osTimerStart(osTimerList[TMR_IDX_EMER_BTN].osTimerId, osTimerList[TMR_IDX_EMER_BTN].timeout_tick) == osOK);
 	}
 	else {
 		sb_report_to_rb(RB_REPORT_EMER_BTN_RELEASE, 0);
-
 	}
 
 	return true;
@@ -142,8 +168,10 @@ static bool manager_msg_handler_fire_door (manager_msg_t *pmsg)
 {
 	SMB_StatusObj.fire_door_status = get_fire_door_status;
 	if (SMB_StatusObj.fire_door_status == FIRE_DOOR_OPEN) {
-		SMB_StatusObj.EMERGENCY = true;
+		SMB_StatusObj.EMERGENCY.emer_by_fire_door = true;
 		sb_report_to_rb(RB_REPORT_FIRE_DOOR_OPEN, 0);
+		assert (osTimerList[TMR_IDX_EMER_FIRE_DOOR].osTimerId != NULL);
+		assert (osTimerStart(osTimerList[TMR_IDX_EMER_FIRE_DOOR].osTimerId, osTimerList[TMR_IDX_EMER_FIRE_DOOR].timeout_tick) == osOK);
 	}
 	else {
 		sb_report_to_rb(RB_REPORT_FIRE_DOOR_CLOSED, 0);
@@ -157,8 +185,10 @@ static bool manager_msg_handler_aed_door (manager_msg_t *pmsg)
 {
 	SMB_StatusObj.aed_door_status = get_aed_door_status;
 	if (SMB_StatusObj.aed_door_status == AED_DOOR_OPEN) {
-		SMB_StatusObj.EMERGENCY = true;
+		SMB_StatusObj.EMERGENCY.emer_by_aed_door = true;
 		sb_report_to_rb(RB_REPORT_AED_DOOR_OPEN, 0);
+		assert (osTimerList[TMR_IDX_EMER_AED_DOOR].osTimerId != NULL);
+		assert (osTimerStart(osTimerList[TMR_IDX_EMER_AED_DOOR].osTimerId, osTimerList[TMR_IDX_EMER_AED_DOOR].timeout_tick) == osOK);
 	}
 	else {
 		sb_report_to_rb(RB_REPORT_AED_DOOR_CLOSED, 0);
@@ -172,13 +202,94 @@ static bool manager_msg_handler_flooding (manager_msg_t *pmsg)
 {
 	SMB_StatusObj.flood_status = get_flood_status;
 	if (SMB_StatusObj.flood_status == FLOOD_HAPPEN) {
-		SMB_StatusObj.EMERGENCY = true;
+		SMB_StatusObj.EMERGENCY.emer_by_flood = true;
 		sb_report_to_rb(RB_REPORT_FLOOD_HAPPEN, 0);
 	}
 	else {
 		sb_report_to_rb(RB_REPORT_FLOOD_CLEAR, 0);
 
 	}
+
+	return true;
+}
+
+static lamp_level_t get_lamp_level_by_luminance(uint8_t luminance)
+{
+	if (luminance > 0xF0) return LAMP_LEVEL_9;
+	else if (luminance > 0xE0) return LAMP_LEVEL_8;
+	else if (luminance > 0xD0) return LAMP_LEVEL_7;
+	else if (luminance > 0xC0) return LAMP_LEVEL_6;
+	else if (luminance > 0xB0) return LAMP_LEVEL_5;
+	else if (luminance > 0xA0) return LAMP_LEVEL_4;
+	else if (luminance > 0x90) return LAMP_LEVEL_3;
+	else if (luminance > 0x80) return LAMP_LEVEL_2;
+	else if (luminance > 0x70) return LAMP_LEVEL_1;
+	else return LAMP_LEVEL_0;
+}
+
+static bool manager_msg_handler_peri_oper (manager_msg_t *pmsg)
+{
+	if (IsThisEmergency() == true) {
+		// 비상 버튼의 경우 siren 은 통화를 위해 꺼야 하고 lamp 는 최대한의 밝기를 유지해야 하며, LEDBAR 도 최대한의 밝기로 켜두기로 한다.
+		if (SMB_StatusObj.EMERGENCY.emer_by_button == true) {
+//			SMB_ControlObj.sirenObj.siren_set(SIREN_ON);
+			SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_9);
+			SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_WHITE);
+			SMB_ControlObj.speakerObj.speaker_set(SPEAKER_ON);
+		}
+
+		// 소화기 문 열림의 경우 siren 은 최대 volume 으로 켜고 lamp 는 최대한의 밝기를 유지해야 하며, LEDBAR 도 최대한의 밝기로 켜두기로 한다.
+		if (SMB_StatusObj.EMERGENCY.emer_by_fire_door == true) {
+			SMB_ControlObj.sirenObj.siren_set(SIREN_ON);
+			SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_9);
+			SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_WHITE);
+		}
+
+		// AED 문 열림의 경우 siren 은 최대 volume 으로 켜고 lamp 는 최대한의 밝기를 유지해야 하며, LEDBAR 도 최대한의 밝기로 켜두기로 한다.
+		if (SMB_StatusObj.EMERGENCY.emer_by_aed_door == true) {
+			SMB_ControlObj.sirenObj.siren_set(SIREN_ON);
+			SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_9);
+			SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_WHITE);
+		}
+
+		if (SMB_StatusObj.EMERGENCY.emer_by_flood == true) {
+
+		}
+		return true;		// 비상상황이면 비상 상황에 대한 처리를 하고 이후 처리하지 않고 return 한다.
+	}
+
+	if (SMB_StatusObj.console_mani_flag == true) return true;
+	if (SMB_StatusObj.rb_mani_flag == true) return true;
+
+	// FAN, PTC
+	if (SMB_adc_value.AEDT > SMB_ConfigObj.aedt_high_watermark) {
+		SMB_ControlObj.fanObj.fan_set(FAN_ON);
+		SMB_ControlObj.ptcObj.ptc_set(PTC_OFF);
+	}
+	else if (SMB_adc_value.AEDT > SMB_ConfigObj.aedt_mid_watermark) {
+		SMB_ControlObj.ptcObj.ptc_set(PTC_OFF);
+	}
+	else if (SMB_adc_value.AEDT > SMB_ConfigObj.aedt_low_watermark) {
+		SMB_ControlObj.fanObj.fan_set(FAN_OFF);
+	}
+	else {
+		SMB_ControlObj.fanObj.fan_set(FAN_OFF);
+		SMB_ControlObj.ptcObj.ptc_set(PTC_ON);
+	}
+
+	// LAMP
+	SMB_ControlObj.lampObj.lamp_set(get_lamp_level_by_luminance(SMB_StatusObj.smb_luminance.luminance));
+
+	// LEDBAR
+
+	// SPEAKER : 제어하지 않는다.
+	// LCD : 제어하지 않는다.
+	// INVERTER : 제어하지 않는다.
+	// MUCHAR1 : 제어하지 않는다.
+	// MUCHAR2 : 제어하지 않는다.
+	// YUCHAR : 제어하지 않는다.
+	// SIREN : 제어하지 않는다.
+	// LTE : 제어하지 않는다.
 
 	return true;
 }
@@ -192,6 +303,7 @@ bool manager_msg_handler_tbl_init(void)
 	manager_msg_handler_tbl[MANAGER_MSG_ADC_READ]		= manager_msg_handler_adc_read;
 	manager_msg_handler_tbl[MANAGER_MSG_IMS]			= manager_msg_handler_ims_data;
 	manager_msg_handler_tbl[MANAGER_MSG_DATA_SHOW]		= manager_msg_handler_data_show;
+	manager_msg_handler_tbl[MANAGER_MSG_PERI_OPER]		= manager_msg_handler_peri_oper;
 	manager_msg_handler_tbl[MANAGER_MSG_EMER_BTN]		= manager_msg_handler_emer_btn;
 	manager_msg_handler_tbl[MANAGER_MSG_FIRE_DOOR]		= manager_msg_handler_fire_door;
 	manager_msg_handler_tbl[MANAGER_MSG_AED_DOOR]		= manager_msg_handler_aed_door;

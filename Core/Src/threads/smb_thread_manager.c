@@ -40,6 +40,7 @@ bool adc_read_begin (void);
 bool adc_do_calibration(void);
 bool ims_sensor_channel_open(void);
 bool data_show_begin (void);
+bool peri_oper_begin();
 
 uint8_t 				ims_rx_buffer[IMS_RX_BUF_SIZE];
 manager_msg_func		manager_msg_handler_tbl[MANAGER_MSG_END];
@@ -57,8 +58,12 @@ static bool smb_peripheral_outpout_set(SMB_ControlObj_t *pControlObj)
 	pControlObj->fanObj.fan_set(FAN_OFF);
 	pControlObj->inverterObj.inverter_set(INVERTER_OFF);
 	pControlObj->speakerObj.speaker_set(SPEAKER_OFF);
-	pControlObj->lcdObj.lcd_set(LCD_OFF);
+	pControlObj->lcdObj.lcd_set(LCD_ON);
 	pControlObj->lampObj.lamp_set(LAMP_OFF);
+
+	aclamp0_off;
+	aclamp1_off;
+	aclamp2_off;
 
 	return true;
 }
@@ -73,6 +78,7 @@ void smb_thread_manager (void *arg)
 	assert (data_show_begin() == true);
 	assert (ims_sensor_channel_open() == true);
 	assert (smb_peripheral_outpout_set(&SMB_ControlObj) == true);
+	assert (peri_oper_begin() == true);
 
 	managerThreadQ = osMessageQueueNew(MAN_MSG_Q_DEPTH, sizeof(manager_msg), NULL);
 	while (1) {

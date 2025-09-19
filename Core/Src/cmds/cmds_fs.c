@@ -546,10 +546,9 @@ static void config_display(SYS_CMD_DEVICE_NODE* pCmdIO, SMB_ConfigObj_t *p)
 	(*pCmdIO->pCmdApi->print)(cmdIoParam, "running firmware \t= %s"LINE_TERM, p->running_fw);
 	(*pCmdIO->pCmdApi->print)(cmdIoParam, "motion_latency \t\t= %d (sec)"LINE_TERM, p->motion_latency);
 	(*pCmdIO->pCmdApi->print)(cmdIoParam, "siren_on_time \t\t= %d (sec)"LINE_TERM, p->siren_on_time);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "fan_on_aedt_high \t= %2d ºC"LINE_TERM, p->fan_on_aedt_high);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "fan_on_aedt_low \t= %2d ºC"LINE_TERM, p->fan_on_aedt_low);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "ptc_on_aedt_high \t= %2d ºC"LINE_TERM, p->ptc_on_aedt_high);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "ptc_on_aedt_low \t= %2d ºC"LINE_TERM, p->ptc_on_aedt_low);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "aedt_high_watermark \t= %2d ºC"LINE_TERM, p->aedt_high_watermark);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "aedt_mid_watermark \t= %2d ºC"LINE_TERM, p->aedt_mid_watermark);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "aedt_low_watermark \t= %2d ºC"LINE_TERM, p->aedt_low_watermark);
 
 	(*pCmdIO->pCmdApi->print)(cmdIoParam, "lamp_on_duty_time \t= %2d:%2d:%2d %s"LINE_TERM, \
 			p->lamp_on_duty.Hours, p->lamp_on_duty.Minutes, p->lamp_on_duty.Seconds, (p->lamp_on_duty.Hours < 12)?"am":"pm");
@@ -557,7 +556,7 @@ static void config_display(SYS_CMD_DEVICE_NODE* pCmdIO, SMB_ConfigObj_t *p)
 			p->lamp_off_duty.Hours, p->lamp_off_duty.Minutes, p->lamp_off_duty.Seconds, (p->lamp_off_duty.Hours < 12)?"am":"pm");
 
 	(*pCmdIO->pCmdApi->print)(cmdIoParam, "sonic_threshold \t= 0x%04x"LINE_TERM, p->sonic_threshold);
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "luminance_threshold \t= 0x%04x"LINE_TERM, p->luminance_threshold);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "bright_dark_boundary \t= 0x%04x"LINE_TERM, p->bright_dark_boundary);
 
 	return;
 }

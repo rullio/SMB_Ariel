@@ -88,7 +88,7 @@ static bool solbench_cmds_add ()
 static bool console_scan_begin ()
 {
 	assert (osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].osTimerId != NULL);
-	assert (osTimerStart(osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].osTimerId, CONSOLE_SCAN_TIMEOUT) == osOK);
+	assert (osTimerStart(osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].osTimerId, osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].timeout_tick) == osOK);
 	return true;
 }
 

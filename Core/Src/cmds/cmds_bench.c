@@ -104,6 +104,25 @@ static void smb_cmd_set_siren (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **arg
 	return;
 }
 
+static void smb_cmd_set_sirenset (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+{
+	const void* cmdIoParam = pCmdIO->cmdIoParam;
+
+	if (argc != 2) {
+		goto USAGE;
+	}
+
+	SMB_ConfigObj.siren_on_time = strtoul(argv[1], NULL, 10);
+	save_smb_configObj_onto_fs(&SMB_ConfigObj);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "siren_on_time = %d"LINE_TERM, SMB_ConfigObj.siren_on_time);
+
+	return;
+
+	USAGE:
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "siren on/off"LINE_TERM);
+	return;
+}
+
 static void smb_cmd_set_ltepwr (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
@@ -329,7 +348,7 @@ static void smb_cmd_set_ledcom (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **ar
 	return;
 }
 
-static void smb_cmd_set_ledlia0 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+static void smb_cmd_set_aclamp0 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
 
@@ -347,7 +366,7 @@ static void smb_cmd_set_ledlia0 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **a
 	return;
 }
 
-static void smb_cmd_set_ledlia1 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+static void smb_cmd_set_aclamp1 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
 
@@ -365,7 +384,7 @@ static void smb_cmd_set_ledlia1 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **a
 	return;
 }
 
-static void smb_cmd_set_ledlia2 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+static void smb_cmd_set_aclamp2 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
 
@@ -379,7 +398,7 @@ static void smb_cmd_set_ledlia2 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **a
 	return;
 
 	USAGE:
-	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "ledlia2 on/off"LINE_TERM);
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "aclamp2 on/off"LINE_TERM);
 	return;
 }
 
@@ -587,6 +606,7 @@ static const SYS_CMD_DESCRIPTOR    bench_CommandTbl []=
 		{"smb",				smb_cmd_show_bench,		"\t\t- smb"},
 		{"ledbar",			smb_cmd_set_ledbar,		"\t\t- ledbar off/red/green/blue/yellow/white"},
 		{"siren",			smb_cmd_set_siren,		"\t\t- siren on/off"},
+		{"sirenset",		smb_cmd_set_sirenset,	"\t\t- sirenset 30 (siren wailing time for 30 seconds)"},
 		{"lte",				smb_cmd_set_ltepwr,		"\t\t- lte on/off"},
 		{"ptc",				smb_cmd_set_ptc,		"\t\t- ptc on/off"},
 		{"yuchar",			smb_cmd_set_yuchar,		"\t\t- yuchar on/off"},
@@ -599,9 +619,9 @@ static const SYS_CMD_DESCRIPTOR    bench_CommandTbl []=
 		{"lamp",			smb_cmd_set_lamp,		"\t\t- lamp 0~9"},
 		{"ledact",			smb_cmd_set_ledact,		"\t\t- ledact on/off/toggle"},
 		{"ledcom",			smb_cmd_set_ledcom,		"\t\t- ledcom on/off/toggle"},
-		{"ledlia0",			smb_cmd_set_ledlia0,	"\t\t- ledlia0 on/off"},
-		{"ledlia1",			smb_cmd_set_ledlia1,	"\t\t- ledlia1 on/off"},
-		{"ledlia2",			smb_cmd_set_ledlia2,	"\t\t- ledlia2 on/off"},
+		{"aclamp0",			smb_cmd_set_aclamp0,	"\t\t- aclamp0 on/off"},
+		{"aclamp1",			smb_cmd_set_aclamp1,	"\t\t- aclamp1 on/off"},
+		{"aclamp2",			smb_cmd_set_aclamp2,	"\t\t- aclamp2 on/off"},
 		{"setlaunchdate",	smb_cmd_set_launchdate,	"\t- setlaunchdate 25 9 11 1 (Monday for example)"},
 		{"setlaunchtime",	smb_cmd_set_launchtime,	"\t- setlaunchtime 13 39 11"},
 		{"showadc",			smb_cmd_show_adc,		"\t\t- showadc"},

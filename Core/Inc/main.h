@@ -146,10 +146,10 @@ void Error_Handler(void);
 #define HW_VER_ID0_GPIO_Port GPIOE
 #define LED_LIA0_Pin GPIO_PIN_12
 #define LED_LIA0_GPIO_Port GPIOB
-#define LED_LIA2_Pin GPIO_PIN_13
-#define LED_LIA2_GPIO_Port GPIOB
-#define LED_LIA1_Pin GPIO_PIN_14
+#define LED_LIA1_Pin GPIO_PIN_13
 #define LED_LIA1_GPIO_Port GPIOB
+#define LED_LIA2_Pin GPIO_PIN_14
+#define LED_LIA2_GPIO_Port GPIOB
 #define FAN_Pin GPIO_PIN_8
 #define FAN_GPIO_Port GPIOD
 #define PTC_Pin GPIO_PIN_9
@@ -261,8 +261,8 @@ void Error_Handler(void);
 // *****************************************************************************
 // FAN control
 // *****************************************************************************
-#define fan_on 				HAL_GPIO_WritePin(FAN_GPIO_Port, FAN_Pin, GPIO_PIN_SET)
-#define fan_off 			HAL_GPIO_WritePin(FAN_GPIO_Port, FAN_Pin, GPIO_PIN_RESET)
+#define fan_on 				HAL_GPIO_WritePin(FAN_GPIO_Port, FAN_Pin, GPIO_PIN_RESET)
+#define fan_off 			HAL_GPIO_WritePin(FAN_GPIO_Port, FAN_Pin, GPIO_PIN_SET)
 
 // *****************************************************************************
 // INVERTER control
@@ -285,14 +285,21 @@ void Error_Handler(void);
 // *****************************************************************************
 // LED LIA control
 // *****************************************************************************
-#define led_lia0_on 		HAL_GPIO_WritePin(LED_LIA0_GPIO_Port, LED_LIA0_Pin, GPIO_PIN_SET)
-#define led_lia0_off 		HAL_GPIO_WritePin(LED_LIA0_GPIO_Port, LED_LIA0_Pin, GPIO_PIN_RESET)
+#define led_lia0_on 		HAL_GPIO_WritePin(LED_LIA0_GPIO_Port, LED_LIA0_Pin, GPIO_PIN_RESET)
+#define led_lia0_off 		HAL_GPIO_WritePin(LED_LIA0_GPIO_Port, LED_LIA0_Pin, GPIO_PIN_SET)
 
-#define led_lia1_on 		HAL_GPIO_WritePin(LED_LIA1_GPIO_Port, LED_LIA1_Pin, GPIO_PIN_SET)
-#define led_lia1_off 		HAL_GPIO_WritePin(LED_LIA1_GPIO_Port, LED_LIA1_Pin, GPIO_PIN_RESET)
+#define led_lia1_on 		HAL_GPIO_WritePin(LED_LIA1_GPIO_Port, LED_LIA1_Pin, GPIO_PIN_RESET)
+#define led_lia1_off 		HAL_GPIO_WritePin(LED_LIA1_GPIO_Port, LED_LIA1_Pin, GPIO_PIN_SET)
 
-#define led_lia2_on 		HAL_GPIO_WritePin(LED_LIA2_GPIO_Port, LED_LIA2_Pin, GPIO_PIN_SET)
-#define led_lia2_off 		HAL_GPIO_WritePin(LED_LIA2_GPIO_Port, LED_LIA2_Pin, GPIO_PIN_RESET)
+#define led_lia2_on 		HAL_GPIO_WritePin(LED_LIA2_GPIO_Port, LED_LIA2_Pin, GPIO_PIN_RESET)
+#define led_lia2_off 		HAL_GPIO_WritePin(LED_LIA2_GPIO_Port, LED_LIA2_Pin, GPIO_PIN_SET)
+
+#define aclamp0_on			led_lia0_on
+#define aclamp0_off			led_lia0_off
+#define aclamp1_on			led_lia1_on
+#define aclamp1_off			led_lia1_off
+#define aclamp2_on			led_lia2_on
+#define aclamp2_off			led_lia2_off
 
 // *****************************************************************************
 // emergency/aed door/fire door/flood

@@ -219,7 +219,11 @@ typedef enum {
 	TMR_IDX_SMB_STATUS_REPORT,
 	TMR_IDX_SMB_IAP_REQUEST,
 	TMR_IDX_SMB_MANIPULATION,
-	TMR_IDX_SMB_MANIPULATION_TEST,
+	TMR_IDX_SMB_PERI_OPER,
+	TMR_IDX_EMER_BTN,
+	TMR_IDX_EMER_FIRE_DOOR,
+	TMR_IDX_EMER_AED_DOOR,
+	TMR_IDX_EMER_FLOOD,
 	TMR_IDX_END,
 } osTimerIndex_t;
 
@@ -303,17 +307,12 @@ typedef struct {
 	uint16_t cds_raw_data;
 } SMB_adc_value_t;
 
-#define	SMB_ADC_READ_TIMEOUT		TIMEOUT_1_SEC
-#define	SMB_DATA_SHOW_TIMEOUT		TIMEOUT_1_SEC
-#define	SMB_STATUS_REPORT_TIMEOUT	TIMEOUT_10_SEC
-#define	SMB_MANIPULATION_TIMEOUT	TIMEOUT_3_SEC
-
 // *****************************************************************************
 // Luminance
 // *****************************************************************************
 typedef struct {
 	uint8_t				luminance;
-	uint8_t				luminance_threshold;
+	uint8_t				bright_dark_boundary;
 	luminance_t			bright_or_dark;
 } smb_luminance_t;
 
@@ -344,14 +343,20 @@ typedef struct {
 	RTC_TimeTypeDef		lamp_on_duty;		// lamp 를 켜도 되는 시작 시간
 	RTC_TimeTypeDef		lamp_off_duty;		// lamp 를 꺼야 하는 시작 시간
 	uint16_t			sonic_threshold;	// sonic data 기준. 모델마다 값이 다를 수 있기 때문에 현장에서 설치할 때 sonic raw data 를 보고 설정.
-	uint8_t				luminance_threshold;
+	uint8_t				bright_dark_boundary;
 	uint32_t			motion_latency;
 	uint32_t			siren_on_time;
-	uint16_t			fan_on_aedt_high;	// fan on
-	uint16_t			fan_on_aedt_low;	// low -> high, fan 을 돌리기 시작하는 온도
-	uint16_t			ptc_on_aedt_high;	// high-> low, ptc 를 켜야 하는 온도
-	uint16_t			ptc_on_aedt_low;	// ptc 를 꺼야 하는 온도
+	uint16_t			aedt_high_watermark;
+	uint16_t			aedt_mid_watermark;
+	uint16_t			aedt_low_watermark;
 } SMB_ConfigObj_t;
+
+typedef struct {
+	bool				emer_by_button;		// Emergency 버튼을 눌러서 발생한 emergency 상황
+	bool				emer_by_fire_door;	// Fire door 가 열려서 발생한 emergency 상황
+	bool				emer_by_aed_door;	// AED door 가 열려서 발생한 emergency 상황
+	bool				emer_by_flood;		// 침수가 발생해서 발생한 emergency 상황
+} EMERGENCY_by_t;
 
 /*******************************************************************************
  SMBStatus Object
@@ -382,7 +387,7 @@ typedef struct {
 	bool				rb_working;
 	bool				console_mani_flag;		// console command 로 제어할 때..
 	bool				rb_mani_flag;			// Raspberry 에서 peripheral 제어할 때..
-	bool				EMERGENCY;
+	EMERGENCY_by_t		EMERGENCY;
 	emer_btn_status_t	emer_btn_status;
 	aed_door_status_t	aed_door_status;
 	fire_door_status_t	fire_door_status;

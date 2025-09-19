@@ -172,8 +172,6 @@ static size_t send_report_to_rb (unsigned char *buf, size_t bufSize)
 	size_t chars_sent = 0;
 	uint8_t *buffer;
 
-	led_com_on;
-
 	BACKUP_PRIMASK();
 
 	if (bufSize != 0) {

@@ -38,13 +38,12 @@ extern osMessageQueueId_t		managerThreadQ;
 static void led_act_toggle_timeout_cb (void *arg)
 {
 	led_act_toggle;
-	led_com_off;
 }
 
-static bool led_act_toggle_begin()
+bool peri_oper_begin()
 {
-	assert (osTimerList[TMR_IDX_LED_ACT_TOGGLE].osTimerId != NULL);
-	assert (osTimerStart(osTimerList[TMR_IDX_LED_ACT_TOGGLE].osTimerId, LED_ACT_TOGGLE_TIMEOUT) == osOK);
+	assert (osTimerList[TMR_IDX_SMB_PERI_OPER].osTimerId != NULL);
+	assert (osTimerStart(osTimerList[TMR_IDX_SMB_PERI_OPER].osTimerId, osTimerList[TMR_IDX_SMB_PERI_OPER].timeout_tick) == osOK);
 
 	return true;
 }
@@ -59,14 +58,6 @@ static void uptime_counter_timeout_cb (void *arg)
 	SMB_StatusObj.uptime_counter++;
 	assert (HAL_RTC_GetTime(&hrtc, &SMB_StatusObj.currentTime, RTC_FORMAT_BCD) == HAL_OK);
 	assert (HAL_RTC_GetDate(&hrtc, &SMB_StatusObj.currentDate, RTC_FORMAT_BCD) == HAL_OK);
-}
-
-static bool uptime_counter_begin()
-{
-	assert (osTimerList[TMR_IDX_UPTIME_COUNT].osTimerId != NULL);
-	assert (osTimerStart(osTimerList[TMR_IDX_UPTIME_COUNT].osTimerId, UPTIME_COUNT_TIMEOUT) == osOK);
-
-	return true;
 }
 
 static void smb_adc_read_cb (void *arg)
@@ -136,6 +127,45 @@ static void SMB_manipulation_timeout_cb (void *arg)
 	SMB_ManiObj_restore(&SMB_ManiObj, &SMB_ControlObj);
 }
 
+static void SMB_peri_oper_timeout_cb (void *arg)
+{
+	manager_msg_t manager_msg;
+
+	memset (&manager_msg, 0, sizeof(manager_msg));
+	manager_msg.head.type = MANAGER_MSG_PERI_OPER;
+	manager_msg.head.dst = WORKM_MANAGER;
+	manager_msg.head.src = WORKM_TIMER;
+	manager_msg.head.len = sizeof(manager_msg.head);
+
+	osMessageQueuePut(managerThreadQ, &manager_msg, 0U, 0U);
+}
+
+static void SMB_emer_btn_timeout_cb (void *arg)
+{
+	SMB_StatusObj.EMERGENCY.emer_by_button = false;
+	SMB_ControlObj.sirenObj.siren_set(SIREN_OFF);
+	SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_0);
+	SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_OFF);
+	SMB_ControlObj.speakerObj.speaker_set(SPEAKER_OFF);
+
+}
+
+static void SMB_emer_fire_door_timeout_cb (void *arg)
+{
+	SMB_StatusObj.EMERGENCY.emer_by_fire_door = false;
+	SMB_ControlObj.sirenObj.siren_set(SIREN_OFF);
+	SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_0);
+	SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_OFF);
+}
+
+static void SMB_emer_aed_door_timeout_cb (void *arg)
+{
+	SMB_StatusObj.EMERGENCY.emer_by_aed_door = false;
+	SMB_ControlObj.sirenObj.siren_set(SIREN_OFF);
+	SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_0);
+	SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_OFF);
+}
+
 bool osTimerList_init(osTimerEntry_t osTimerList[])
 {
 	for (uint32_t i = TMR_IDX_BEGIN ; i < TMR_IDX_END ; i++) {
@@ -195,6 +225,7 @@ bool osTimerList_init(osTimerEntry_t osTimerList[])
 	assert (osTimerList[TMR_IDX_SMB_IAP_REQUEST].osTimerId != NULL);
 	strcpy (osTimerList[TMR_IDX_SMB_IAP_REQUEST].timer_description, "TMR_IDX_SMB_IAP_REQUEST");
 
+//	Raspberry 의 명령어에 의한 peripheral control 을 위한 timer..
 	osTimerList[TMR_IDX_SMB_MANIPULATION].osTimerType = osTimerOnce;
 	osTimerList[TMR_IDX_SMB_MANIPULATION].timeout_tick = SMB_MANIPULATION_TIMEOUT;
 	osTimerList[TMR_IDX_SMB_MANIPULATION].timeout_cb = SMB_manipulation_timeout_cb;
@@ -202,8 +233,41 @@ bool osTimerList_init(osTimerEntry_t osTimerList[])
 	assert (osTimerList[TMR_IDX_SMB_MANIPULATION].osTimerId != NULL);
 	strcpy (osTimerList[TMR_IDX_SMB_MANIPULATION].timer_description, "TMR_IDX_SMB_MANIPULATION");
 
-	assert (led_act_toggle_begin() == true);
-	assert (uptime_counter_begin() == true);
+//	Bench manager thread 는 주기적으로 peripheral control 을 한다.
+	osTimerList[TMR_IDX_SMB_PERI_OPER].osTimerType = osTimerPeriodic;
+	osTimerList[TMR_IDX_SMB_PERI_OPER].timeout_tick = SMB_PERI_OPER_TIMEOUT;
+	osTimerList[TMR_IDX_SMB_PERI_OPER].timeout_cb = SMB_peri_oper_timeout_cb;
+	osTimerList[TMR_IDX_SMB_PERI_OPER].osTimerId = osTimerNew(osTimerList[TMR_IDX_SMB_PERI_OPER].timeout_cb, osTimerList[TMR_IDX_SMB_PERI_OPER].osTimerType, NULL, NULL);
+	assert (osTimerList[TMR_IDX_SMB_PERI_OPER].osTimerId != NULL);
+	strcpy (osTimerList[TMR_IDX_SMB_PERI_OPER].timer_description, "TMR_IDX_SMB_PERI_OPER");
 
+//	emergency button 을 누르면 시작하는 timer..
+	osTimerList[TMR_IDX_EMER_BTN].osTimerType = osTimerOnce;
+	osTimerList[TMR_IDX_EMER_BTN].timeout_tick = SMB_ConfigObj.siren_on_time*TIMEOUT_1_SEC;		// sec -> msec 변환
+	osTimerList[TMR_IDX_EMER_BTN].timeout_cb = SMB_emer_btn_timeout_cb;
+	osTimerList[TMR_IDX_EMER_BTN].osTimerId = osTimerNew(osTimerList[TMR_IDX_EMER_BTN].timeout_cb, osTimerList[TMR_IDX_EMER_BTN].osTimerType, NULL, NULL);
+	assert (osTimerList[TMR_IDX_EMER_BTN].osTimerId != NULL);
+	strcpy (osTimerList[TMR_IDX_EMER_BTN].timer_description, "TMR_IDX_EMER_BTN");
+
+	osTimerList[TMR_IDX_EMER_FIRE_DOOR].osTimerType = osTimerOnce;
+	osTimerList[TMR_IDX_EMER_FIRE_DOOR].timeout_tick = SMB_ConfigObj.siren_on_time*TIMEOUT_1_SEC;		// sec -> msec 변환
+	osTimerList[TMR_IDX_EMER_FIRE_DOOR].timeout_cb = SMB_emer_fire_door_timeout_cb;
+	osTimerList[TMR_IDX_EMER_FIRE_DOOR].osTimerId = osTimerNew(osTimerList[TMR_IDX_EMER_FIRE_DOOR].timeout_cb, osTimerList[TMR_IDX_EMER_FIRE_DOOR].osTimerType, NULL, NULL);
+	assert (osTimerList[TMR_IDX_EMER_FIRE_DOOR].osTimerId != NULL);
+	strcpy (osTimerList[TMR_IDX_EMER_FIRE_DOOR].timer_description, "TMR_IDX_EMER_FIRE_DOOR");
+
+	osTimerList[TMR_IDX_EMER_AED_DOOR].osTimerType = osTimerOnce;
+	osTimerList[TMR_IDX_EMER_AED_DOOR].timeout_tick = SMB_ConfigObj.siren_on_time*TIMEOUT_1_SEC;		// sec -> msec 변환
+	osTimerList[TMR_IDX_EMER_AED_DOOR].timeout_cb = SMB_emer_aed_door_timeout_cb;
+	osTimerList[TMR_IDX_EMER_AED_DOOR].osTimerId = osTimerNew(osTimerList[TMR_IDX_EMER_AED_DOOR].timeout_cb, osTimerList[TMR_IDX_EMER_AED_DOOR].osTimerType, NULL, NULL);
+	assert (osTimerList[TMR_IDX_EMER_AED_DOOR].osTimerId != NULL);
+	strcpy (osTimerList[TMR_IDX_EMER_AED_DOOR].timer_description, "TMR_IDX_EMER_AED_DOOR");
+
+#if 0
+	TMR_IDX_EMER_BTN,
+	TMR_IDX_EMER_FIRE_DOOR,
+	TMR_IDX_EMER_AED_DOOR,
+	TMR_IDX_EMER_FLOOD,
+#endif
 	return true;
 }

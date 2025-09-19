@@ -73,7 +73,13 @@ typedef enum {
 	LED_ACT_TOGGLE_TIMEOUT		= TIMEOUT_500_MSEC,
 	CONSOLE_SCAN_TIMEOUT		= TIMEOUT_10_MSEC,
 	UPTIME_COUNT_TIMEOUT		= TIMEOUT_1_SEC,
+	SMB_ADC_READ_TIMEOUT		= TIMEOUT_1_SEC,
+	SMB_DATA_SHOW_TIMEOUT		= TIMEOUT_1_SEC,
+	SMB_STATUS_REPORT_TIMEOUT	= TIMEOUT_10_SEC,
+	SMB_MANIPULATION_TIMEOUT	= TIMEOUT_3_SEC,
+	SMB_PERI_OPER_TIMEOUT		= TIMEOUT_500_MSEC,
 } os_timer_timeout_t;
+
 
 /*******************************************************************************
  LED BAR Object
@@ -183,6 +189,7 @@ typedef enum {
 	LAMP_LEVEL_7,
 	LAMP_LEVEL_8,
 	LAMP_LEVEL_9,
+	LAMP_LEVEL_MAX = LAMP_LEVEL_9,
 } lamp_level_t;
 
 /*******************************************************************************
@@ -225,6 +232,7 @@ typedef enum {
 	MANAGER_MSG_ADC_READ		= MANAGER_MSG_BASE,
 	MANAGER_MSG_IMS,
 	MANAGER_MSG_DATA_SHOW,
+	MANAGER_MSG_PERI_OPER,
 
 	MANAGER_MSG_EMER_BTN,
 	MANAGER_MSG_FIRE_DOOR,

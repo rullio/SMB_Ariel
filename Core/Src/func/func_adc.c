@@ -42,7 +42,7 @@ SMB_adc_value_t SMB_adc_value;
 bool adc_read_begin (void)
 {
 	assert (osTimerList[TMR_IDX_ADC_READ].osTimerId != NULL);
-	assert (osTimerStart(osTimerList[TMR_IDX_ADC_READ].osTimerId, SMB_ADC_READ_TIMEOUT) == osOK);
+	assert (osTimerStart(osTimerList[TMR_IDX_ADC_READ].osTimerId, osTimerList[TMR_IDX_ADC_READ].timeout_tick) == osOK);
 	return true;
 }
 
