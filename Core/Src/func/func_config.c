@@ -67,9 +67,9 @@ const SMB_ConfigObj_t SMBConfig_fac_default = {
 		.lamp_on_duty.TimeFormat = RTC_HOURFORMAT_24,
 		.siren_on_time = 30,
 
-		.aedt_high_watermark = 35,
-		.aedt_mid_watermark = 15,
-		.aedt_low_watermark = 0,
+		.aedt_high_mark = 35,
+		.aedt_mid_mark = 15,
+		.aedt_low_mark = 0,
 
 };
 

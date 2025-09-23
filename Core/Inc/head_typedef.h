@@ -346,9 +346,9 @@ typedef struct {
 	uint8_t				bright_dark_boundary;
 	uint32_t			motion_latency;
 	uint32_t			siren_on_time;
-	uint16_t			aedt_high_watermark;
-	uint16_t			aedt_mid_watermark;
-	uint16_t			aedt_low_watermark;
+	uint16_t			aedt_high_mark;
+	uint16_t			aedt_mid_mark;
+	uint16_t			aedt_low_mark;
 } SMB_ConfigObj_t;
 
 typedef struct {

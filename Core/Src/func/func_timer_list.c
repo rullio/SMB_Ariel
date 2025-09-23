@@ -143,6 +143,8 @@ static void SMB_peri_oper_timeout_cb (void *arg)
 static void SMB_emer_btn_timeout_cb (void *arg)
 {
 	SMB_StatusObj.EMERGENCY.emer_by_button = false;
+	if (IsThisEmergency() == true) return;				// 다른 이유에 의해서 비상 상황이 계속되는 경우에는 emergency button 에 의한 것만 clear 해주고 return 한다.
+
 	SMB_ControlObj.sirenObj.siren_set(SIREN_OFF);
 	SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_0);
 	SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_OFF);
@@ -153,6 +155,8 @@ static void SMB_emer_btn_timeout_cb (void *arg)
 static void SMB_emer_fire_door_timeout_cb (void *arg)
 {
 	SMB_StatusObj.EMERGENCY.emer_by_fire_door = false;
+	if (IsThisEmergency() == true) return;				// 다른 이유에 의해서 비상 상황이 계속되는 경우에는 fire door 에 의한 것만 clear 해주고 return 한다.
+
 	SMB_ControlObj.sirenObj.siren_set(SIREN_OFF);
 	SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_0);
 	SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_OFF);
@@ -161,6 +165,8 @@ static void SMB_emer_fire_door_timeout_cb (void *arg)
 static void SMB_emer_aed_door_timeout_cb (void *arg)
 {
 	SMB_StatusObj.EMERGENCY.emer_by_aed_door = false;
+	if (IsThisEmergency() == true) return;				// 다른 이유에 의해서 비상 상황이 계속되는 경우에는 AED door 에 의한 것만 clear 해주고 return 한다.
+
 	SMB_ControlObj.sirenObj.siren_set(SIREN_OFF);
 	SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_0);
 	SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_OFF);

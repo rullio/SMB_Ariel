@@ -51,33 +51,35 @@ bool ims_sensor_channel_open(void)
 
 static bool ims_packet_integrity_check(manager_msg_t *pmsg)
 {
-	if (pmsg->head.len != 7) return false;
+	if (pmsg->head.len != 8) return false;
 	if (pmsg->body.Byte[0] != 0xA5) return false;
 	if (pmsg->body.Byte[1] != 0xA5) return false;
-	if (pmsg->body.Byte[5] != 0x5A) return false;
 	if (pmsg->body.Byte[6] != 0x5A) return false;
+	if (pmsg->body.Byte[7] != 0x5A) return false;
 
 	return true;
 }
 
 static bool manager_msg_handler_ims_data (manager_msg_t *pmsg)
 {
-	//	printf(LINE_TERM);
-	//	printf("head.len = %d"LINE_TERM, pmsg->head.len);
-	//	for (uint8_t i = 0 ; i < pmsg->head.len ; i++) {
-	//		printf("Byte[%d] = %2x ", i, pmsg->body.Byte[i]);
-	//	}
 	// IMS data 처리.. IMS data 가 깨지지 않은 경우에만 유효 수치로 처리한다.
 	if (ims_packet_integrity_check(pmsg) == true) {
+//		printf(LINE_TERM);
+//		printf("head.len = %d"LINE_TERM, pmsg->head.len);
+//		for (uint8_t i = 0 ; i < pmsg->head.len ; i++) {
+//			printf("Byte[%d] = %2x ", i, pmsg->body.Byte[i]);
+//		}
 		//		printf(" luminance = 0x%x, motion = %s, sonic data = 0x%x"LINE_TERM, pmsg->body.Byte[2], (pmsg->body.Byte[3] == 1)?"YES":"NO", pmsg->body.Byte[4]);
 		SMB_StatusObj.smb_luminance.luminance = pmsg->body.Byte[2];
 		// lamp 의 on/off, 밝기를 제어할 때 아래 밝은지 어두운지를 참고한다. 밝으면 무조건 끄면 된다...
 		if (pmsg->body.Byte[2] < SMB_ConfigObj.bright_dark_boundary) SMB_StatusObj.smb_luminance.bright_or_dark = LUMINANCE_BRIGHT;
 		else SMB_StatusObj.smb_luminance.bright_or_dark = LUMINANCE_DARK;
 
-		if ((motion_t)pmsg->body.Byte[3] == MOTION_YES) SMB_StatusObj.smb_motion.motion = MOTION_YES;
+		// motion sensor 를 2 개로 바꾸면서 0번 bit, 1번 bit 가 2개의 motion sensor 값. 두개 중에서 1개라도 set 되면 motion 이 감지된 것임..
+		if (((motion_t)pmsg->body.Byte[3] & 0x03) != 0) SMB_StatusObj.smb_motion.motion = MOTION_YES;
 		else SMB_StatusObj.smb_motion.motion = MOTION_NO;
 
+		// 사무실 천장으로 측정했을 때 180cm 의 값이 0x0790... 이걸 기준으로 차후 거리값에 따른 default  값을 산정한다..
 		SMB_StatusObj.smb_motion.sonic_raw_data = ((pmsg->body.Byte[4] << 8) | pmsg->body.Byte[5]);
 		// 초음파 센서값이 기준값보다 작은 경우에 사람이 있는 것으로 간주하고 motion 감지했을 때와 동일한 동작을 수행한다. (초음파센서에 무언가 걸려 있으면 항상 사람이 있다고 될텐데... ???)
 		if (SMB_StatusObj.smb_motion.sonic_raw_data < SMB_StatusObj.smb_motion.sonic_threshold)	SMB_StatusObj.smb_motion.sonic_motion = SONIC_MOTION_YES;
@@ -215,7 +217,7 @@ static bool manager_msg_handler_flooding (manager_msg_t *pmsg)
 
 static lamp_level_t get_lamp_level_by_luminance(uint8_t luminance)
 {
-	if (luminance > 0xF0) return LAMP_LEVEL_9;
+	if (luminance > 0xF0) return LAMP_LEVEL_MAX;
 	else if (luminance > 0xE0) return LAMP_LEVEL_8;
 	else if (luminance > 0xD0) return LAMP_LEVEL_7;
 	else if (luminance > 0xC0) return LAMP_LEVEL_6;
@@ -233,7 +235,7 @@ static bool manager_msg_handler_peri_oper (manager_msg_t *pmsg)
 		// 비상 버튼의 경우 siren 은 통화를 위해 꺼야 하고 lamp 는 최대한의 밝기를 유지해야 하며, LEDBAR 도 최대한의 밝기로 켜두기로 한다.
 		if (SMB_StatusObj.EMERGENCY.emer_by_button == true) {
 //			SMB_ControlObj.sirenObj.siren_set(SIREN_ON);
-			SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_9);
+			SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_MAX);
 			SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_WHITE);
 			SMB_ControlObj.speakerObj.speaker_set(SPEAKER_ON);
 		}
@@ -241,14 +243,14 @@ static bool manager_msg_handler_peri_oper (manager_msg_t *pmsg)
 		// 소화기 문 열림의 경우 siren 은 최대 volume 으로 켜고 lamp 는 최대한의 밝기를 유지해야 하며, LEDBAR 도 최대한의 밝기로 켜두기로 한다.
 		if (SMB_StatusObj.EMERGENCY.emer_by_fire_door == true) {
 			SMB_ControlObj.sirenObj.siren_set(SIREN_ON);
-			SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_9);
+			SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_MAX);
 			SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_WHITE);
 		}
 
 		// AED 문 열림의 경우 siren 은 최대 volume 으로 켜고 lamp 는 최대한의 밝기를 유지해야 하며, LEDBAR 도 최대한의 밝기로 켜두기로 한다.
 		if (SMB_StatusObj.EMERGENCY.emer_by_aed_door == true) {
 			SMB_ControlObj.sirenObj.siren_set(SIREN_ON);
-			SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_9);
+			SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_MAX);
 			SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_WHITE);
 		}
 
@@ -262,14 +264,14 @@ static bool manager_msg_handler_peri_oper (manager_msg_t *pmsg)
 	if (SMB_StatusObj.rb_mani_flag == true) return true;
 
 	// FAN, PTC
-	if (SMB_adc_value.AEDT > SMB_ConfigObj.aedt_high_watermark) {
+	if (SMB_adc_value.AEDT > SMB_ConfigObj.aedt_high_mark) {
 		SMB_ControlObj.fanObj.fan_set(FAN_ON);
 		SMB_ControlObj.ptcObj.ptc_set(PTC_OFF);
 	}
-	else if (SMB_adc_value.AEDT > SMB_ConfigObj.aedt_mid_watermark) {
+	else if (SMB_adc_value.AEDT > SMB_ConfigObj.aedt_mid_mark) {
 		SMB_ControlObj.ptcObj.ptc_set(PTC_OFF);
 	}
-	else if (SMB_adc_value.AEDT > SMB_ConfigObj.aedt_low_watermark) {
+	else if (SMB_adc_value.AEDT > SMB_ConfigObj.aedt_low_mark) {
 		SMB_ControlObj.fanObj.fan_set(FAN_OFF);
 	}
 	else {
