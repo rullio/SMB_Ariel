@@ -74,11 +74,15 @@ void smb_thread_manager (void *arg)
 
 	assert (manager_msg_handler_tbl_init() == true);
 	assert (adc_do_calibration() == true);
-	assert (adc_read_begin() == true);
-	assert (data_show_begin() == true);
+	// 여기서 한번은 ADC 를 읽어 줘서 AEDT 가 제대로 된 값이 들어 있게 해야만 아래 peri_oper_begin() 으로 500ms 후에 manager_msg_handler_peri_oper() 을 수행할 때 AEDT/FAN 이 제대로 동작하게 할 수 있다.
+	// ADC 는 1초 주기, peri 는 500ms 주기로 하기 때문에 peri 제어가 먼저 시작되면서 초기화되지 않은 AEDT 때문에 PTC 를 켜고 나서 제대로 온도가 읽혀도 PTC 가 계속 켜지게 되는 문제를 방지할 수 있다.
+	assert (HAL_ADC_Start_DMA(&hadc1, (uint32_t *)aADCxConvertedData, ADC_CONVERTED_DATA_BUFFER_SIZE) == HAL_OK);
+
 	assert (ims_sensor_channel_open() == true);
 	assert (smb_peripheral_outpout_set(&SMB_ControlObj) == true);
 	assert (peri_oper_begin() == true);
+	assert (adc_read_begin() == true);
+	assert (data_show_begin() == true);
 
 	managerThreadQ = osMessageQueueNew(MAN_MSG_Q_DEPTH, sizeof(manager_msg), NULL);
 	while (1) {
