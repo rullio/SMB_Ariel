@@ -82,14 +82,17 @@ void func_data_show()
 
 	printf(LINE_TERM);
 
+	printf ("LAMP \t\t= %d"LINE_TERM, SMB_ControlObj.lampObj.lamp_level);
 	printf ("LTE \t\t= %s"LINE_TERM, (SMB_ControlObj.lteObj.lte_on_off_flag == LTE_OFF)?"OFF":"ON ");
 	printf ("FAN \t\t= %s"LINE_TERM, (SMB_ControlObj.fanObj.fan_on_off_flag == FAN_OFF)?"OFF":"ON ");
+	printf ("PTC \t\t= %s"LINE_TERM, (SMB_ControlObj.ptcObj.ptc_on_off_flag == PTC_OFF)?"OFF":"ON ");
+	printf ("SIREN \t\t= %s"LINE_TERM, (SMB_ControlObj.sirenObj.siren_on_off_flag == SIREN_OFF)?"OFF":"ON ");
+	printf ("SPEAKER \t= %s"LINE_TERM, (SMB_ControlObj.speakerObj.speaker_on_off_flag == SPEAKER_OFF)?"OFF":"ON ");
 	printf ("YUCHAR \t\t= %s"LINE_TERM, (SMB_ControlObj.yucharObj.yuchar_on_off_flag == YUCHAR_OFF)?"OFF":"ON ");
 	printf ("MUCHAR1 \t= %s"LINE_TERM, (SMB_ControlObj.muchar1Obj.muchar1_on_off_flag == MUCHAR1_OFF)?"OFF":"ON ");
 	printf ("MUCHAR2 \t= %s"LINE_TERM, (SMB_ControlObj.muchar2Obj.muchar2_on_off_flag == MUCHAR2_OFF)?"OFF":"ON ");
+	printf ("LCD \t\t= %s"LINE_TERM, (SMB_ControlObj.lcdObj.lcd_on_off_flag == LCD_OFF)?"OFF":"ON ");
 	printf ("INVERTER \t= %s"LINE_TERM, (SMB_ControlObj.inverterObj.inverter_on_off_flag == INVERTER_OFF)?"OFF":"ON ");
-	printf ("SIREN \t\t= %s"LINE_TERM, (SMB_ControlObj.sirenObj.siren_on_off_flag == SIREN_OFF)?"OFF":"ON ");
-	printf ("SPEAKER \t= %s"LINE_TERM, (SMB_ControlObj.speakerObj.speaker_on_off_flag == SPEAKER_OFF)?"OFF":"ON ");
 	printf("LEDBAR \t\t= ");
 	switch (SMB_ControlObj.ledbarObj.ledbar_color) {
 	case LEDBAR_OFF :	printf("OFF   "LINE_TERM); break;
