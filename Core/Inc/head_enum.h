@@ -257,6 +257,20 @@ typedef enum {
 	SONIC_MOTION_NO = !SONIC_MOTION_YES,
 } sonic_motion_t;
 
+/*******************************************************************************
+ fake AEDT
+ *******************************************************************************/
+typedef enum {
+	FAKE_AEDT_YES = true,
+	FAKE_AEDT_NO = !FAKE_AEDT_YES,
+} fake_AEDT_flag;
+
+typedef enum {
+	FAKE_DIR_UP = true,
+	FAKE_DIR_DOWN = !FAKE_DIR_UP,
+} fake_AEDT_dir;
+
+
 // *****************************************************************************
 // Message of Raspberry
 // *****************************************************************************

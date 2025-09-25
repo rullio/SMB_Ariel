@@ -346,9 +346,10 @@ typedef struct {
 	uint8_t				bright_dark_boundary;
 	uint32_t			motion_latency;
 	uint32_t			siren_on_time;
-	uint16_t			aedt_high_mark;
-	uint16_t			aedt_mid_mark;
-	uint16_t			aedt_low_mark;
+	int16_t				aedt_high_mark;
+	int16_t				aedt_normal_high;
+	int16_t				aedt_normal_low;
+	int16_t				aedt_low_mark;
 } SMB_ConfigObj_t;
 
 typedef struct {
@@ -357,6 +358,15 @@ typedef struct {
 	bool				emer_by_aed_door;	// AED door 가 열려서 발생한 emergency 상황
 	bool				emer_by_flood;		// 침수가 발생해서 발생한 emergency 상황
 } EMERGENCY_by_t;
+
+/*******************************************************************************
+ fake AEDT
+ *******************************************************************************/
+typedef struct {
+	fake_AEDT_flag		IsFaking;			//
+	fake_AEDT_dir		fake_dir;			//
+	int16_t			fake_temp;			//
+} fake_AEDT_t;
 
 /*******************************************************************************
  SMBStatus Object
@@ -392,6 +402,7 @@ typedef struct {
 	aed_door_status_t	aed_door_status;
 	fire_door_status_t	fire_door_status;
 	flood_status_t		flood_status;
+	fake_AEDT_t			fake_AEDT;		// PTC, FAN 이 온도에 따라서 정확하게 동작하는지 확인하려고 만듬..
 
 } SMB_StatusObj_t;
 

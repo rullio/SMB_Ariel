@@ -60,7 +60,7 @@ void func_data_show()
 	printf ("brightness\t= %s"LINE_TERM, (SMB_StatusObj.smb_luminance.bright_or_dark == LUMINANCE_BRIGHT)?"BRIGHT":"DARK   ");
 	printf ("bright/dark boundary\t= 0x%04x"LINE_TERM, SMB_StatusObj.smb_luminance.bright_dark_boundary);
 	printf ("motion\t\t= %s"LINE_TERM, (SMB_StatusObj.smb_motion.motion == MOTION_YES)?"YES":"NO ");
-	printf ("sonic\t\t= %s"LINE_TERM, (SMB_StatusObj.smb_motion.sonic_motion == SONIC_MOTION_YES)?"YES":"NO ");
+	printf ("sonic motion\t= %s"LINE_TERM, (SMB_StatusObj.smb_motion.sonic_motion == SONIC_MOTION_YES)?"YES":"NO ");
 	printf ("sonic_raw \t= 0x%04x (threshold = 0x%04x)"LINE_TERM, SMB_StatusObj.smb_motion.sonic_raw_data, SMB_StatusObj.smb_motion.sonic_threshold);
 	printf ("sonic_distance \t= %4d cm  "LINE_TERM, ((SMB_StatusObj.smb_motion.sonic_raw_data * 17) / 200));
 	printf(LINE_TERM);

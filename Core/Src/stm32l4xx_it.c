@@ -460,7 +460,10 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 	SMB_adc_value.aedt_raw_data	= aADCxConvertedData[3];
 	SMB_adc_value.cds_raw_data	= aADCxConvertedData[4];
 
-	//	SB_adc_value.AEDT = fake_temperature;
+	// PTC, FAN 의 정상 동작함을 확증하기 위해서...
+	if (SMB_StatusObj.fake_AEDT.IsFaking == FAKE_AEDT_YES) {
+		SMB_adc_value.AEDT = SMB_StatusObj.fake_AEDT.fake_temp;
+	}
 }
 
 /**

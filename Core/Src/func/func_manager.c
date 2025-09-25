@@ -64,11 +64,11 @@ static bool manager_msg_handler_ims_data (manager_msg_t *pmsg)
 {
 	// IMS data 처리.. IMS data 가 깨지지 않은 경우에만 유효 수치로 처리한다.
 	if (ims_packet_integrity_check(pmsg) == true) {
-//		printf(LINE_TERM);
-//		printf("head.len = %d"LINE_TERM, pmsg->head.len);
-//		for (uint8_t i = 0 ; i < pmsg->head.len ; i++) {
-//			printf("Byte[%d] = %2x ", i, pmsg->body.Byte[i]);
-//		}
+		//		printf(LINE_TERM);
+		//		printf("head.len = %d"LINE_TERM, pmsg->head.len);
+		//		for (uint8_t i = 0 ; i < pmsg->head.len ; i++) {
+		//			printf("Byte[%d] = %2x ", i, pmsg->body.Byte[i]);
+		//		}
 		//		printf(" luminance = 0x%x, motion = %s, sonic data = 0x%x"LINE_TERM, pmsg->body.Byte[2], (pmsg->body.Byte[3] == 1)?"YES":"NO", pmsg->body.Byte[4]);
 		SMB_StatusObj.smb_luminance.luminance = pmsg->body.Byte[2];
 		// lamp 의 on/off, 밝기를 제어할 때 아래 밝은지 어두운지를 참고한다. 밝으면 무조건 끄면 된다...
@@ -119,6 +119,15 @@ static bool manager_msg_handler_adc_read (manager_msg_t *pmsg)
 {
 	//	printf("%s()"LINE_TERM, __FUNCTION__);
 	assert (HAL_ADC_Start_DMA(&hadc1, (uint32_t *)aADCxConvertedData, ADC_CONVERTED_DATA_BUFFER_SIZE) == HAL_OK);
+
+	/*******************************************************************************
+	 fake AEDT
+	 *******************************************************************************/
+	if (SMB_StatusObj.fake_AEDT.IsFaking == FAKE_AEDT_YES) {
+		if (SMB_StatusObj.fake_AEDT.fake_dir == FAKE_DIR_UP) SMB_StatusObj.fake_AEDT.fake_temp++;
+		else SMB_StatusObj.fake_AEDT.fake_temp--;
+		if ((SMB_StatusObj.fake_AEDT.fake_temp > 40) || (SMB_StatusObj.fake_AEDT.fake_temp < -10)) SMB_StatusObj.fake_AEDT.fake_dir = !SMB_StatusObj.fake_AEDT.fake_dir;
+	}
 
 	return true;
 }
@@ -234,7 +243,7 @@ static bool manager_msg_handler_peri_oper (manager_msg_t *pmsg)
 	if (IsThisEmergency() == true) {
 		// 비상 버튼의 경우 siren 은 통화를 위해 꺼야 하고 lamp 는 최대한의 밝기를 유지해야 하며, LEDBAR 도 최대한의 밝기로 켜두기로 한다.
 		if (SMB_StatusObj.EMERGENCY.emer_by_button == true) {
-//			SMB_ControlObj.sirenObj.siren_set(SIREN_ON);
+			//			SMB_ControlObj.sirenObj.siren_set(SIREN_ON);
 			SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_MAX);
 			SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_WHITE);
 			SMB_ControlObj.speakerObj.speaker_set(SPEAKER_ON);
@@ -268,7 +277,11 @@ static bool manager_msg_handler_peri_oper (manager_msg_t *pmsg)
 		SMB_ControlObj.fanObj.fan_set(FAN_ON);
 		SMB_ControlObj.ptcObj.ptc_set(PTC_OFF);
 	}
-	else if (SMB_adc_value.AEDT > SMB_ConfigObj.aedt_mid_mark) {
+	else if (SMB_adc_value.AEDT > SMB_ConfigObj.aedt_normal_high) {
+		SMB_ControlObj.ptcObj.ptc_set(PTC_OFF);
+	}
+	else if (SMB_adc_value.AEDT > SMB_ConfigObj.aedt_normal_low) {
+		SMB_ControlObj.fanObj.fan_set(FAN_OFF);
 		SMB_ControlObj.ptcObj.ptc_set(PTC_OFF);
 	}
 	else if (SMB_adc_value.AEDT > SMB_ConfigObj.aedt_low_mark) {
@@ -279,11 +292,18 @@ static bool manager_msg_handler_peri_oper (manager_msg_t *pmsg)
 		SMB_ControlObj.ptcObj.ptc_set(PTC_ON);
 	}
 
-	// LAMP
-	SMB_ControlObj.lampObj.lamp_set(get_lamp_level_by_luminance(SMB_StatusObj.smb_luminance.luminance));
+	// LAMP : 사장님은 사람이 없을 때도 켜서 범죄 예방하는 것이 맞다고 하시는데... 으으음...어쩌는 것이 좋을까요..
+	if (SMB_StatusObj.smb_motion.motion == MOTION_YES) {
+		SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_MAX);
+	}
+	else if (SMB_StatusObj.smb_motion.sonic_motion == SONIC_MOTION_YES) {
+		SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_MAX);
+	}
+	else {
+		SMB_ControlObj.lampObj.lamp_set(get_lamp_level_by_luminance(SMB_StatusObj.smb_luminance.luminance));
+	}
 
-	// LEDBAR
-
+	// LEDBAR : LEDBAR manipulation 이 있기 때문에 여기서 제어하지 않는 것이 맞다..
 	// SPEAKER : 제어하지 않는다.
 	// LCD : 제어하지 않는다.
 	// INVERTER : 제어하지 않는다.

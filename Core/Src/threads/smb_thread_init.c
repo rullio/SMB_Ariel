@@ -141,6 +141,11 @@ static bool SMB_StatusObj_init(SMB_StatusObj_t *pStatusObj)
 		show_banner_shit();
 		printf(LINE_TERM LINE_TERM);
 	}
+
+	pStatusObj->fake_AEDT.IsFaking = FAKE_AEDT_NO;
+	pStatusObj->fake_AEDT.fake_dir = FAKE_DIR_UP;
+	pStatusObj->fake_AEDT.fake_temp = 25;
+
 	return true;
 }
 

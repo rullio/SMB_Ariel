@@ -68,9 +68,9 @@ const SMB_ConfigObj_t SMBConfig_fac_default = {
 		.siren_on_time = 30,
 
 		.aedt_high_mark = 35,
-		.aedt_mid_mark = 15,
+		.aedt_normal_high = 25,
+		.aedt_normal_low = 10,
 		.aedt_low_mark = 0,
-
 };
 
 bool get_SMB_config (SMB_ConfigObj_t *pconfig)

@@ -553,6 +553,33 @@ static void smb_cmd_mani (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 	return;
 }
 
+static void smb_cmd_fake_aedt (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+{
+	const void* cmdIoParam = pCmdIO->cmdIoParam;
+	int16_t fake_temp;
+
+	if (argc == 1) {
+		SMB_StatusObj.fake_AEDT.IsFaking = !SMB_StatusObj.fake_AEDT.IsFaking;
+		return;
+	}
+	else if (argc == 2) {
+		SMB_StatusObj.fake_AEDT.IsFaking = FAKE_AEDT_YES;
+		fake_temp = (uint16_t)strtoul(argv[1], NULL, 10);
+		if (fake_temp > 50 || fake_temp < -30) goto USAGE;
+		else SMB_StatusObj.fake_AEDT.fake_temp = fake_temp;
+		return;
+	}
+	else {
+		goto USAGE;
+	}
+
+	return;
+
+	USAGE:
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "fakeaedt"LINE_TERM);
+	return;
+}
+
 #if 0
 
 static void smb_cmd_set_offduty (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
@@ -627,7 +654,8 @@ static const SYS_CMD_DESCRIPTOR    bench_CommandTbl []=
 		{"showadc",			smb_cmd_show_adc,		"\t\t- showadc"},
 		{"benchtest",		smb_cmd_benchtest,		"\t\t- benchtest"},
 		{"dwttest",			smb_cmd_dwttest,		"\t\t- dwttest"},
-		{"mani",			smb_cmd_mani,		"\t\t- mani"},
+		{"mani",			smb_cmd_mani,			"\t\t- mani"},
+		{"fakeaedt",		smb_cmd_fake_aedt,		"\t\t- fakeaedt (-30 ~ 50)"},
 #if 0
 		{"setoffduty",		smb_cmd_set_offduty,	"\t\t- setoffduty 6 10 (for example 6:10 am)"},
 		{"setonduty",		smb_cmd_set_onduty,		"\t\t- setonduty 18 15 (for example 18:15 pm)"},
