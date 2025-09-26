@@ -292,6 +292,10 @@ static bool manager_msg_handler_peri_oper (manager_msg_t *pmsg)
 		SMB_ControlObj.ptcObj.ptc_set(PTC_ON);
 	}
 
+	// PTC 와 FAN 이 둘 다 ON 되는 경우를 찾기 위함..
+	if (SMB_ControlObj.fanObj.fan_on_off_flag == FAN_ON) assert (SMB_ControlObj.ptcObj.ptc_on_off_flag == PTC_OFF);
+	if (SMB_ControlObj.ptcObj.ptc_on_off_flag == PTC_ON) assert (SMB_ControlObj.fanObj.fan_on_off_flag == FAN_OFF);
+
 	// LAMP : 사장님은 사람이 없을 때도 켜서 범죄 예방하는 것이 맞다고 하시는데... 으으음...어쩌는 것이 좋을까요..
 	if (SMB_StatusObj.smb_motion.motion == MOTION_YES) {
 		SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_MAX);
