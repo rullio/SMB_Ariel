@@ -95,84 +95,16 @@ bool RB_CMD_LEDBAR_handler(rb_command_t *rb_cmdp)
 	return true;
 }
 
-bool SMB_ManiObj_backup(SMB_ManiObj_t *pManiObj, SMB_ControlObj_t *pControlObj)
-{
-	pManiObj->ledbar_color = pControlObj->ledbarObj.ledbar_color;
-	pManiObj->siren_on_off_flag = pControlObj->sirenObj.siren_on_off_flag;
-	pManiObj->lte_on_off_flag = pControlObj->lteObj.lte_on_off_flag;
-	pManiObj->ptc_on_off_flag = pControlObj->ptcObj.ptc_on_off_flag;
-	pManiObj->lamp_level = pControlObj->lampObj.lamp_level;
-	pManiObj->inverter_on_off_flag = pControlObj->inverterObj.inverter_on_off_flag;
-	pManiObj->lcd_on_off_flag = pControlObj->lcdObj.lcd_on_off_flag;
-	pManiObj->yuchar_on_off_flag = pControlObj->yucharObj.yuchar_on_off_flag;
-	pManiObj->muchar1_on_off_flag = pControlObj->muchar1Obj.muchar1_on_off_flag;
-	pManiObj->muchar2_on_off_flag = pControlObj->muchar2Obj.muchar2_on_off_flag;
-	pManiObj->fan_on_off_flag = pControlObj->fanObj.fan_on_off_flag;
-
-	return true;
-}
-
-bool SMB_ManiObj_restore(SMB_ManiObj_t *pManiObj, SMB_ControlObj_t *pControlObj)
-{
-	// LEDBAR 상태 복원
-	pControlObj->ledbarObj.ledbar_color_set(pManiObj->ledbar_color);
-
-	// SIREN 상태 복원
-	pControlObj->sirenObj.siren_set(pManiObj->siren_on_off_flag);
-	// 여기서 SIREN wailing timer 를 stop 시켜야 한다.
-
-	// LTE POWER 상태 복원
-	pControlObj->lteObj.lte_set(pManiObj->lte_on_off_flag);
-
-	// PTC 상태 복원
-	pControlObj->ptcObj.ptc_set(pManiObj->ptc_on_off_flag);
-
-	// LAMP 상태 복원
-	pControlObj->lampObj.lamp_set(pManiObj->lamp_level);
-
-	// INVERTER POWER 상태 복원
-	pControlObj->inverterObj.inverter_set(pManiObj->inverter_on_off_flag);
-
-	// LCD PIWER 상태 복원
-	pControlObj->lcdObj.lcd_set(pManiObj->lcd_on_off_flag);
-
-	// YUCHAR 상태 복원
-	pControlObj->yucharObj.yuchar_set(pManiObj->yuchar_on_off_flag);
-
-	// MUCHAR1 상태 복원
-	pControlObj->muchar1Obj.muchar1_set(pManiObj->muchar1_on_off_flag);
-
-	// MUCHAR2 상태 복원
-	pControlObj->muchar2Obj.muchar2_set(pManiObj->muchar2_on_off_flag);
-
-	// FAN 상태 복원
-	pControlObj->fanObj.fan_set(pManiObj->fan_on_off_flag);
-
-	return true;
-}
-
-void smb_manipulation_begin (void)
-{
-	// 기존에 어떤 manipulation 이 돌고 있으면 동작하지 않는다..
-	if (SMB_StatusObj.rb_mani_flag == true) return;
-
-	SMB_ManiObj_backup(&SMB_ManiObj, &SMB_ControlObj);
-
-	SMB_StatusObj.rb_mani_flag = true;
-	assert (osTimerList[TMR_IDX_SMB_MANIPULATION].osTimerId != NULL);
-	assert (osTimerStart(osTimerList[TMR_IDX_SMB_MANIPULATION].osTimerId, osTimerList[TMR_IDX_SMB_MANIPULATION].timeout_tick) == osOK);
-	return;
-}
-
 bool RB_MANIPULATE_LEDBAR_handler(rb_command_t *rb_cmdp)
 {
+	ledbarObj_t *pledbarObj;
+
 	if (IsThisEmergency() == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
 
-	if (SMB_StatusObj.rb_mani_flag == true) {
-		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+	if (SMB_StatusObj.manual_mode == true) {
+		printf("%s() NO!!! Manual operation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
 	}
-	smb_manipulation_begin();
 
 	printf("%s()"LINE_TERM, __FUNCTION__);
 	switch ((ledbar_color_t)rb_cmdp->body[0]) {
@@ -185,24 +117,29 @@ bool RB_MANIPULATE_LEDBAR_handler(rb_command_t *rb_cmdp)
 	default : assert (0 == 1); break;
 	}
 
-	SMB_ControlObj.ledbarObj.ledbar_color_set((ledbar_color_t)rb_cmdp->body[0]);
+	pledbarObj = get_ledbar_handle();
+	pledbarObj->ledbar_color_set((ledbar_color_t)rb_cmdp->body[0]);
+
 	return true;
 }
 
 bool RB_MANIPULATE_SIREN_handler(rb_command_t *rb_cmdp)
 {
+	sirenObj_t *psirenObj;
+
 	if (IsThisEmergency() == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
 
-	if (SMB_StatusObj.rb_mani_flag == true) {
-		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+	if (SMB_StatusObj.manual_mode == true) {
+		printf("%s() NO!!! Manual operation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
 	}
-	smb_manipulation_begin();
 
 	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
 
-	if (rb_cmdp->body[0] == 1) SMB_ControlObj.sirenObj.siren_set(SIREN_ON);
-	else SMB_ControlObj.sirenObj.siren_set(SIREN_OFF);
+	psirenObj = get_siren_handle();
+
+	if (rb_cmdp->body[0] == 1) psirenObj->siren_set(SIREN_ON);
+	else psirenObj->siren_set(SIREN_OFF);
 
 	return true;
 }
@@ -211,18 +148,15 @@ bool RB_MANIPULATE_LTE_PWR_handler(rb_command_t *rb_cmdp)
 {
 	if (IsThisEmergency() == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
 
-	if (SMB_StatusObj.rb_mani_flag == true) {
-		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+	if (SMB_StatusObj.manual_mode == true) {
+		printf("%s() NO!!! Manual operation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
 	}
 
 	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
-
 	//	 LTE 조절 금지..
-	//	if (rb_cmdp->body[0] == 1) SMB_ControlObj.lteObj.lte_set(LTE_ON);
-	//	else SMB_ControlObj.lteObj.lte_set(LTE_OFF);
-	//
-	//	smb_manipulation_begin();
+	printf("%s() : REJECT !! LTE should be always ON !!"LINE_TERM, __FUNCTION__);
+
 	return true;
 }
 
@@ -230,149 +164,172 @@ bool RB_MANIPULATE_CHARGER_handler(rb_command_t *rb_cmdp)
 {
 	if (IsThisEmergency() == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
 
-	if (SMB_StatusObj.rb_mani_flag == true) {
-		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+	if (SMB_StatusObj.manual_mode == true) {
+		printf("%s() NO!!! Manual operation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
 	}
 
-	smb_manipulation_begin();
+	printf("%s() Charger Operation is NOT implemented!!"LINE_TERM, __FUNCTION__);
 
 	return true;
 }
 
 bool RB_MANIPULATE_INVERTER_handler(rb_command_t *rb_cmdp)
 {
+	inverterObj_t *pinverterObj;
+
 	if (IsThisEmergency() == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
 
-	if (SMB_StatusObj.rb_mani_flag == true) {
-		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+	if (SMB_StatusObj.manual_mode == true) {
+		printf("%s() NO!!! Manual operation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
 	}
-	smb_manipulation_begin();
 
-	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
-	if (rb_cmdp->body[0] == 1) SMB_ControlObj.inverterObj.inverter_set(INVERTER_ON);
-	else SMB_ControlObj.inverterObj.inverter_set(INVERTER_OFF);
+	pinverterObj = get_inverter_handle();
+
+	if (rb_cmdp->body[0] == 1) pinverterObj->inverter_set(INVERTER_ON);
+	else pinverterObj->inverter_set(INVERTER_OFF);
 
 	return true;
 }
 
 bool RB_MANIPULATE_LCD_PWR_handler(rb_command_t *rb_cmdp)
 {
+	lcdObj_t *plcdObj;
+
 	if (IsThisEmergency() == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
 
-	if (SMB_StatusObj.rb_mani_flag == true) {
-		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+	if (SMB_StatusObj.manual_mode == true) {
+		printf("%s() NO!!! Manual operation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
 	}
-	smb_manipulation_begin();
 
 	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
 
-	if (rb_cmdp->body[0] == 1) SMB_ControlObj.lcdObj.lcd_set(LCD_ON);
-	else SMB_ControlObj.lcdObj.lcd_set(LCD_OFF);
+	plcdObj = get_lcd_handle();
+	if (rb_cmdp->body[0] == 1) plcdObj->lcd_set(LCD_ON);
+	else plcdObj->lcd_set(LCD_OFF);
 
 	return true;
 }
 
 bool RB_MANIPULATE_PTC_handler(rb_command_t *rb_cmdp)
 {
+	ptcObj_t *pptcObj;
+
 	if (IsThisEmergency() == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
 
-	if (SMB_StatusObj.rb_mani_flag == true) {
-		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+	if (SMB_StatusObj.manual_mode == true) {
+		printf("%s() NO!!! Manual operation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
 	}
-	smb_manipulation_begin();
 
 	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
-	if (rb_cmdp->body[0] == 1) SMB_ControlObj.ptcObj.ptc_set(PTC_ON);
-	else SMB_ControlObj.ptcObj.ptc_set(PTC_OFF);
+	pptcObj = get_ptc_handle();
+
+	if (rb_cmdp->body[0] == 1) pptcObj->ptc_set(PTC_ON);
+	else pptcObj->ptc_set(PTC_OFF);
 
 	return true;
 }
 
 bool RB_MANIPULATE_LAMP_handler(rb_command_t *rb_cmdp)
 {
+	lampObj_t *plampObj;
+
 	if (IsThisEmergency() == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
 
-	if (SMB_StatusObj.rb_mani_flag == true) {
-		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+	if (SMB_StatusObj.manual_mode == true) {
+		printf("%s() NO!!! Manual operation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
 	}
-	smb_manipulation_begin();
 
 	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
-	if (rb_cmdp->body[0] == 1) SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_9);
-	else SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_0);
+
+	plampObj = get_lamp_handle();
+
+	if (rb_cmdp->body[0] == 1) plampObj->lamp_set(LAMP_LEVEL_MAX);
+	else plampObj->lamp_set(LAMP_LEVEL_0);
 
 	return true;
 }
 
 bool RB_MANIPULATE_YUCHAR_handler(rb_command_t *rb_cmdp)
 {
+	yucharObj_t *pyucharObj;
+
 	if (IsThisEmergency() == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
 
-	if (SMB_StatusObj.rb_mani_flag == true) {
-		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+	if (SMB_StatusObj.manual_mode == true) {
+		printf("%s() NO!!! Manual operation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
 	}
-	smb_manipulation_begin();
 
 	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
-	if (rb_cmdp->body[0] == 1) SMB_ControlObj.yucharObj.yuchar_set(YUCHAR_ON);
-	else SMB_ControlObj.yucharObj.yuchar_set(YUCHAR_OFF);
+
+	pyucharObj = get_yuchar_handle();
+	if (rb_cmdp->body[0] == 1) pyucharObj->yuchar_set(YUCHAR_ON);
+	else pyucharObj->yuchar_set(YUCHAR_OFF);
 
 	return true;
 }
 
 bool RB_MANIPULATE_MUCHAR1_handler(rb_command_t *rb_cmdp)
 {
+	muchar1Obj_t *pmuchar1Obj;
+
 	if (IsThisEmergency() == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
 
-	if (SMB_StatusObj.rb_mani_flag == true) {
-		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+	if (SMB_StatusObj.manual_mode == true) {
+		printf("%s() NO!!! Manual operation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
 	}
-	smb_manipulation_begin();
 
 	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
-	if (rb_cmdp->body[0] == 1) SMB_ControlObj.muchar1Obj.muchar1_set(MUCHAR1_ON);
-	else SMB_ControlObj.muchar1Obj.muchar1_set(MUCHAR1_OFF);
+
+	pmuchar1Obj = get_muchar1_handle();
+	if (rb_cmdp->body[0] == 1) pmuchar1Obj->muchar1_set(MUCHAR1_ON);
+	else pmuchar1Obj->muchar1_set(MUCHAR1_OFF);
 
 	return true;
 }
 
 bool RB_MANIPULATE_MUCHAR2_handler(rb_command_t *rb_cmdp)
 {
+	muchar2Obj_t *pmuchar2Obj;
+
 	if (IsThisEmergency() == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
 
-	if (SMB_StatusObj.rb_mani_flag == true) {
-		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+	if (SMB_StatusObj.manual_mode == true) {
+		printf("%s() NO!!! Manual operation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
 	}
-	smb_manipulation_begin();
 
 	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
-	if (rb_cmdp->body[0] == 1) SMB_ControlObj.muchar2Obj.muchar2_set(MUCHAR2_ON);
-	else SMB_ControlObj.muchar2Obj.muchar2_set(MUCHAR2_OFF);
+	pmuchar2Obj = get_muchar2_handle();
+
+	if (rb_cmdp->body[0] == 1) pmuchar2Obj->muchar2_set(MUCHAR2_ON);
+	else pmuchar2Obj->muchar2_set(MUCHAR2_OFF);
 
 	return true;
 }
 
 bool RB_MANIPULATE_FAN_handler(rb_command_t *rb_cmdp)
 {
+	fanObj_t *pfanObj;
+
 	if (IsThisEmergency() == true) return true;		// Emergency 상황에서는 GUI 의 manipulation 을 받지 않는다.
 
-	if (SMB_StatusObj.rb_mani_flag == true) {
-		printf("%s() NO!!! smb_manipulation is on-going.."LINE_TERM, __FUNCTION__);
+	if (SMB_StatusObj.manual_mode == true) {
+		printf("%s() NO!!! Manual operation is on-going.."LINE_TERM, __FUNCTION__);
 		return true;
 	}
-	smb_manipulation_begin();
 
 	printf("%s() : %s"LINE_TERM, __FUNCTION__, (rb_cmdp->body[0] == 1)?"ON":"OFF");
-	if (rb_cmdp->body[0] == 1) SMB_ControlObj.fanObj.fan_set(FAN_ON);
-	else SMB_ControlObj.fanObj.fan_set(FAN_OFF);
+
+	pfanObj = get_fan_handle();
+	if (rb_cmdp->body[0] == 1) pfanObj->fan_set(FAN_ON);
+	else pfanObj->fan_set(FAN_OFF);
 
 	return true;
 }

@@ -76,16 +76,11 @@ static bool manager_msg_handler_ims_data (manager_msg_t *pmsg)
 		else SMB_StatusObj.smb_luminance.bright_or_dark = LUMINANCE_DARK;
 
 		// motion sensor 를 2 개로 바꾸면서 0번 bit, 1번 bit 가 2개의 motion sensor 값. 두개 중에서 1개라도 set 되면 motion 이 감지된 것임..
-		if (((motion_t)pmsg->body.Byte[3] & 0x03) != 0) SMB_StatusObj.smb_motion.motion = MOTION_YES;
-		else SMB_StatusObj.smb_motion.motion = MOTION_NO;
-
-		// 사무실 천장으로 측정했을 때 180cm 의 값이 0x0790... 이걸 기준으로 차후 거리값에 따른 default  값을 산정한다..
-		SMB_StatusObj.smb_motion.sonic_raw_data = ((pmsg->body.Byte[4] << 8) | pmsg->body.Byte[5]);
-		// 초음파 센서값이 기준값보다 작은 경우에 사람이 있는 것으로 간주하고 motion 감지했을 때와 동일한 동작을 수행한다. (초음파센서에 무언가 걸려 있으면 항상 사람이 있다고 될텐데... ???)
-		if (SMB_StatusObj.smb_motion.sonic_raw_data < SMB_StatusObj.smb_motion.sonic_threshold)	SMB_StatusObj.smb_motion.sonic_motion = SONIC_MOTION_YES;
-		else SMB_StatusObj.smb_motion.sonic_motion = SONIC_MOTION_NO;
-
-		// 여기서 위의 3가지 data 를 update 하는 일만 하고 여기에 따른 lamp 의 조작은 manager_msg_handler_peri_oper() 에 맡긴다.
+		if (((motion_t)pmsg->body.Byte[3] & 0x02) != 0) {
+			assert (osTimerList[TMR_IDX_MOTION_LATENCY].osTimerId != NULL);
+			assert (osTimerStart(osTimerList[TMR_IDX_MOTION_LATENCY].osTimerId, osTimerList[TMR_IDX_MOTION_LATENCY].timeout_tick) == osOK);
+			SMB_StatusObj.smb_motion.motion = MOTION_YES;
+		}
 	}
 	else {
 		// 수신 packet 이 error 가 나더라도 500ms 후에 다음 packet 이 올것이므로 수신 error 만 count 하고 버린다.
@@ -159,10 +154,35 @@ bool IsThisEmergency()
 	return res;
 }
 
+bool save_peri_status()
+{
+	SMB_Control_BackupObj.ledbar_color 			= SMB_ControlObj.ledbarObj.ledbar_color;
+	SMB_Control_BackupObj.siren_flag 			= SMB_ControlObj.sirenObj.siren_flag;
+	SMB_Control_BackupObj.lamp_level 			= SMB_ControlObj.lampObj.lamp_level;
+
+	return true;
+}
+
+bool restore_peri_status()
+{
+	SMB_ControlObj.ledbarObj.ledbar_color 		= SMB_Control_BackupObj.ledbar_color;
+	SMB_ControlObj.sirenObj.siren_flag 			= SMB_Control_BackupObj.siren_flag;
+	SMB_ControlObj.lampObj.lamp_level 			= SMB_Control_BackupObj.lamp_level;
+
+	return true;
+}
+
+/* 비상 상황에 대한 처리 방안에 대한 최종 결론을 내리고 수정한다.
+ 1. 비상 버튼 : 타임아웃이 될 때까지 비상 상황 유지..
+ 2. fire door :  door 가 열린 상태면 비상 상황 지속, door 가 닫히면 비상 상황 종료로 구현한다. 고로 timeout 은 필요없다.
+ 3. AED door :  door 가 열린 상태면 비상 상황 지속, door 가 닫히면 비상 상황 종료로 구현한다. 고로 timeout 은 필요없다.
+ 4. 침수 : 관리자가 와서 침수 처리를 한 후 system 을 reset 시켜야만 비상 상황 종료로 구현한다.
+ */
 static bool manager_msg_handler_emer_btn (manager_msg_t *pmsg)
 {
 	SMB_StatusObj.emer_btn_status = get_emer_btn_status;
 	if (SMB_StatusObj.emer_btn_status == EMER_BTN_PRESSED) {
+		if (IsThisEmergency() == false) assert (save_peri_status() == true);		// 현재 진행 중인 비상 상황이 없을 때 peri 상태를 저장해 둔다.
 		SMB_StatusObj.EMERGENCY.emer_by_button = true;
 		sb_report_to_rb(RB_REPORT_EMER_BTN_PRESS, 0);
 		assert (osTimerList[TMR_IDX_EMER_BTN].osTimerId != NULL);
@@ -179,14 +199,14 @@ static bool manager_msg_handler_fire_door (manager_msg_t *pmsg)
 {
 	SMB_StatusObj.fire_door_status = get_fire_door_status;
 	if (SMB_StatusObj.fire_door_status == FIRE_DOOR_OPEN) {
+		if (IsThisEmergency() == false) assert (save_peri_status() == true);		// 현재 진행 중인 비상 상황이 없을 때 peri 상태를 저장해 둔다.
 		SMB_StatusObj.EMERGENCY.emer_by_fire_door = true;
 		sb_report_to_rb(RB_REPORT_FIRE_DOOR_OPEN, 0);
-		assert (osTimerList[TMR_IDX_EMER_FIRE_DOOR].osTimerId != NULL);
-		assert (osTimerStart(osTimerList[TMR_IDX_EMER_FIRE_DOOR].osTimerId, osTimerList[TMR_IDX_EMER_FIRE_DOOR].timeout_tick) == osOK);
 	}
 	else {
+		SMB_StatusObj.EMERGENCY.emer_by_fire_door = false;
+		if (IsThisEmergency() == false) assert (restore_peri_status() == true);		// 현재 진행 중인 비상 상황이 없을 때 peri 상태를 저장해 둔다.
 		sb_report_to_rb(RB_REPORT_FIRE_DOOR_CLOSED, 0);
-
 	}
 
 	return true;
@@ -196,29 +216,32 @@ static bool manager_msg_handler_aed_door (manager_msg_t *pmsg)
 {
 	SMB_StatusObj.aed_door_status = get_aed_door_status;
 	if (SMB_StatusObj.aed_door_status == AED_DOOR_OPEN) {
+		if (IsThisEmergency() == false) assert (save_peri_status() == true);		// 현재 진행 중인 비상 상황이 없을 때 peri 상태를 저장해 둔다.
 		SMB_StatusObj.EMERGENCY.emer_by_aed_door = true;
 		sb_report_to_rb(RB_REPORT_AED_DOOR_OPEN, 0);
-		assert (osTimerList[TMR_IDX_EMER_AED_DOOR].osTimerId != NULL);
-		assert (osTimerStart(osTimerList[TMR_IDX_EMER_AED_DOOR].osTimerId, osTimerList[TMR_IDX_EMER_AED_DOOR].timeout_tick) == osOK);
 	}
 	else {
+		SMB_StatusObj.EMERGENCY.emer_by_aed_door = false;
+		if (IsThisEmergency() == false) assert (restore_peri_status() == true);		// 현재 진행 중인 비상 상황이 없을 때 peri 상태를 저장해 둔다.
 		sb_report_to_rb(RB_REPORT_AED_DOOR_CLOSED, 0);
-
 	}
 
 	return true;
 }
 
+// 침수 발생은 Fire door 나 AED door 와 달리 처리해야 한다. 담당하는 사람이 와서 침수를 해결하고 시스템을 reset 할 때까지 계속 비상상황이 유지되도록 한다.
 static bool manager_msg_handler_flooding (manager_msg_t *pmsg)
 {
 	SMB_StatusObj.flood_status = get_flood_status;
 	if (SMB_StatusObj.flood_status == FLOOD_HAPPEN) {
+		if (IsThisEmergency() == false) assert (save_peri_status() == true);		// 현재 진행 중인 비상 상황이 없을 때 peri 상태를 저장해 둔다.
 		SMB_StatusObj.EMERGENCY.emer_by_flood = true;
 		sb_report_to_rb(RB_REPORT_FLOOD_HAPPEN, 0);
 	}
 	else {
+		//		SMB_StatusObj.EMERGENCY.emer_by_flood = false;
+		//		if (IsThisEmergency() == false) assert (restore_peri_status() == true);
 		sb_report_to_rb(RB_REPORT_FLOOD_CLEAR, 0);
-
 	}
 
 	return true;
@@ -227,6 +250,7 @@ static bool manager_msg_handler_flooding (manager_msg_t *pmsg)
 static lamp_level_t get_lamp_level_by_luminance(uint8_t luminance)
 {
 	if (luminance > 0xF0) return LAMP_LEVEL_MAX;
+	else if (luminance > 0xF0) return LAMP_LEVEL_9;
 	else if (luminance > 0xE0) return LAMP_LEVEL_8;
 	else if (luminance > 0xD0) return LAMP_LEVEL_7;
 	else if (luminance > 0xC0) return LAMP_LEVEL_6;
@@ -238,41 +262,45 @@ static lamp_level_t get_lamp_level_by_luminance(uint8_t luminance)
 	else return LAMP_LEVEL_0;
 }
 
-static bool manager_msg_handler_peri_oper (manager_msg_t *pmsg)
+static bool peripheral_operation_in_emergency(void)
 {
-	if (IsThisEmergency() == true) {
-		// 비상 버튼의 경우 siren 은 통화를 위해 꺼야 하고 lamp 는 최대한의 밝기를 유지해야 하며, LEDBAR 도 최대한의 밝기로 켜두기로 한다.
-		if (SMB_StatusObj.EMERGENCY.emer_by_button == true) {
-			//			SMB_ControlObj.sirenObj.siren_set(SIREN_ON);
-			SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_MAX);
-			SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_WHITE);
-			SMB_ControlObj.speakerObj.speaker_set(SPEAKER_ON);
-		}
+	assert (IsThisEmergency() == true);
 
-		// 소화기 문 열림의 경우 siren 은 최대 volume 으로 켜고 lamp 는 최대한의 밝기를 유지해야 하며, LEDBAR 도 최대한의 밝기로 켜두기로 한다.
-		if (SMB_StatusObj.EMERGENCY.emer_by_fire_door == true) {
-			SMB_ControlObj.sirenObj.siren_set(SIREN_ON);
-			SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_MAX);
-			SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_WHITE);
-		}
-
-		// AED 문 열림의 경우 siren 은 최대 volume 으로 켜고 lamp 는 최대한의 밝기를 유지해야 하며, LEDBAR 도 최대한의 밝기로 켜두기로 한다.
-		if (SMB_StatusObj.EMERGENCY.emer_by_aed_door == true) {
-			SMB_ControlObj.sirenObj.siren_set(SIREN_ON);
-			SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_MAX);
-			SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_WHITE);
-		}
-
-		if (SMB_StatusObj.EMERGENCY.emer_by_flood == true) {
-
-		}
-		return true;		// 비상상황이면 비상 상황에 대한 처리를 하고 이후 처리하지 않고 return 한다.
+	// 비상 버튼의 경우 siren 은 통화를 위해 꺼야 하고 lamp 는 최대한의 밝기를 유지해야 하며, LEDBAR 도 최대한의 밝기로 켜두기로 한다.
+	// 윤 소장님이 siren 을 켜야 한다고 해서 일단 siren 을 켜는 것으로...
+	if (SMB_StatusObj.EMERGENCY.emer_by_button == true) {
+		SMB_ControlObj.sirenObj.siren_set(SIREN_ON);
+		SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_MAX);
+		SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_WHITE);
+		SMB_ControlObj.speakerObj.speaker_set(SPEAKER_ON);
 	}
 
-	if (SMB_StatusObj.console_mani_flag == true) return true;
-	if (SMB_StatusObj.rb_mani_flag == true) return true;
+	// 소화기 문 열림의 경우 siren 은 켜고 lamp 는 최대한의 밝기를 유지해야 하며, LEDBAR 도 최대한의 밝기로 켜두기로 한다.
+	if (SMB_StatusObj.EMERGENCY.emer_by_fire_door == true) {
+		SMB_ControlObj.sirenObj.siren_set(SIREN_ON);
+		SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_MAX);
+		SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_WHITE);
+	}
 
-	// FAN, PTC
+	// 소화기 문 열림의 경우 siren 은 켜고 lamp 는 최대한의 밝기를 유지해야 하며, LEDBAR 도 최대한의 밝기로 켜두기로 한다.
+	if (SMB_StatusObj.EMERGENCY.emer_by_aed_door == true) {
+		SMB_ControlObj.sirenObj.siren_set(SIREN_ON);
+		SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_MAX);
+		SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_WHITE);
+	}
+
+	// 침수 발생의 경우 siren 은 켜고 lamp 는 최대한의 밝기를 유지해야 하며, LEDBAR 도 최대한의 밝기로 켜두기로 한다.
+	if (SMB_StatusObj.EMERGENCY.emer_by_flood == true) {
+		SMB_ControlObj.sirenObj.siren_set(SIREN_ON);
+		SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_MAX);
+		SMB_ControlObj.ledbarObj.ledbar_color_set(LEDBAR_WHITE);
+	}
+
+	return true;
+}
+
+static bool fan_ptc_control_by_aedt()
+{
 	if (SMB_adc_value.AEDT > SMB_ConfigObj.aedt_high_mark) {
 		SMB_ControlObj.fanObj.fan_set(FAN_ON);
 		SMB_ControlObj.ptcObj.ptc_set(PTC_OFF);
@@ -293,29 +321,64 @@ static bool manager_msg_handler_peri_oper (manager_msg_t *pmsg)
 	}
 
 	// PTC 와 FAN 이 둘 다 ON 되는 경우를 찾기 위함..
-	if (SMB_ControlObj.fanObj.fan_on_off_flag == FAN_ON) assert (SMB_ControlObj.ptcObj.ptc_on_off_flag == PTC_OFF);
-	if (SMB_ControlObj.ptcObj.ptc_on_off_flag == PTC_ON) assert (SMB_ControlObj.fanObj.fan_on_off_flag == FAN_OFF);
+	if (SMB_ControlObj.fanObj.fan_flag == FAN_ON) assert (SMB_ControlObj.ptcObj.ptc_flag == PTC_OFF);
+	if (SMB_ControlObj.ptcObj.ptc_flag == PTC_ON) assert (SMB_ControlObj.fanObj.fan_flag == FAN_OFF);
 
-	// LAMP : 사장님은 사람이 없을 때도 켜서 범죄 예방하는 것이 맞다고 하시는데... 으으음...어쩌는 것이 좋을까요..
+	return true;
+}
+
+static bool lamp_control_by_presence()
+{
 	if (SMB_StatusObj.smb_motion.motion == MOTION_YES) {
-		SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_MAX);
-	}
-	else if (SMB_StatusObj.smb_motion.sonic_motion == SONIC_MOTION_YES) {
-		SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_MAX);
-	}
-	else {
 		SMB_ControlObj.lampObj.lamp_set(get_lamp_level_by_luminance(SMB_StatusObj.smb_luminance.luminance));
 	}
+	else {
+		SMB_ControlObj.lampObj.lamp_set(LAMP_LEVEL_0);
+	}
 
-	// LEDBAR : LEDBAR manipulation 이 있기 때문에 여기서 제어하지 않는 것이 맞다..
-	// SPEAKER : 제어하지 않는다.
-	// LCD : 제어하지 않는다.
-	// INVERTER : 제어하지 않는다.
-	// MUCHAR1 : 제어하지 않는다.
-	// MUCHAR2 : 제어하지 않는다.
-	// YUCHAR : 제어하지 않는다.
-	// SIREN : 제어하지 않는다.
-	// LTE : 제어하지 않는다.
+	return true;
+}
+
+static bool manager_msg_handler_peri_oper (manager_msg_t *pmsg)
+{
+	if (SMB_StatusObj.manual_mode == true) return true;	// 현재 console 에 의한 제어가 진행되고 있으면 operation 을 생략하고 return.
+
+	// 비상 상황이면 비상상황에 맞는 처리만 하고 일상적인 처리는 하지 않는다.
+	if (IsThisEmergency() == true) {
+		assert (peripheral_operation_in_emergency() == true);
+		return true;
+	}
+
+	// FAN, PTC
+	assert (fan_ptc_control_by_aedt() == true);
+	assert (lamp_control_by_presence() == true);
+
+	// LEDBAR
+	SMB_ControlObj.ledbarObj.ledbar_color_set(SMB_ControlObj.ledbarObj.ledbar_color);
+
+	// SPEAKER
+	SMB_ControlObj.speakerObj.speaker_set(SMB_ControlObj.speakerObj.speaker_flag);
+
+	// LCD
+	SMB_ControlObj.lcdObj.lcd_set(SMB_ControlObj.lcdObj.lcd_flag);
+
+	// INVERTER
+	SMB_ControlObj.inverterObj.inverter_set(SMB_ControlObj.inverterObj.inverter_flag);
+
+	// YUCHAR
+	SMB_ControlObj.yucharObj.yuchar_set(SMB_ControlObj.yucharObj.yuchar_flag);
+
+	// MUCHAR1
+	SMB_ControlObj.muchar1Obj.muchar1_set(SMB_ControlObj.muchar1Obj.muchar1_flag);
+
+	// MUCHAR2
+	SMB_ControlObj.muchar2Obj.muchar2_set(SMB_ControlObj.muchar2Obj.muchar2_flag);
+
+	// LTE
+	SMB_ControlObj.lteObj.lte_set(SMB_ControlObj.lteObj.lte_flag);
+
+	// SIREN
+	SMB_ControlObj.sirenObj.siren_set(SMB_ControlObj.sirenObj.siren_flag);
 
 	return true;
 }

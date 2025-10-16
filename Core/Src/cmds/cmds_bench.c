@@ -33,15 +33,11 @@
 
 #include "main.h"
 
-void smb_manipulation_begin (void);
-
 static void smb_cmd_show_bench (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
 
-	if (argc != 1) {
-		goto USAGE;
-	}
+	if (argc != 1) goto USAGE;
 
 	SMB_StatusObj.smb_data_show_flag = !SMB_StatusObj.smb_data_show_flag;
 
@@ -65,20 +61,18 @@ static void smb_cmd_set_ledbar (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **ar
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
 	ledbarObj_t *pledbarObj;
 
-	if (argc != 2) {
-		goto USAGE;
-	}
+	if (argc != 2) goto USAGE;
 
 	pledbarObj = get_ledbar_handle();
-	if (!strcmp (argv[1], "off")) pledbarObj->ledbar_color_set(LEDBAR_OFF);
-	else if (!strcmp (argv[1], "red")) pledbarObj->ledbar_color_set(LEDBAR_RED);
-	else if (!strcmp (argv[1], "yellow")) pledbarObj->ledbar_color_set(LEDBAR_YELLOW);
-	else if (!strcmp (argv[1], "green")) pledbarObj->ledbar_color_set(LEDBAR_GREEN);
-	else if (!strcmp (argv[1], "blue")) pledbarObj->ledbar_color_set(LEDBAR_BLUE);
-	else if (!strcmp (argv[1], "white")) pledbarObj->ledbar_color_set(LEDBAR_WHITE);
-	else {
-		(*pCmdIO->pCmdApi->print)(cmdIoParam, "No such color %s", argv[1]);
-	}
+	if (!strcmp (argv[1], "off")) pledbarObj->ledbar_color = LEDBAR_OFF;
+	else if (!strcmp (argv[1], "red")) pledbarObj->ledbar_color = LEDBAR_RED;
+	else if (!strcmp (argv[1], "yellow")) pledbarObj->ledbar_color = LEDBAR_YELLOW;
+	else if (!strcmp (argv[1], "green")) pledbarObj->ledbar_color = LEDBAR_GREEN;
+	else if (!strcmp (argv[1], "blue")) pledbarObj->ledbar_color = LEDBAR_BLUE;
+	else if (!strcmp (argv[1], "white")) pledbarObj->ledbar_color = LEDBAR_WHITE;
+	else goto USAGE;
+
+	pledbarObj->ledbar_color_set(pledbarObj->ledbar_color);
 	return;
 
 	USAGE:
@@ -89,14 +83,16 @@ static void smb_cmd_set_ledbar (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **ar
 static void smb_cmd_set_siren (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
+	sirenObj_t *psirenObj;
 
-	if (argc != 2) {
-		goto USAGE;
-	}
+	if (argc != 2) goto USAGE;
 
-	if (!strcmp (argv[1], "on")) SMB_ControlObj.sirenObj.siren_set(SIREN_ON);
-	else if (!strcmp (argv[1], "off")) SMB_ControlObj.sirenObj.siren_set(SIREN_OFF);
+	psirenObj = get_siren_handle();
+	if (!strcmp (argv[1], "on")) psirenObj->siren_flag = SIREN_ON;
+	else if (!strcmp (argv[1], "off")) psirenObj->siren_flag = SIREN_OFF;
 	else goto USAGE;
+
+	psirenObj->siren_set(psirenObj->siren_flag);
 	return;
 
 	USAGE:
@@ -108,32 +104,48 @@ static void smb_cmd_set_sirenset (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
 
-	if (argc != 2) {
-		goto USAGE;
-	}
+	if (argc != 2) goto USAGE;
 
 	SMB_ConfigObj.siren_on_time = strtoul(argv[1], NULL, 10);
 	save_smb_configObj_onto_fs(&SMB_ConfigObj);
 	(*pCmdIO->pCmdApi->print)(cmdIoParam, "siren_on_time = %d"LINE_TERM, SMB_ConfigObj.siren_on_time);
-
 	return;
 
 	USAGE:
-	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "siren on/off"LINE_TERM);
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "siren 10 (for example 10 sec)"LINE_TERM);
+	return;
+}
+
+static void smb_cmd_set_motionlatency (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+{
+	const void* cmdIoParam = pCmdIO->cmdIoParam;
+
+	if (argc != 2) goto USAGE;
+
+	SMB_ConfigObj.motion_latency = strtoul(argv[1], NULL, 10);
+	save_smb_configObj_onto_fs(&SMB_ConfigObj);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "motion_latency = %d"LINE_TERM, SMB_ConfigObj.motion_latency);
+	return;
+
+	USAGE:
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "latency 10 (for example 10 sec)"LINE_TERM);
 	return;
 }
 
 static void smb_cmd_set_ltepwr (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
+	lteObj_t *plteObj;
 
-	if (argc != 2) {
-		goto USAGE;
-	}
+	if (argc != 2) goto USAGE;
 
-	if (!strcmp (argv[1], "on")) SMB_ControlObj.lteObj.lte_set(LTE_ON);
-	else if (!strcmp (argv[1], "off")) SMB_ControlObj.lteObj.lte_set(LTE_OFF);
+	plteObj = get_lte_handle();
+
+	if (!strcmp (argv[1], "on")) plteObj->lte_flag = LTE_ON;
+	else if (!strcmp (argv[1], "off")) plteObj->lte_flag = LTE_OFF;
 	else goto USAGE;
+
+	plteObj->lte_set(plteObj->lte_flag);
 	return;
 
 	USAGE:
@@ -141,19 +153,20 @@ static void smb_cmd_set_ltepwr (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **ar
 	return;
 }
 
-
-// Multi meter 대면서 시험할 때 board 가 reset 되는 문제가 있음.. 차후 debug 해봐야 함..
 static void smb_cmd_set_ptc (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
+	ptcObj_t *pptcObj;
 
-	if (argc != 2) {
-		goto USAGE;
-	}
+	if (argc != 2) goto USAGE;
 
-	if (!strcmp (argv[1], "on")) SMB_ControlObj.ptcObj.ptc_set(PTC_ON);
-	else if (!strcmp (argv[1], "off")) SMB_ControlObj.ptcObj.ptc_set(PTC_OFF);
+	pptcObj = get_ptc_handle();
+
+	if (!strcmp (argv[1], "on")) pptcObj->ptc_flag = PTC_ON;
+	else if (!strcmp (argv[1], "off")) pptcObj->ptc_flag = PTC_OFF;
 	else goto USAGE;
+
+	pptcObj->ptc_set(pptcObj->ptc_flag);
 	return;
 
 	USAGE:
@@ -164,14 +177,17 @@ static void smb_cmd_set_ptc (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 static void smb_cmd_set_yuchar (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
+	yucharObj_t *pyucharObj;
 
-	if (argc != 2) {
-		goto USAGE;
-	}
+	if (argc != 2) goto USAGE;
 
-	if (!strcmp (argv[1], "on")) SMB_ControlObj.yucharObj.yuchar_set(YUCHAR_ON);
-	else if (!strcmp (argv[1], "off")) SMB_ControlObj.yucharObj.yuchar_set(YUCHAR_OFF);
+	pyucharObj = get_yuchar_handle();
+
+	if (!strcmp (argv[1], "on")) pyucharObj->yuchar_flag = YUCHAR_ON;
+	else if (!strcmp (argv[1], "off")) pyucharObj->yuchar_flag = YUCHAR_OFF;
 	else goto USAGE;
+
+	pyucharObj->yuchar_set(pyucharObj->yuchar_flag);
 	return;
 
 	USAGE:
@@ -182,14 +198,17 @@ static void smb_cmd_set_yuchar (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **ar
 static void smb_cmd_set_muchar1 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
+	muchar1Obj_t *pmuchar1Obj;
 
-	if (argc != 2) {
-		goto USAGE;
-	}
+	if (argc != 2) goto USAGE;
 
-	if (!strcmp (argv[1], "on")) SMB_ControlObj.muchar1Obj.muchar1_set(MUCHAR1_ON);
-	else if (!strcmp (argv[1], "off")) SMB_ControlObj.muchar1Obj.muchar1_set(MUCHAR1_OFF);
+	pmuchar1Obj = get_muchar1_handle();
+
+	if (!strcmp (argv[1], "on")) pmuchar1Obj->muchar1_flag = MUCHAR1_ON;
+	else if (!strcmp (argv[1], "off")) pmuchar1Obj->muchar1_flag = MUCHAR1_OFF;
 	else goto USAGE;
+
+	pmuchar1Obj->muchar1_set(pmuchar1Obj->muchar1_flag);
 	return;
 
 	USAGE:
@@ -200,14 +219,17 @@ static void smb_cmd_set_muchar1 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **a
 static void smb_cmd_set_muchar2 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
+	muchar2Obj_t *pmuchar2Obj;
 
-	if (argc != 2) {
-		goto USAGE;
-	}
+	if (argc != 2) goto USAGE;
 
-	if (!strcmp (argv[1], "on")) SMB_ControlObj.muchar2Obj.muchar2_set(MUCHAR2_ON);
-	else if (!strcmp (argv[1], "off")) SMB_ControlObj.muchar2Obj.muchar2_set(MUCHAR2_OFF);
+	pmuchar2Obj = get_muchar2_handle();
+
+	if (!strcmp (argv[1], "on")) pmuchar2Obj->muchar2_flag = MUCHAR2_ON;
+	else if (!strcmp (argv[1], "off")) pmuchar2Obj->muchar2_flag = MUCHAR2_OFF;
 	else goto USAGE;
+
+	pmuchar2Obj->muchar2_set(pmuchar2Obj->muchar2_flag);
 	return;
 
 	USAGE:
@@ -218,14 +240,17 @@ static void smb_cmd_set_muchar2 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **a
 static void smb_cmd_set_fan (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
+	fanObj_t *pfanObj;
 
-	if (argc != 2) {
-		goto USAGE;
-	}
+	if (argc != 2) goto USAGE;
 
-	if (!strcmp (argv[1], "on")) SMB_ControlObj.fanObj.fan_set(FAN_ON);
-	else if (!strcmp (argv[1], "off")) SMB_ControlObj.fanObj.fan_set(FAN_OFF);
+	pfanObj = get_fan_handle();
+
+	if (!strcmp (argv[1], "on")) pfanObj->fan_flag = FAN_ON;
+	else if (!strcmp (argv[1], "off")) pfanObj->fan_flag = FAN_OFF;
 	else goto USAGE;
+
+	pfanObj->fan_set(pfanObj->fan_flag);
 	return;
 
 	USAGE:
@@ -236,14 +261,17 @@ static void smb_cmd_set_fan (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 static void smb_cmd_set_inverter (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
+	inverterObj_t *pinverterObj;
 
-	if (argc != 2) {
-		goto USAGE;
-	}
+	if (argc != 2) goto USAGE;
 
-	if (!strcmp (argv[1], "on")) SMB_ControlObj.inverterObj.inverter_set(INVERTER_ON);
-	else if (!strcmp (argv[1], "off")) SMB_ControlObj.inverterObj.inverter_set(INVERTER_OFF);
+	pinverterObj = get_inverter_handle();
+
+	if (!strcmp (argv[1], "on")) pinverterObj->inverter_flag = INVERTER_ON;
+	else if (!strcmp (argv[1], "off")) pinverterObj->inverter_flag = INVERTER_ON;
 	else goto USAGE;
+
+	pinverterObj->inverter_set(pinverterObj->inverter_flag);
 	return;
 
 	USAGE:
@@ -255,14 +283,17 @@ static void smb_cmd_set_inverter (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **
 static void smb_cmd_set_speaker (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
+	speakerObj_t *pspeakerObj;
 
-	if (argc != 2) {
-		goto USAGE;
-	}
+	if (argc != 2) goto USAGE;
 
-	if (!strcmp (argv[1], "on")) SMB_ControlObj.speakerObj.speaker_set(SPEAKER_ON);
-	else if (!strcmp (argv[1], "off")) SMB_ControlObj.speakerObj.speaker_set(SPEAKER_OFF);
+	pspeakerObj = get_speaker_handle();
+
+	if (!strcmp (argv[1], "on")) pspeakerObj->speaker_flag = SPEAKER_ON;
+	else if (!strcmp (argv[1], "off")) pspeakerObj->speaker_flag = SPEAKER_OFF;
 	else goto USAGE;
+
+	pspeakerObj->speaker_set(pspeakerObj->speaker_flag);
 	return;
 
 	USAGE:
@@ -273,14 +304,17 @@ static void smb_cmd_set_speaker (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **a
 static void smb_cmd_set_lcd (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
+	lcdObj_t *plcdObj;
 
-	if (argc != 2) {
-		goto USAGE;
-	}
+	if (argc != 2) goto USAGE;
 
-	if (!strcmp (argv[1], "on")) SMB_ControlObj.lcdObj.lcd_set(LCD_ON);
-	else if (!strcmp (argv[1], "off")) SMB_ControlObj.lcdObj.lcd_set(LCD_OFF);
+	plcdObj = get_lcd_handle();
+
+	if (!strcmp (argv[1], "on")) plcdObj->lcd_flag = LCD_ON;
+	else if (!strcmp (argv[1], "off")) plcdObj->lcd_flag = LCD_OFF;
 	else goto USAGE;
+
+	plcdObj->lcd_set(plcdObj->lcd_flag);
 	return;
 
 	USAGE:
@@ -292,17 +326,16 @@ static void smb_cmd_set_lamp (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
 	uint32_t lamp_level;
+	lampObj_t *plampObj;
 
-	if (argc != 2) {
-		goto USAGE;
-	}
+	if (argc != 2) goto USAGE;
 
+	plampObj = get_lamp_handle();
 	lamp_level = (uint32_t)strtoul(argv[1], NULL, 0);
 
 	if (lamp_level > 9) goto USAGE;
-	if (lamp_level < 0) goto USAGE;
 
-	SMB_ControlObj.lampObj.lamp_set((lamp_level_t)lamp_level);
+	plampObj->lamp_set(lamp_level);
 	return;
 
 	USAGE:
@@ -314,9 +347,7 @@ static void smb_cmd_set_ledact (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **ar
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
 
-	if (argc != 2) {
-		goto USAGE;
-	}
+	if (argc != 2) goto USAGE;
 
 	if (!strcmp(argv[1], "on")) led_act_on;
 	else if (!strcmp(argv[1], "off")) led_act_off;
@@ -333,9 +364,7 @@ static void smb_cmd_set_ledcom (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **ar
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
 
-	if (argc != 2) {
-		goto USAGE;
-	}
+	if (argc != 2) goto USAGE;
 
 	if (!strcmp(argv[1], "on")) led_com_on;
 	else if (!strcmp(argv[1], "off")) led_com_off;
@@ -352,9 +381,7 @@ static void smb_cmd_set_aclamp0 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **a
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
 
-	if (argc != 2) {
-		goto USAGE;
-	}
+	if (argc != 2) goto USAGE;
 
 	if (!strcmp(argv[1], "on")) led_lia0_on;
 	else if (!strcmp(argv[1], "off")) led_lia0_off;
@@ -370,9 +397,7 @@ static void smb_cmd_set_aclamp1 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **a
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
 
-	if (argc != 2) {
-		goto USAGE;
-	}
+	if (argc != 2) goto USAGE;
 
 	if (!strcmp(argv[1], "on")) led_lia1_on;
 	else if (!strcmp(argv[1], "off")) led_lia1_off;
@@ -388,9 +413,7 @@ static void smb_cmd_set_aclamp2 (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **a
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
 
-	if (argc != 2) {
-		goto USAGE;
-	}
+	if (argc != 2) goto USAGE;
 
 	if (!strcmp(argv[1], "on")) led_lia2_on;
 	else if (!strcmp(argv[1], "off")) led_lia2_off;
@@ -407,9 +430,7 @@ static void smb_cmd_set_launchdate (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char 
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
 	uint8_t Year, Month, Date, WeekDay;
 
-	if (argc != 5) {
-		goto USAGE;
-	}
+	if (argc != 5) goto USAGE;
 
 	Year = (uint8_t)strtoul(argv[1], NULL, 0);
 	Month = (uint8_t)strtoul(argv[2], NULL, 0);
@@ -437,9 +458,7 @@ static void smb_cmd_set_launchtime (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char 
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
 	uint8_t Hours, Minutes, Seconds;
 
-	if (argc != 4) {
-		goto USAGE;
-	}
+	if (argc != 4) goto USAGE;
 
 	Hours = (uint8_t)strtoul (argv[1], NULL, 0);
 	Minutes = (uint8_t)strtoul (argv[2], NULL, 0);
@@ -465,9 +484,7 @@ static void smb_cmd_show_adc (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
 
-	if (argc != 1) {
-		goto USAGE;
-	}
+	if (argc != 1) goto USAGE;
 
 	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "converted data"LINE_TERM);
 	(*pCmdIO->pCmdApi->print)(cmdIoParam, "YUI = %#06"PRIx16 LINE_TERM, SMB_adc_value.YUI);
@@ -493,30 +510,12 @@ static void smb_cmd_show_adc (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv
 	return;
 }
 
-static void smb_cmd_benchtest (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
-{
-	const void* cmdIoParam = pCmdIO->cmdIoParam;
-
-	if (argc != 1) {
-		goto USAGE;
-	}
-
-	smb_manipulation_begin();
-	return;
-
-	USAGE:
-	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "benchtest"LINE_TERM);
-	return;
-}
-
 static void smb_cmd_dwttest (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
 	uint32_t delay_us_before, delay_us_after;
 
-	if (argc != 1) {
-		goto USAGE;
-	}
+	if (argc != 1) goto USAGE;
 
 	delay_us_before = DWT_GetTickUS();
 	osDelay(1);
@@ -537,19 +536,19 @@ static void smb_cmd_dwttest (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 	return;
 }
 
-static void smb_cmd_mani (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+static void smb_cmd_manual (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
 {
 	const void* cmdIoParam = pCmdIO->cmdIoParam;
 
-	if (argc != 1) {
-		goto USAGE;
-	}
-	SMB_StatusObj.console_mani_flag = !SMB_StatusObj.console_mani_flag;
+	if (argc != 2) goto USAGE;
 
+	if (!strcmp(argv[1], "on")) SMB_StatusObj.manual_mode = true;
+	else if (!strcmp(argv[1], "off")) SMB_StatusObj.manual_mode = false;
+	else goto USAGE;
 	return;
 
 	USAGE:
-	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "mani"LINE_TERM);
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "manual on/off"LINE_TERM);
 	return;
 }
 
@@ -634,6 +633,7 @@ static const SYS_CMD_DESCRIPTOR    bench_CommandTbl []=
 		{"ledbar",			smb_cmd_set_ledbar,		"\t\t- ledbar off/red/green/blue/yellow/white"},
 		{"siren",			smb_cmd_set_siren,		"\t\t- siren on/off"},
 		{"sirenset",		smb_cmd_set_sirenset,	"\t\t- sirenset 30 (siren wailing time for 30 seconds)"},
+		{"latency",			smb_cmd_set_motionlatency,	"\t\t- latency 30 (motion latency for 30 seconds)"},
 		{"lte",				smb_cmd_set_ltepwr,		"\t\t- lte on/off"},
 		{"ptc",				smb_cmd_set_ptc,		"\t\t- ptc on/off"},
 		{"yuchar",			smb_cmd_set_yuchar,		"\t\t- yuchar on/off"},
@@ -652,9 +652,8 @@ static const SYS_CMD_DESCRIPTOR    bench_CommandTbl []=
 		{"setlaunchdate",	smb_cmd_set_launchdate,	"\t- setlaunchdate 25 9 11 1 (Monday for example)"},
 		{"setlaunchtime",	smb_cmd_set_launchtime,	"\t- setlaunchtime 13 39 11"},
 		{"showadc",			smb_cmd_show_adc,		"\t\t- showadc"},
-		{"benchtest",		smb_cmd_benchtest,		"\t\t- benchtest"},
 		{"dwttest",			smb_cmd_dwttest,		"\t\t- dwttest"},
-		{"mani",			smb_cmd_mani,			"\t\t- mani"},
+		{"manual",			smb_cmd_manual,			"\t\t- manual on/off"},
 		{"fakeaedt",		smb_cmd_fake_aedt,		"\t\t- fakeaedt (-30 ~ 50)"},
 #if 0
 		{"setoffduty",		smb_cmd_set_offduty,	"\t\t- setoffduty 6 10 (for example 6:10 am)"},

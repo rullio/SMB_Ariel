@@ -36,12 +36,12 @@
 /*******************************************************************************
  SPEAKER Object
  *******************************************************************************/
-bool func_speaker_set(speaker_on_off_t speaker_on_off_flag)
+bool func_speaker_set(speaker_on_off_t speaker_flag)
 {
-	if (speaker_on_off_flag == SPEAKER_ON) speaker_on;
+	if (speaker_flag == SPEAKER_ON) speaker_on;
 	else speaker_off;
 
-	SMB_ControlObj.speakerObj.speaker_on_off_flag = speaker_on_off_flag;
+	SMB_ControlObj.speakerObj.speaker_flag = speaker_flag;
 
 	return true;
 }
@@ -53,7 +53,7 @@ speakerObj_t *get_speaker_handle()
 
 bool speakerObj_init(speakerObj_t *pspeakerObj)
 {
-	pspeakerObj->speaker_on_off_flag = SPEAKER_OFF;
+	pspeakerObj->speaker_flag = SPEAKER_OFF;
 	pspeakerObj->speaker_set = func_speaker_set;
 	return true;
 }

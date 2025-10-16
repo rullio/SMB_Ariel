@@ -43,6 +43,7 @@
 extern osSemaphoreId_t 				sem_rb_tx;
 
 extern SMB_ManiObj_t	SMB_ManiObj;
+extern SMB_Control_Backup_Obj_t	SMB_Control_BackupObj;
 
 extern iapObj_t 		iapObj;
 extern iap_se_func			iap_se_machine[IAP_STATE_END][YPKT_EVENT_END];

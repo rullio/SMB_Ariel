@@ -36,12 +36,12 @@
 /*******************************************************************************
  INVERTER Object
  *******************************************************************************/
-bool func_inverter_set(inverter_on_off_t inverter_on_off_flag)
+bool func_inverter_set(inverter_on_off_t inverter_flag)
 {
-	if (inverter_on_off_flag == INVERTER_ON) inverter_on;
+	if (inverter_flag == INVERTER_ON) inverter_on;
 	else inverter_off;
 
-	SMB_ControlObj.inverterObj.inverter_on_off_flag = inverter_on_off_flag;
+	SMB_ControlObj.inverterObj.inverter_flag = inverter_flag;
 
 	return true;
 }
@@ -53,7 +53,7 @@ inverterObj_t *get_inverter_handle()
 
 bool inverterObj_init(inverterObj_t *pinverterObj)
 {
-	pinverterObj->inverter_on_off_flag = INVERTER_OFF;
+	pinverterObj->inverter_flag = INVERTER_OFF;
 	pinverterObj->inverter_set = func_inverter_set;
 
 	return true;

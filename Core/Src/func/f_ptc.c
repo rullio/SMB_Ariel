@@ -36,12 +36,12 @@
 /*******************************************************************************
  PTC Object
  *******************************************************************************/
-bool func_ptc_set(ptc_on_off_t ptc_on_off_flag)
+bool func_ptc_set(ptc_on_off_t ptc_flag)
 {
-	if (ptc_on_off_flag == PTC_ON) ptc_on;
+	if (ptc_flag == PTC_ON) ptc_on;
 	else ptc_off;
 
-	SMB_ControlObj.ptcObj.ptc_on_off_flag = ptc_on_off_flag;
+	SMB_ControlObj.ptcObj.ptc_flag = ptc_flag;
 
 	return true;
 }
@@ -53,7 +53,7 @@ ptcObj_t *get_ptc_handle()
 
 bool ptcObj_init(ptcObj_t *pptcObj)
 {
-	pptcObj->ptc_on_off_flag = PTC_OFF;
+	pptcObj->ptc_flag = PTC_OFF;
 	pptcObj->ptc_set = func_ptc_set;
 
 	return true;

@@ -60,9 +60,36 @@ void func_data_show()
 	printf ("brightness\t= %s"LINE_TERM, (SMB_StatusObj.smb_luminance.bright_or_dark == LUMINANCE_BRIGHT)?"BRIGHT":"DARK   ");
 	printf ("bright/dark boundary\t= 0x%04x"LINE_TERM, SMB_StatusObj.smb_luminance.bright_dark_boundary);
 	printf ("motion\t\t= %s"LINE_TERM, (SMB_StatusObj.smb_motion.motion == MOTION_YES)?"YES":"NO ");
-	printf ("sonic motion\t= %s"LINE_TERM, (SMB_StatusObj.smb_motion.sonic_motion == SONIC_MOTION_YES)?"YES":"NO ");
-	printf ("sonic_raw \t= 0x%04x (threshold = 0x%04x)"LINE_TERM, SMB_StatusObj.smb_motion.sonic_raw_data, SMB_StatusObj.smb_motion.sonic_threshold);
-	printf ("sonic_distance \t= %4d cm  "LINE_TERM, ((SMB_StatusObj.smb_motion.sonic_raw_data * 17) / 200));
+	printf(LINE_TERM);
+
+	printf ("LAMP \t\t= LAMP_LEVLE_%d"LINE_TERM, SMB_ControlObj.lampObj.lamp_level);
+	printf ("LTE \t\t= %s"LINE_TERM, (SMB_ControlObj.lteObj.lte_flag == LTE_OFF)?"OFF":"ON ");
+	printf ("FAN \t\t= %s"LINE_TERM, (SMB_ControlObj.fanObj.fan_flag == FAN_OFF)?"OFF":"ON ");
+	printf ("PTC \t\t= %s"LINE_TERM, (SMB_ControlObj.ptcObj.ptc_flag == PTC_OFF)?"OFF":"ON ");
+	printf ("SIREN \t\t= %s"LINE_TERM, (SMB_ControlObj.sirenObj.siren_flag == SIREN_OFF)?"OFF":"ON ");
+	printf ("SPEAKER \t= %s"LINE_TERM, (SMB_ControlObj.speakerObj.speaker_flag == SPEAKER_OFF)?"OFF":"ON ");
+	printf ("YUCHAR \t\t= %s"LINE_TERM, (SMB_ControlObj.yucharObj.yuchar_flag == YUCHAR_OFF)?"OFF":"ON ");
+	printf ("MUCHAR1 \t= %s"LINE_TERM, (SMB_ControlObj.muchar1Obj.muchar1_flag == MUCHAR1_OFF)?"OFF":"ON ");
+	printf ("MUCHAR2 \t= %s"LINE_TERM, (SMB_ControlObj.muchar2Obj.muchar2_flag == MUCHAR2_OFF)?"OFF":"ON ");
+	printf ("LCD \t\t= %s"LINE_TERM, (SMB_ControlObj.lcdObj.lcd_flag == LCD_OFF)?"OFF":"ON ");
+	printf ("INVERTER \t= %s"LINE_TERM, (SMB_ControlObj.inverterObj.inverter_flag == INVERTER_OFF)?"OFF":"ON ");
+	printf("LEDBAR \t\t= ");
+	switch (SMB_ControlObj.ledbarObj.ledbar_color) {
+	case LEDBAR_OFF :	printf("OFF   "LINE_TERM); break;
+	case LEDBAR_RED :	printf("RED   "LINE_TERM); break;
+	case LEDBAR_GREEN :	printf("GREEN "LINE_TERM); break;
+	case LEDBAR_BLUE :	printf("BLUE  "LINE_TERM); break;
+	case LEDBAR_WHITE :	printf("WHITE "LINE_TERM); break;
+	case LEDBAR_YELLOW :printf("YELLOW"LINE_TERM); break;
+	}
+
+	printf(LINE_TERM);
+	printf("Emergency caused by"LINE_TERM);
+	printf("EMER BUTTON \t= %s"LINE_TERM, (SMB_StatusObj.EMERGENCY.emer_by_button == true)?"YES":"NO ");
+	printf("FIRE DOOR \t= %s"LINE_TERM, (SMB_StatusObj.EMERGENCY.emer_by_fire_door == true)?"YES":"NO ");
+	printf("AED DOOR \t= %s"LINE_TERM, (SMB_StatusObj.EMERGENCY.emer_by_aed_door == true)?"YES":"NO ");
+	printf("FLOOD \t\t= %s"LINE_TERM, (SMB_StatusObj.EMERGENCY.emer_by_flood == true)?"YES":"NO ");
+
 	printf(LINE_TERM);
 
 	printf("YUI \t\t= %4d mV  ", SMB_adc_value.YUI);
@@ -80,44 +107,8 @@ void func_data_show()
 	printf("VBAT \t\t= %4d mV"LINE_TERM, SMB_adc_value.VBAT);
 	printf("VREF \t\t= %4d mV"LINE_TERM, SMB_adc_value.VREF);
 
-	printf(LINE_TERM);
-
-	printf ("LAMP \t\t= %d"LINE_TERM, SMB_ControlObj.lampObj.lamp_level);
-	printf ("LTE \t\t= %s"LINE_TERM, (SMB_ControlObj.lteObj.lte_on_off_flag == LTE_OFF)?"OFF":"ON ");
-	printf ("FAN \t\t= %s"LINE_TERM, (SMB_ControlObj.fanObj.fan_on_off_flag == FAN_OFF)?"OFF":"ON ");
-	printf ("PTC \t\t= %s"LINE_TERM, (SMB_ControlObj.ptcObj.ptc_on_off_flag == PTC_OFF)?"OFF":"ON ");
-	printf ("SIREN \t\t= %s"LINE_TERM, (SMB_ControlObj.sirenObj.siren_on_off_flag == SIREN_OFF)?"OFF":"ON ");
-	printf ("SPEAKER \t= %s"LINE_TERM, (SMB_ControlObj.speakerObj.speaker_on_off_flag == SPEAKER_OFF)?"OFF":"ON ");
-	printf ("YUCHAR \t\t= %s"LINE_TERM, (SMB_ControlObj.yucharObj.yuchar_on_off_flag == YUCHAR_OFF)?"OFF":"ON ");
-	printf ("MUCHAR1 \t= %s"LINE_TERM, (SMB_ControlObj.muchar1Obj.muchar1_on_off_flag == MUCHAR1_OFF)?"OFF":"ON ");
-	printf ("MUCHAR2 \t= %s"LINE_TERM, (SMB_ControlObj.muchar2Obj.muchar2_on_off_flag == MUCHAR2_OFF)?"OFF":"ON ");
-	printf ("LCD \t\t= %s"LINE_TERM, (SMB_ControlObj.lcdObj.lcd_on_off_flag == LCD_OFF)?"OFF":"ON ");
-	printf ("INVERTER \t= %s"LINE_TERM, (SMB_ControlObj.inverterObj.inverter_on_off_flag == INVERTER_OFF)?"OFF":"ON ");
-	printf("LEDBAR \t\t= ");
-	switch (SMB_ControlObj.ledbarObj.ledbar_color) {
-	case LEDBAR_OFF :	printf("OFF   "LINE_TERM); break;
-	case LEDBAR_RED :	printf("RED   "LINE_TERM); break;
-	case LEDBAR_GREEN :	printf("GREEN "LINE_TERM); break;
-	case LEDBAR_BLUE :	printf("BLUE  "LINE_TERM); break;
-	case LEDBAR_WHITE :	printf("WHITE "LINE_TERM); break;
-	case LEDBAR_YELLOW :printf("YELLOW"LINE_TERM); break;
-	}
-
-	printf("Emergency caused by"LINE_TERM);
-	printf("emer_by_button \t= %s"LINE_TERM, (SMB_StatusObj.EMERGENCY.emer_by_button == true)?"YES":"NO ");
-	printf("emer_by_fire_door= %s"LINE_TERM, (SMB_StatusObj.EMERGENCY.emer_by_fire_door == true)?"YES":"NO ");
-	printf("emer_by_aed_door= %s"LINE_TERM, (SMB_StatusObj.EMERGENCY.emer_by_aed_door == true)?"YES":"NO ");
-	printf("emer_by_flood \t= %s"LINE_TERM, (SMB_StatusObj.EMERGENCY.emer_by_flood == true)?"YES":"NO ");
-//
-//	printf("Sensor Status"LINE_TERM);
-//	printf("emer_btn \t= %s"LINE_TERM, (SMB_StatusObj.emer_btn_status == EMER_BTN_PRESSED)?"YES":"NO ");
-//	printf("fire_door \t= %s"LINE_TERM, (SMB_StatusObj.fire_door_status == FIRE_DOOR_OPEN)?"OPEN  ":"CLOSED");
-//	printf("aed_door \t= %s"LINE_TERM, (SMB_StatusObj.aed_door_status == AED_DOOR_OPEN)?"OPEN  ":"CLOSED");
-//	printf("flood \t\t= %s"LINE_TERM, (SMB_StatusObj.flood_status == FLOOD_HAPPEN)?"HAPPEN":"CLEAR ");
-
-	printf("console_mani \t= %s"LINE_TERM, (SMB_StatusObj.console_mani_flag == true)?"ON-GOING":"OFF   ");
-	printf("rb_mani \t= %s"LINE_TERM, (SMB_StatusObj.rb_mani_flag == true)?"ON-GOING":"OFF   ");
-	printf("ims_packet_error_counter \t= %ld"LINE_TERM, SMB_StatusObj.ims_packet_error_counter);
+	printf("manual_mode \t= %s"LINE_TERM, (SMB_StatusObj.manual_mode == true)?"ON-GOING":"OFF   ");
+	printf("ims_packet_err \t= %ld"LINE_TERM, SMB_StatusObj.ims_packet_error_counter);
 
 #if 0
 	printf("lamp_off_duty \t= %02d:%02d %s"LINE_TERM, \

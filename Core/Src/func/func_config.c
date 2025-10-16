@@ -54,7 +54,7 @@ const SMB_ConfigObj_t SMBConfig_fac_default = {
 		.running_fw = "Installed at Factory",
 
 		.bright_dark_boundary = 0x80,			// LUMINANCE_BRIGHT or LUMINANCE_DARK 를 판단하는 IMS 센서값의 기준을 임의로 정함. 현장에서 설치한 후에 결정해야 함..
-		.sonic_threshold = 0x1260,				// Sonic value 를 이용해서 사람이 있는지 없는지를 판단하는 IMS 센서값의 기준. sonic data 기준. 모델마다 값이 다를 수 있기 때문에 현장에서 설치할 때 sonic raw data 를 보고 설정
+		.sonic_threshold = 160,				// Sonic value 를 이용해서 사람이 있는지 없는지를 판단하는 초음파 센서값 (cm 단위)의 기준.
 
 		.motion_latency = 30,		// 움직임이 감지된 후 motion 이 있다고 판단하는 지연시간 (sec)
 		.lamp_off_duty.Hours = 10,

@@ -36,12 +36,12 @@
 /*******************************************************************************
  YUCHAR Object
  *******************************************************************************/
-bool func_yuchar_set(yuchar_on_off_t yuchar_on_off_flag)
+bool func_yuchar_set(yuchar_on_off_t yuchar_flag)
 {
-	if (yuchar_on_off_flag == YUCHAR_ON) yuchar_on;
+	if (yuchar_flag == YUCHAR_ON) yuchar_on;
 	else yuchar_off;
 
-	SMB_ControlObj.yucharObj.yuchar_on_off_flag = yuchar_on_off_flag;
+	SMB_ControlObj.yucharObj.yuchar_flag = yuchar_flag;
 
 	return true;
 }
@@ -53,7 +53,7 @@ yucharObj_t *get_yuchar_handle()
 
 bool yucharObj_init(yucharObj_t *pyucharObj)
 {
-	pyucharObj->yuchar_on_off_flag = YUCHAR_OFF;
+	pyucharObj->yuchar_flag = YUCHAR_OFF;
 	pyucharObj->yuchar_set = func_yuchar_set;
 
 	return true;

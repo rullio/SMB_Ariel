@@ -92,10 +92,8 @@ static bool SMB_StatusObj_init(SMB_StatusObj_t *pStatusObj)
 	pStatusObj->smb_luminance.bright_or_dark = LUMINANCE_BRIGHT;
 	pStatusObj->smb_luminance.luminance = 0;
 	pStatusObj->smb_luminance.bright_dark_boundary = SMB_ConfigObj.bright_dark_boundary;
-	pStatusObj->smb_motion.sonic_threshold = SMB_ConfigObj.sonic_threshold;
 	pStatusObj->rb_working = true;		// test 용으로 잠시 true 로 만듬
-	pStatusObj->console_mani_flag = false;
-	pStatusObj->rb_mani_flag = false;
+	pStatusObj->manual_mode = false;
 
 	pStatusObj->emer_btn_status = get_emer_btn_status;
 	pStatusObj->fire_door_status = get_fire_door_status;
@@ -254,7 +252,6 @@ void smb_thread_init (void *arg)
 	assert (SMB_ConfigObj_init(&SMB_ConfigObj) == true);
 	assert (SMB_StatusObj_init(&SMB_StatusObj) == true);
 	assert (SMB_ControlObj_init(&SMB_ControlObj) == true);
-	assert (SMB_ManiObj_backup(&SMB_ManiObj, &SMB_ControlObj) == true);
 	assert (osTimerList_init(osTimerList) == true);
 	assert (DWT_Delay_Init() == 0);
 	assert (led_act_toggle_begin() == true);

@@ -61,16 +61,16 @@ bool sb_report_to_rb (rb_head_type_t type, uint32_t value)
 		rssp->aed_door = get_aed_door_status;
 		rssp->fire_door = get_fire_door_status;
 		rssp->flood = get_flood_status;
-		rssp->siren = SMB_ControlObj.sirenObj.siren_on_off_flag;
+		rssp->siren = SMB_ControlObj.sirenObj.siren_flag;
 		rssp->lamp = (SMB_ControlObj.lampObj.lamp_level == LAMP_LEVEL_0)?0:1;
-		rssp->ltepwr = SMB_ControlObj.lteObj.lte_on_off_flag;
-		rssp->ptc = SMB_ControlObj.ptcObj.ptc_on_off_flag;
-		rssp->fan = SMB_ControlObj.fanObj.fan_on_off_flag;
-		rssp->yuchar = SMB_ControlObj.yucharObj.yuchar_on_off_flag;
-		rssp->muchar1 = SMB_ControlObj.muchar1Obj.muchar1_on_off_flag;
-		rssp->muchar2 = SMB_ControlObj.muchar2Obj.muchar2_on_off_flag;
+		rssp->ltepwr = SMB_ControlObj.lteObj.lte_flag;
+		rssp->ptc = SMB_ControlObj.ptcObj.ptc_flag;
+		rssp->fan = SMB_ControlObj.fanObj.fan_flag;
+		rssp->yuchar = SMB_ControlObj.yucharObj.yuchar_flag;
+		rssp->muchar1 = SMB_ControlObj.muchar1Obj.muchar1_flag;
+		rssp->muchar2 = SMB_ControlObj.muchar2Obj.muchar2_flag;
 		rssp->charger = 0;		// 이거를 audio 로 바꾸면 어떨까???
-		rssp->inverter = SMB_ControlObj.inverterObj.inverter_on_off_flag;
+		rssp->inverter = SMB_ControlObj.inverterObj.inverter_flag;
 		rssp->rsvd = 0;
 		break;
 

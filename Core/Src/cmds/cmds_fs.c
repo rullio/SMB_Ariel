@@ -556,7 +556,7 @@ static void config_display(SYS_CMD_DEVICE_NODE* pCmdIO, SMB_ConfigObj_t *p)
 	(*pCmdIO->pCmdApi->print)(cmdIoParam, "lamp_off_duty_time \t= %2d:%2d:%2d %s"LINE_TERM, \
 			p->lamp_off_duty.Hours, p->lamp_off_duty.Minutes, p->lamp_off_duty.Seconds, (p->lamp_off_duty.Hours < 12)?"am":"pm");
 
-	(*pCmdIO->pCmdApi->print)(cmdIoParam, "sonic_threshold \t= 0x%04x"LINE_TERM, p->sonic_threshold);
+	(*pCmdIO->pCmdApi->print)(cmdIoParam, "sonic_threshold \t= %d cm"LINE_TERM, p->sonic_threshold);
 	(*pCmdIO->pCmdApi->print)(cmdIoParam, "bright_dark_boundary \t= 0x%04x"LINE_TERM, p->bright_dark_boundary);
 
 	return;

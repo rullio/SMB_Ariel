@@ -36,12 +36,12 @@
 /*******************************************************************************
  FAN Object
  *******************************************************************************/
-bool func_fan_set(fan_on_off_t fan_on_off_flag)
+bool func_fan_set(fan_on_off_t fan_flag)
 {
-	if (fan_on_off_flag == FAN_ON) fan_on;
+	if (fan_flag == FAN_ON) fan_on;
 	else fan_off;
 
-	SMB_ControlObj.fanObj.fan_on_off_flag = fan_on_off_flag;
+	SMB_ControlObj.fanObj.fan_flag = fan_flag;
 	return true;
 }
 
@@ -52,7 +52,7 @@ fanObj_t *get_fan_handle()
 
 bool fanObj_init(fanObj_t *pfanObj)
 {
-	pfanObj->fan_on_off_flag = FAN_OFF;
+	pfanObj->fan_flag = FAN_OFF;
 	pfanObj->fan_set = func_fan_set;
 
 	return true;

@@ -36,12 +36,12 @@
 /*******************************************************************************
  LCD Object
  *******************************************************************************/
-bool func_lcd_set(lcd_on_off_t lcd_on_off_flag)
+bool func_lcd_set(lcd_on_off_t lcd_flag)
 {
-	if (lcd_on_off_flag == LCD_ON) lcd_on;
+	if (lcd_flag == LCD_ON) lcd_on;
 	else lcd_off;
 
-	SMB_ControlObj.lcdObj.lcd_on_off_flag = lcd_on_off_flag;
+	SMB_ControlObj.lcdObj.lcd_flag = lcd_flag;
 
 	return true;
 }
@@ -53,7 +53,7 @@ lcdObj_t *get_lcd_handle()
 
 bool lcdObj_init(lcdObj_t *plcdObj)
 {
-	plcdObj->lcd_on_off_flag = LCD_OFF;
+	plcdObj->lcd_flag = LCD_OFF;
 	plcdObj->lcd_set = func_lcd_set;
 	return true;
 }

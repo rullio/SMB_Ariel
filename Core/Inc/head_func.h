@@ -36,10 +36,10 @@
 #define INC_HEAD_HEAD_FUNC_H_
 
 
+bool save_peri_status();
+bool restore_peri_status();
 
 bool IsThisEmergency();
-bool SMB_ManiObj_backup(SMB_ManiObj_t *pManiObj, SMB_ControlObj_t *pControlObj);
-bool SMB_ManiObj_restore(SMB_ManiObj_t *pManiObj, SMB_ControlObj_t *pControlObj);
 bool save_smb_configObj_onto_fs(SMB_ConfigObj_t *pconfig);
 
 HAL_StatusTypeDef Serial_PutByte( uint8_t param );

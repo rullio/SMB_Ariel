@@ -49,6 +49,7 @@ uint8_t ucHeap[configTOTAL_HEAP_SIZE];
 SMB_ConfigObj_t		SMB_ConfigObj;
 SMB_StatusObj_t		SMB_StatusObj;
 SMB_ControlObj_t	SMB_ControlObj;
+SMB_Control_Backup_Obj_t	SMB_Control_BackupObj;
 SMB_IntrObj_t		SMB_IntrObj;
 SMB_ManiObj_t		SMB_ManiObj;
 osTimerEntry_t		osTimerList[TMR_IDX_END];

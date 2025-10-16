@@ -43,11 +43,12 @@ bool func_lamp_set(lamp_level_t lamp_level)
 	// 아래는 tim.c 에서 베껴옴..
 	TIM_OC_InitTypeDef sConfigOC = {0};
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;
-	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+	sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
 	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
 	// Scopte 로 파형을 보니 PWM 신호가 low->high, high->low 로 갈 때 완전하게 가려면 50us 정도가 필요하다.
 	// 그래서 Pulse 에 50 이하를 주는 것은 의미가 없으므로 1~9까지 9단계의 밝기를 만들 때 105 를 곱해서 최대 밝기가 945 가 되도록 한다.
-	sConfigOC.Pulse = (uint32_t)(lamp_level * 105);
+	// PWM 주파수를 1KHz 로 하면 level 에 따라서 잡음이 들린다. 그래서 PWM 주파수를 10K 로 늘리고 pulse 를 아래와 같이 조정한다.
+	sConfigOC.Pulse = (uint32_t)(lamp_level * 10);
 	assert (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_2) == HAL_OK);
 	assert (HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2) == HAL_OK);
 

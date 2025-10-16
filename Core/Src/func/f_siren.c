@@ -41,7 +41,7 @@ bool func_siren_set(siren_on_off_t siren_on_off_flag)
 	if (siren_on_off_flag == SIREN_ON) siren_on;
 	else siren_off;
 
-	SMB_ControlObj.sirenObj.siren_on_off_flag = siren_on_off_flag;
+	SMB_ControlObj.sirenObj.siren_flag = siren_on_off_flag;
 
 	return true;
 }
@@ -53,7 +53,7 @@ sirenObj_t *get_siren_handle()
 
 bool sirenObj_init(sirenObj_t *psirenObj)
 {
-	psirenObj->siren_on_off_flag = SIREN_OFF;
+	psirenObj->siren_flag = SIREN_OFF;
 	psirenObj->siren_set = func_siren_set;
 
 	return true;

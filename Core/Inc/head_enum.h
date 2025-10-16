@@ -252,11 +252,6 @@ typedef enum {
 	MOTION_NO = !MOTION_YES,
 } motion_t;
 
-typedef enum {
-	SONIC_MOTION_YES = true,
-	SONIC_MOTION_NO = !SONIC_MOTION_YES,
-} sonic_motion_t;
-
 /*******************************************************************************
  fake AEDT
  *******************************************************************************/

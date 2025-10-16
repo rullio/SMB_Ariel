@@ -36,12 +36,12 @@
 /*******************************************************************************
  LTE Object
  *******************************************************************************/
-bool func_lte_set(lte_on_off_t lte_on_off_flag)
+bool func_lte_set(lte_on_off_t lte_flag)
 {
-	if (lte_on_off_flag == LTE_ON) lte_on;
+	if (lte_flag == LTE_ON) lte_on;
 	else lte_off;
 
-	SMB_ControlObj.lteObj.lte_on_off_flag = lte_on_off_flag;
+	SMB_ControlObj.lteObj.lte_flag = lte_flag;
 
 	return true;
 }
@@ -53,7 +53,7 @@ lteObj_t *get_lte_handle()
 
 bool lteObj_init(lteObj_t *plteObj)
 {
-	plteObj->lte_on_off_flag = LTE_OFF;
+	plteObj->lte_flag = LTE_OFF;
 	plteObj->lte_set = func_lte_set;
 
 	return true;
