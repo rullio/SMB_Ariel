@@ -197,7 +197,6 @@ typedef struct {
 /*******************************************************************************************
  * osTimer
  ******************************************************************************************/
-#define OS_TIMER_DESC_STR_LENGTH	50
 typedef void (* func_timeout_cb)(void *);
 
 typedef struct {
@@ -205,7 +204,6 @@ typedef struct {
 	osTimerType_t		osTimerType;
 	uint32_t			timeout_tick;
 	func_timeout_cb		timeout_cb;
-	char				timer_description[OS_TIMER_DESC_STR_LENGTH];
 } osTimerEntry_t;
 
 typedef enum {
@@ -406,6 +404,7 @@ typedef struct {
 	ledbar_color_t			ledbar_color;
 	siren_on_off_t			siren_flag;
 	lamp_level_t			lamp_level;
+	speaker_on_off_t		speaker_flag;
 } SMB_Control_Backup_Obj_t;
 
 /*******************************************************************************

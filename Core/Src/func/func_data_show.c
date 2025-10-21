@@ -60,19 +60,7 @@ void func_data_show()
 	printf ("brightness\t= %s"LINE_TERM, (SMB_StatusObj.smb_luminance.bright_or_dark == LUMINANCE_BRIGHT)?"BRIGHT":"DARK   ");
 	printf ("bright/dark boundary\t= 0x%04x"LINE_TERM, SMB_StatusObj.smb_luminance.bright_dark_boundary);
 	printf ("motion\t\t= %s"LINE_TERM, (SMB_StatusObj.smb_motion.motion == MOTION_YES)?"YES":"NO ");
-	printf(LINE_TERM);
-
 	printf ("LAMP \t\t= LAMP_LEVLE_%d"LINE_TERM, SMB_ControlObj.lampObj.lamp_level);
-	printf ("LTE \t\t= %s"LINE_TERM, (SMB_ControlObj.lteObj.lte_flag == LTE_OFF)?"OFF":"ON ");
-	printf ("FAN \t\t= %s"LINE_TERM, (SMB_ControlObj.fanObj.fan_flag == FAN_OFF)?"OFF":"ON ");
-	printf ("PTC \t\t= %s"LINE_TERM, (SMB_ControlObj.ptcObj.ptc_flag == PTC_OFF)?"OFF":"ON ");
-	printf ("SIREN \t\t= %s"LINE_TERM, (SMB_ControlObj.sirenObj.siren_flag == SIREN_OFF)?"OFF":"ON ");
-	printf ("SPEAKER \t= %s"LINE_TERM, (SMB_ControlObj.speakerObj.speaker_flag == SPEAKER_OFF)?"OFF":"ON ");
-	printf ("YUCHAR \t\t= %s"LINE_TERM, (SMB_ControlObj.yucharObj.yuchar_flag == YUCHAR_OFF)?"OFF":"ON ");
-	printf ("MUCHAR1 \t= %s"LINE_TERM, (SMB_ControlObj.muchar1Obj.muchar1_flag == MUCHAR1_OFF)?"OFF":"ON ");
-	printf ("MUCHAR2 \t= %s"LINE_TERM, (SMB_ControlObj.muchar2Obj.muchar2_flag == MUCHAR2_OFF)?"OFF":"ON ");
-	printf ("LCD \t\t= %s"LINE_TERM, (SMB_ControlObj.lcdObj.lcd_flag == LCD_OFF)?"OFF":"ON ");
-	printf ("INVERTER \t= %s"LINE_TERM, (SMB_ControlObj.inverterObj.inverter_flag == INVERTER_OFF)?"OFF":"ON ");
 	printf("LEDBAR \t\t= ");
 	switch (SMB_ControlObj.ledbarObj.ledbar_color) {
 	case LEDBAR_OFF :	printf("OFF   "LINE_TERM); break;
@@ -82,6 +70,18 @@ void func_data_show()
 	case LEDBAR_WHITE :	printf("WHITE "LINE_TERM); break;
 	case LEDBAR_YELLOW :printf("YELLOW"LINE_TERM); break;
 	}
+	printf ("FAN \t\t= %s"LINE_TERM, (SMB_ControlObj.fanObj.fan_flag == FAN_OFF)?"OFF":"ON ");
+	printf ("PTC \t\t= %s"LINE_TERM, (SMB_ControlObj.ptcObj.ptc_flag == PTC_OFF)?"OFF":"ON ");
+	printf ("SIREN \t\t= %s"LINE_TERM, (SMB_ControlObj.sirenObj.siren_flag == SIREN_OFF)?"OFF":"ON ");
+	printf ("SPEAKER \t= %s"LINE_TERM, (SMB_ControlObj.speakerObj.speaker_flag == SPEAKER_OFF)?"OFF":"ON ");
+	printf(LINE_TERM);
+
+	printf ("LTE \t\t= %s"LINE_TERM, (SMB_ControlObj.lteObj.lte_flag == LTE_OFF)?"OFF":"ON ");
+	printf ("YUCHAR \t\t= %s"LINE_TERM, (SMB_ControlObj.yucharObj.yuchar_flag == YUCHAR_OFF)?"OFF":"ON ");
+	printf ("MUCHAR1 \t= %s"LINE_TERM, (SMB_ControlObj.muchar1Obj.muchar1_flag == MUCHAR1_OFF)?"OFF":"ON ");
+	printf ("MUCHAR2 \t= %s"LINE_TERM, (SMB_ControlObj.muchar2Obj.muchar2_flag == MUCHAR2_OFF)?"OFF":"ON ");
+	printf ("LCD \t\t= %s"LINE_TERM, (SMB_ControlObj.lcdObj.lcd_flag == LCD_OFF)?"OFF":"ON ");
+	printf ("INVERTER \t= %s"LINE_TERM, (SMB_ControlObj.inverterObj.inverter_flag == INVERTER_OFF)?"OFF":"ON ");
 
 	printf(LINE_TERM);
 	printf("Emergency caused by"LINE_TERM);

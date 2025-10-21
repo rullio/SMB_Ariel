@@ -159,6 +159,7 @@ bool save_peri_status()
 	SMB_Control_BackupObj.ledbar_color 			= SMB_ControlObj.ledbarObj.ledbar_color;
 	SMB_Control_BackupObj.siren_flag 			= SMB_ControlObj.sirenObj.siren_flag;
 	SMB_Control_BackupObj.lamp_level 			= SMB_ControlObj.lampObj.lamp_level;
+	SMB_Control_BackupObj.speaker_flag 			= SMB_ControlObj.speakerObj.speaker_flag;
 
 	return true;
 }
@@ -168,7 +169,7 @@ bool restore_peri_status()
 	SMB_ControlObj.ledbarObj.ledbar_color 		= SMB_Control_BackupObj.ledbar_color;
 	SMB_ControlObj.sirenObj.siren_flag 			= SMB_Control_BackupObj.siren_flag;
 	SMB_ControlObj.lampObj.lamp_level 			= SMB_Control_BackupObj.lamp_level;
-
+	SMB_ControlObj.speakerObj.speaker_flag		= SMB_Control_BackupObj.speaker_flag;
 	return true;
 }
 

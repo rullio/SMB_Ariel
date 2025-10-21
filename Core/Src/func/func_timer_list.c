@@ -139,9 +139,20 @@ static void SMB_emer_btn_timeout_cb (void *arg)
 	if (IsThisEmergency() == false) assert (restore_peri_status() == true);		// 현재 진행 중인 비상 상황이 없을 때 peri 상태를 저장해 둔다.
 }
 
-static void SMB_motino_latency_timeout_cb (void *arg)
+static void SMB_motion_latency_timeout_cb (void *arg)
 {
 	SMB_StatusObj.smb_motion.motion = MOTION_NO;
+}
+
+static bool osTimerListConfigure(osTimerIndex_t index, osTimerType_t type, uint32_t timeout_tick, void (*cb)(void *))
+{
+	osTimerList[index].osTimerType = type;
+	osTimerList[index].timeout_tick = timeout_tick;
+	osTimerList[index].timeout_cb = cb;
+	osTimerList[index].osTimerId = osTimerNew(osTimerList[index].timeout_cb, osTimerList[index].osTimerType, NULL, NULL);
+	assert (osTimerList[index].osTimerId != NULL);
+
+	return true;
 }
 
 bool osTimerList_init(osTimerEntry_t osTimerList[])
@@ -151,81 +162,18 @@ bool osTimerList_init(osTimerEntry_t osTimerList[])
 		osTimerList[i].osTimerType = osTimerOnce;
 		osTimerList[i].timeout_tick = 0;
 		osTimerList[i].timeout_cb = NULL;
-		strcpy (osTimerList[i].timer_description, "UNDEFINED TIMER");
 	}
 
-	osTimerList[TMR_IDX_LED_ACT_TOGGLE].osTimerType = osTimerPeriodic;
-	osTimerList[TMR_IDX_LED_ACT_TOGGLE].timeout_tick = LED_ACT_TOGGLE_TIMEOUT;
-	osTimerList[TMR_IDX_LED_ACT_TOGGLE].timeout_cb = led_act_toggle_timeout_cb;
-	osTimerList[TMR_IDX_LED_ACT_TOGGLE].osTimerId = osTimerNew(osTimerList[TMR_IDX_LED_ACT_TOGGLE].timeout_cb, osTimerList[TMR_IDX_LED_ACT_TOGGLE].osTimerType, NULL, NULL);
-	assert (osTimerList[TMR_IDX_LED_ACT_TOGGLE].osTimerId != NULL);
-	strcpy (osTimerList[TMR_IDX_LED_ACT_TOGGLE].timer_description, "OS_TIMER_INDEX_LED_ACT_TOGGLE");
-
-	osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].osTimerType = osTimerPeriodic;
-	osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].timeout_tick = CONSOLE_SCAN_TIMEOUT;
-	osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].timeout_cb = console_scan_timeout_cb;
-	osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].osTimerId = osTimerNew(osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].timeout_cb, osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].osTimerType, NULL, NULL);
-	assert (osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].osTimerId != NULL);
-	strcpy (osTimerList[TMR_IDX_CLI_CONSOLE_SCAN].timer_description, "OS_TIMER_INDEX_CLI_CONSOLE_SCAN");
-
-	osTimerList[TMR_IDX_UPTIME_COUNT].osTimerType = osTimerPeriodic;
-	osTimerList[TMR_IDX_UPTIME_COUNT].timeout_tick = UPTIME_COUNT_TIMEOUT;
-	osTimerList[TMR_IDX_UPTIME_COUNT].timeout_cb = uptime_counter_timeout_cb;
-	osTimerList[TMR_IDX_UPTIME_COUNT].osTimerId = osTimerNew(osTimerList[TMR_IDX_UPTIME_COUNT].timeout_cb, osTimerList[TMR_IDX_UPTIME_COUNT].osTimerType, NULL, NULL);
-	assert (osTimerList[TMR_IDX_UPTIME_COUNT].osTimerId != NULL);
-	strcpy (osTimerList[TMR_IDX_UPTIME_COUNT].timer_description, "OS_TIMER_INDEX_UPTIME_COUNT");
-
-	osTimerList[TMR_IDX_ADC_READ].osTimerType = osTimerPeriodic;
-	osTimerList[TMR_IDX_ADC_READ].timeout_tick = SMB_ADC_READ_TIMEOUT;
-	osTimerList[TMR_IDX_ADC_READ].timeout_cb = smb_adc_read_cb;
-	osTimerList[TMR_IDX_ADC_READ].osTimerId = osTimerNew(osTimerList[TMR_IDX_ADC_READ].timeout_cb, osTimerList[TMR_IDX_ADC_READ].osTimerType, NULL, NULL);
-	assert (osTimerList[TMR_IDX_ADC_READ].osTimerId != NULL);
-	strcpy (osTimerList[TMR_IDX_ADC_READ].timer_description, "TMR_IDX_ADC_READ");
-
-	osTimerList[TMR_IDX_SMB_DATA_SHOW].osTimerType = osTimerPeriodic;
-	osTimerList[TMR_IDX_SMB_DATA_SHOW].timeout_tick = SMB_DATA_SHOW_TIMEOUT;
-	osTimerList[TMR_IDX_SMB_DATA_SHOW].timeout_cb = smb_data_show_cb;
-	osTimerList[TMR_IDX_SMB_DATA_SHOW].osTimerId = osTimerNew(osTimerList[TMR_IDX_SMB_DATA_SHOW].timeout_cb, osTimerList[TMR_IDX_SMB_DATA_SHOW].osTimerType, NULL, NULL);
-	assert (osTimerList[TMR_IDX_SMB_DATA_SHOW].osTimerId != NULL);
-	strcpy (osTimerList[TMR_IDX_SMB_DATA_SHOW].timer_description, "TMR_IDX_SMB_DATA_SHOW");
-
-	osTimerList[TMR_IDX_SMB_STATUS_REPORT].osTimerType = osTimerPeriodic;
-	osTimerList[TMR_IDX_SMB_STATUS_REPORT].timeout_tick = SMB_STATUS_REPORT_TIMEOUT;
-	osTimerList[TMR_IDX_SMB_STATUS_REPORT].timeout_cb = smb_status_report_cb;
-	osTimerList[TMR_IDX_SMB_STATUS_REPORT].osTimerId = osTimerNew(osTimerList[TMR_IDX_SMB_STATUS_REPORT].timeout_cb, osTimerList[TMR_IDX_SMB_STATUS_REPORT].osTimerType, NULL, NULL);
-	assert (osTimerList[TMR_IDX_SMB_STATUS_REPORT].osTimerId != NULL);
-	strcpy (osTimerList[TMR_IDX_SMB_STATUS_REPORT].timer_description, "TMR_IDX_SMB_STATUS_REPORT");
-
-	osTimerList[TMR_IDX_SMB_IAP_REQUEST].osTimerType = osTimerPeriodic;
-	osTimerList[TMR_IDX_SMB_IAP_REQUEST].timeout_tick = SOH_REQ_TIMEOUT;
-	osTimerList[TMR_IDX_SMB_IAP_REQUEST].timeout_cb = SOH_req_timeout_cb;
-	osTimerList[TMR_IDX_SMB_IAP_REQUEST].osTimerId = osTimerNew(osTimerList[TMR_IDX_SMB_IAP_REQUEST].timeout_cb, osTimerList[TMR_IDX_SMB_IAP_REQUEST].osTimerType, NULL, NULL);
-	assert (osTimerList[TMR_IDX_SMB_IAP_REQUEST].osTimerId != NULL);
-	strcpy (osTimerList[TMR_IDX_SMB_IAP_REQUEST].timer_description, "TMR_IDX_SMB_IAP_REQUEST");
-
-	//	Bench manager thread 는 주기적으로 peripheral control 을 한다.
-	osTimerList[TMR_IDX_SMB_PERI_OPER].osTimerType = osTimerPeriodic;
-	osTimerList[TMR_IDX_SMB_PERI_OPER].timeout_tick = SMB_PERI_OPER_TIMEOUT;
-	osTimerList[TMR_IDX_SMB_PERI_OPER].timeout_cb = SMB_peri_oper_timeout_cb;
-	osTimerList[TMR_IDX_SMB_PERI_OPER].osTimerId = osTimerNew(osTimerList[TMR_IDX_SMB_PERI_OPER].timeout_cb, osTimerList[TMR_IDX_SMB_PERI_OPER].osTimerType, NULL, NULL);
-	assert (osTimerList[TMR_IDX_SMB_PERI_OPER].osTimerId != NULL);
-	strcpy (osTimerList[TMR_IDX_SMB_PERI_OPER].timer_description, "TMR_IDX_SMB_PERI_OPER");
-
-	//	emergency button 을 누르면 시작하는 timer..
-	osTimerList[TMR_IDX_EMER_BTN].osTimerType = osTimerOnce;
-	osTimerList[TMR_IDX_EMER_BTN].timeout_tick = SMB_ConfigObj.siren_on_time*TIMEOUT_1_SEC;		// sec -> msec 변환
-	osTimerList[TMR_IDX_EMER_BTN].timeout_cb = SMB_emer_btn_timeout_cb;
-	osTimerList[TMR_IDX_EMER_BTN].osTimerId = osTimerNew(osTimerList[TMR_IDX_EMER_BTN].timeout_cb, osTimerList[TMR_IDX_EMER_BTN].osTimerType, NULL, NULL);
-	assert (osTimerList[TMR_IDX_EMER_BTN].osTimerId != NULL);
-	strcpy (osTimerList[TMR_IDX_EMER_BTN].timer_description, "TMR_IDX_EMER_BTN");
-
-	//	motion 이 감지되면 시작하는 timer..
-	osTimerList[TMR_IDX_MOTION_LATENCY].osTimerType = osTimerOnce;
-	osTimerList[TMR_IDX_MOTION_LATENCY].timeout_tick = SMB_ConfigObj.motion_latency*TIMEOUT_1_SEC;		// sec -> msec 변환
-	osTimerList[TMR_IDX_MOTION_LATENCY].timeout_cb = SMB_motino_latency_timeout_cb;
-	osTimerList[TMR_IDX_MOTION_LATENCY].osTimerId = osTimerNew(osTimerList[TMR_IDX_MOTION_LATENCY].timeout_cb, osTimerList[TMR_IDX_MOTION_LATENCY].osTimerType, NULL, NULL);
-	assert (osTimerList[TMR_IDX_MOTION_LATENCY].osTimerId != NULL);
-	strcpy (osTimerList[TMR_IDX_MOTION_LATENCY].timer_description, "TMR_IDX_MOTION_LATENCY");
+	osTimerListConfigure (TMR_IDX_LED_ACT_TOGGLE, osTimerPeriodic, LED_ACT_TOGGLE_TIMEOUT, led_act_toggle_timeout_cb);
+	osTimerListConfigure (TMR_IDX_CLI_CONSOLE_SCAN, osTimerPeriodic, CONSOLE_SCAN_TIMEOUT, console_scan_timeout_cb);
+	osTimerListConfigure (TMR_IDX_UPTIME_COUNT, osTimerPeriodic, UPTIME_COUNT_TIMEOUT, uptime_counter_timeout_cb);
+	osTimerListConfigure (TMR_IDX_ADC_READ, osTimerPeriodic, SMB_ADC_READ_TIMEOUT, smb_adc_read_cb);
+	osTimerListConfigure (TMR_IDX_SMB_DATA_SHOW, osTimerPeriodic, SMB_DATA_SHOW_TIMEOUT, smb_data_show_cb);
+	osTimerListConfigure (TMR_IDX_SMB_STATUS_REPORT, osTimerPeriodic, SMB_STATUS_REPORT_TIMEOUT, smb_status_report_cb);
+	osTimerListConfigure (TMR_IDX_SMB_IAP_REQUEST, osTimerPeriodic, SOH_REQ_TIMEOUT, SOH_req_timeout_cb);
+	osTimerListConfigure (TMR_IDX_SMB_PERI_OPER, osTimerPeriodic, SMB_PERI_OPER_TIMEOUT, SMB_peri_oper_timeout_cb);				//	Bench manager thread 는 주기적으로 peripheral control 을 한다.
+	osTimerListConfigure (TMR_IDX_EMER_BTN, osTimerOnce, SMB_ConfigObj.siren_on_time*TIMEOUT_1_SEC, SMB_emer_btn_timeout_cb);	//	emergency button 을 누르면 시작하는 timer..
+	osTimerListConfigure (TMR_IDX_MOTION_LATENCY, osTimerOnce, SMB_ConfigObj.motion_latency*TIMEOUT_1_SEC, SMB_motion_latency_timeout_cb);
 
 	return true;
 }
