@@ -71,6 +71,7 @@ const SMB_ConfigObj_t SMBConfig_fac_default = {
 		.aedt_normal_high = 25,
 		.aedt_normal_low = 10,
 		.aedt_low_mark = 0,
+		.ims_data_show = false,
 };
 
 bool get_SMB_config (SMB_ConfigObj_t *pconfig)

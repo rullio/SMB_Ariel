@@ -60,23 +60,28 @@ static bool ims_packet_integrity_check(manager_msg_t *pmsg)
 	return true;
 }
 
+static void ims_data_show(manager_msg_t *pmsg)
+{
+	printf(LINE_TERM);
+	printf("head.len = %d"LINE_TERM, pmsg->head.len);
+	for (uint8_t i = 0 ; i < pmsg->head.len ; i++) {
+		printf("Byte[%d] = %2x ", i, pmsg->body.Byte[i]);
+	}
+	printf(" luminance = 0x%x, motion = %s, sonic data = 0x%x"LINE_TERM, pmsg->body.Byte[2], (pmsg->body.Byte[3] == 1)?"YES":"NO", pmsg->body.Byte[4]);
+}
+
 static bool manager_msg_handler_ims_data (manager_msg_t *pmsg)
 {
 	// IMS data 처리.. IMS data 가 깨지지 않은 경우에만 유효 수치로 처리한다.
 	if (ims_packet_integrity_check(pmsg) == true) {
-		//		printf(LINE_TERM);
-		//		printf("head.len = %d"LINE_TERM, pmsg->head.len);
-		//		for (uint8_t i = 0 ; i < pmsg->head.len ; i++) {
-		//			printf("Byte[%d] = %2x ", i, pmsg->body.Byte[i]);
-		//		}
-		//		printf(" luminance = 0x%x, motion = %s, sonic data = 0x%x"LINE_TERM, pmsg->body.Byte[2], (pmsg->body.Byte[3] == 1)?"YES":"NO", pmsg->body.Byte[4]);
+		if (SMB_ConfigObj.ims_data_show == true) ims_data_show(pmsg);
 		SMB_StatusObj.smb_luminance.luminance = pmsg->body.Byte[2];
 		// lamp 의 on/off, 밝기를 제어할 때 아래 밝은지 어두운지를 참고한다. 밝으면 무조건 끄면 된다...
 		if (pmsg->body.Byte[2] < SMB_ConfigObj.bright_dark_boundary) SMB_StatusObj.smb_luminance.bright_or_dark = LUMINANCE_BRIGHT;
 		else SMB_StatusObj.smb_luminance.bright_or_dark = LUMINANCE_DARK;
 
 		// motion sensor 를 2 개로 바꾸면서 0번 bit, 1번 bit 가 2개의 motion sensor 값. 두개 중에서 1개라도 set 되면 motion 이 감지된 것임..
-		if (((motion_t)pmsg->body.Byte[3] & 0x02) != 0) {
+		if (((motion_t)pmsg->body.Byte[3] & 0x03) != 0) {
 			assert (osTimerList[TMR_IDX_MOTION_LATENCY].osTimerId != NULL);
 			assert (osTimerStart(osTimerList[TMR_IDX_MOTION_LATENCY].osTimerId, osTimerList[TMR_IDX_MOTION_LATENCY].timeout_tick) == osOK);
 			SMB_StatusObj.smb_motion.motion = MOTION_YES;

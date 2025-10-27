@@ -579,6 +579,20 @@ static void smb_cmd_fake_aedt (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **arg
 	return;
 }
 
+static void smb_cmd_ims_data (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
+{
+	const void* cmdIoParam = pCmdIO->cmdIoParam;
+
+	if (argc != 1) goto USAGE;
+
+	SMB_ConfigObj.ims_data_show = !SMB_ConfigObj.ims_data_show;
+	return;
+
+	USAGE:
+	(*pCmdIO->pCmdApi->msg)(cmdIoParam, "ims"LINE_TERM);
+	return;
+}
+
 #if 0
 
 static void smb_cmd_set_offduty (SYS_CMD_DEVICE_NODE* pCmdIO, int argc, char **argv)
@@ -655,6 +669,7 @@ static const SYS_CMD_DESCRIPTOR    bench_CommandTbl []=
 		{"dwttest",			smb_cmd_dwttest,		"\t\t- dwttest"},
 		{"manual",			smb_cmd_manual,			"\t\t- manual on/off"},
 		{"fakeaedt",		smb_cmd_fake_aedt,		"\t\t- fakeaedt (-30 ~ 50)"},
+		{"ims",				smb_cmd_ims_data,		"\t\t- ims"},
 #if 0
 		{"setoffduty",		smb_cmd_set_offduty,	"\t\t- setoffduty 6 10 (for example 6:10 am)"},
 		{"setonduty",		smb_cmd_set_onduty,		"\t\t- setonduty 18 15 (for example 18:15 pm)"},

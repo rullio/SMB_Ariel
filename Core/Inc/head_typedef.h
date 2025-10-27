@@ -342,6 +342,7 @@ typedef struct {
 	int16_t				aedt_normal_high;
 	int16_t				aedt_normal_low;
 	int16_t				aedt_low_mark;
+	bool				ims_data_show;
 } SMB_ConfigObj_t;
 
 typedef struct {
