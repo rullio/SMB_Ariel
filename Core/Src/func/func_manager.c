@@ -67,14 +67,14 @@ static void ims_data_show(manager_msg_t *pmsg)
 	for (uint8_t i = 0 ; i < pmsg->head.len ; i++) {
 		printf("Byte[%d] = %2x ", i, pmsg->body.Byte[i]);
 	}
-	printf(" luminance = 0x%x, motion = %s, sonic data = 0x%x"LINE_TERM, pmsg->body.Byte[2], (pmsg->body.Byte[3] == 1)?"YES":"NO", pmsg->body.Byte[4]);
+	printf(LINE_TERM"luminance = 0x%x, motion = %s, sonic data = 0x%x"LINE_TERM, pmsg->body.Byte[2], (pmsg->body.Byte[3] & 0x03)?"YES":"NO", pmsg->body.Byte[4]);
 }
 
 static bool manager_msg_handler_ims_data (manager_msg_t *pmsg)
 {
+	if (SMB_ConfigObj.show_flag & SHOW_FLAG_IMS_DATA) ims_data_show(pmsg);
 	// IMS data 처리.. IMS data 가 깨지지 않은 경우에만 유효 수치로 처리한다.
 	if (ims_packet_integrity_check(pmsg) == true) {
-		if (SMB_ConfigObj.ims_data_show == true) ims_data_show(pmsg);
 		SMB_StatusObj.smb_luminance.luminance = pmsg->body.Byte[2];
 		// lamp 의 on/off, 밝기를 제어할 때 아래 밝은지 어두운지를 참고한다. 밝으면 무조건 끄면 된다...
 		if (pmsg->body.Byte[2] < SMB_ConfigObj.bright_dark_boundary) SMB_StatusObj.smb_luminance.bright_or_dark = LUMINANCE_BRIGHT;

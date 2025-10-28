@@ -318,6 +318,46 @@ typedef struct {
 	motion_t			motion;
 } smb_motion_t;
 
+// *****************************************************************************
+// Show flag
+// *****************************************************************************
+typedef enum {
+	DEBUG_FLAG_IMS_DATA = 0,
+	DEBUG_FLAG_RSVD_1,
+	DEBUG_FLAG_RSVD_2,
+	DEBUG_FLAG_RSVD_3,
+	DEBUG_FLAG_RSVD_4,
+	DEBUG_FLAG_RSVD_5,
+	DEBUG_FLAG_RSVD_6,
+	DEBUG_FLAG_RSVD_7,
+	DEBUG_FLAG_RSVD_8,
+	DEBUG_FLAG_RSVD_9,
+	DEBUG_FLAG_RSVD_10,
+	DEBUG_FLAG_RSVD_11,
+	DEBUG_FLAG_RSVD_12,
+	DEBUG_FLAG_RSVD_13,
+	DEBUG_FLAG_RSVD_14,
+	DEBUG_FLAG_RSVD_15,
+	DEBUG_FLAG_RSVD_16,
+	DEBUG_FLAG_RSVD_17,
+	DEBUG_FLAG_RSVD_18,
+	DEBUG_FLAG_RSVD_19,
+	DEBUG_FLAG_RSVD_20,
+	DEBUG_FLAG_RSVD_21,
+	DEBUG_FLAG_RSVD_22,
+	DEBUG_FLAG_RSVD_23,
+	DEBUG_FLAG_RSVD_24,
+	DEBUG_FLAG_RSVD_25,
+	DEBUG_FLAG_RSVD_26,
+	DEBUG_FLAG_RSVD_27,
+	DEBUG_FLAG_RSVD_28,
+	DEBUG_FLAG_RSVD_29,
+	DEBUG_FLAG_RSVD_30,
+	DEBUG_FLAG_MAX_VALUE = 31,
+} Debug_Flag_t;
+
+#define	SHOW_FLAG_IMS_DATA			(1 << DEBUG_FLAG_IMS_DATA)
+
 /*******************************************************************************
  SMBConfig Object
  *******************************************************************************/
@@ -342,7 +382,7 @@ typedef struct {
 	int16_t				aedt_normal_high;
 	int16_t				aedt_normal_low;
 	int16_t				aedt_low_mark;
-	bool				ims_data_show;
+	uint32_t			show_flag;
 } SMB_ConfigObj_t;
 
 typedef struct {
